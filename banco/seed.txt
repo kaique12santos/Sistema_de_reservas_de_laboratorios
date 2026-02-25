@@ -1,0 +1,39 @@
+-- Seed de Dados Iniciais - Sistema de Reservas de Laboratórios
+-- Arquivo para popular o banco com dados de desenvolvimento
+-- Executar após criar as tabelas do banco
+
+-- Usuários (Admin e Desenvolvedores)
+INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
+('Admin Sistema', 'admin@lab.com', 'hash_senha_123', 'admin', true),
+('João Dev', 'joao@lab.com', 'hash_senha_123', 'desenvolvedor', true),
+('Maria Frontend', 'maria@lab.com', 'hash_senha_123', 'desenvolvedor', true),
+('Carlos Backend', 'carlos@lab.com', 'hash_senha_123', 'desenvolvedor', true);
+
+-- Laboratórios
+INSERT INTO laboratorios (nome, descricao, capacidade, ativo) VALUES
+('Lab Informática A', 'Laboratório de Programação', 20, true),
+('Lab Informática B', 'Laboratório de Redes', 15, true),
+('Lab Eletrônica', 'Laboratório de Circuitos', 12, true),
+('Lab Física', 'Laboratório de Experimentos', 25, true);
+
+-- Equipamentos
+INSERT INTO equipamentos (laboratorio_id, nome, quantidade, ativo) VALUES
+(1, 'Computador', 20, true),
+(1, 'Projetor', 1, true),
+(2, 'Switch', 5, true),
+(3, 'Osciloscópio', 8, true),
+(4, 'Microscópio', 10, true);
+
+-- Permissões de Acesso
+INSERT INTO permissoes (usuario_id, laboratorio_id, tipo_acesso, ativo) VALUES
+(1, 1, 'completo', true),
+(1, 2, 'completo', true),
+(2, 1, 'leitura_escrita', true),
+(3, 1, 'leitura_escrita', true),
+(4, 2, 'leitura_escrita', true);
+
+-- Reservas de Exemplo
+INSERT INTO reservas (laboratorio_id, usuario_id, data_inicio, data_fim, motivo, status) VALUES
+(1, 2, '2024-01-15 10:00:00', '2024-01-15 12:00:00', 'Aula de Programação', 'confirmada'),
+(1, 3, '2024-01-16 14:00:00', '2024-01-16 16:00:00', 'Projeto Web', 'confirmada'),
+(2, 4, '2024-01-17 09:00:00', '2024-01-17 11:00:00', 'Laboratório de Redes', 'pendente');

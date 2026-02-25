@@ -1,0 +1,18 @@
+================================================================================
+INSTRUÇÃO DE ATUALIZAÇÃO - ESTRUTURA DO BANCO DE DADOS
+================================================================================
+
+OBJETIVO:
+Ao fim da modelagem do script, toda a estrutura final do banco deverá ser 
+colocada neste arquivo.
+
+PROTOCOLO DE ATUALIZAÇÃO:
+1. Futuras atualizações DEVEM ser criadas como arquivo NOVO para validação
+2. Validar a nova estrutura antes de implementar
+3. Só após validação bem-sucedida, realizar a substituição total do script original
+4. Isso previne quebras no sistema atual
+
+AVISO:
+Não sobrescrever este arquivo diretamente sem seguir o protocolo acima.
+
+================================================================================
