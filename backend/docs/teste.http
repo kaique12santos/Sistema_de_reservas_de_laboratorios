@@ -1,0 +1,17 @@
+
+### TESTE DE EXEMPLO (API PÚBLICA)
+# Este é um teste de uma API externa para demonstrar o uso da extensão.
+# Clique em "Send Request" logo abaixo:
+# Ao clicar, o VS Code abrirá uma janela à 
+# direita com este retorno (que é o que você deve copiar para a documentação):
+
+GET https://jsonplaceholder.typicode.com/posts/1
+
+### o retorno esperado é:
+# {
+#   "userId": 1,
+#   "id": 1,
+#   "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+#   "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
+# }
+

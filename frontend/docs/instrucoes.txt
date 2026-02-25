@@ -1,0 +1,5 @@
+# Instruções para Preenchimento dos documentos do frontend
+
+### Estrutura Básica
+- Cada entrada no CHANGELOG deve seguir o padrão como o primeiro exemplo
+do arquivo define, com data, numeração, nome da função e autor

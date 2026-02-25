@@ -1,0 +1,17 @@
+# Instruções para Preenchimento dos documentos do backend
+
+### Estrutura Básica
+- Cada entrada no CHANGELOG deve seguir o padrão como o primeiro exemplo
+do arquivo define, com data, numeração, nome da função, autor o
+impacto e opcional caso necessario dependendo do nivel de complexidade da funçao
+como a de sobrescrita de reservas.
+
+- Cada entrada no endpoints deve seguir o padrão como os exemplos colocados no arquivo
+do arquivo define, nome, metodo, endereço, descrição e corpo da requisição, 
+resposta de sucesso e erro e retorno.
+
+- baixe a extensão do vs code rest client para usar nos testes de endpoints, assim voce so copia
+o retorno da requisição e os protocolos http e cola no documento assim agiliza a documentação.
+
+-Se tiver dúvida se sua extensão está ok, tente rodar o GET da API pública que deixei no topo do
+arquivo `testes.http` para aprender como ele funciona e utilizar
