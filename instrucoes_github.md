@@ -1,7 +1,4 @@
 
----
-
-# 📌 Modelo Profissional de Padrão de Commits
 
 ## 📁 Padrão Oficial de Commits do Projeto
 
