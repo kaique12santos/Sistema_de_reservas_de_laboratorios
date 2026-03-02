@@ -16,3 +16,238 @@ AVISO:
 Não sobrescrever este arquivo diretamente sem seguir o protocolo acima.
 
 ================================================================================
+
+-- ==============================================================================
+-- SISTEMA DE RESERVA DE LABORATÓRIOS - FATEC ZL
+-- Versão do Schema: 2.0 (Arquitetura Profissional)
+-- Banco de Dados: MySQL
+-- Autor: Kaique (Gerado via Assistente de IA)
+-- ==============================================================================
+
+-- 1. Criação do Banco de Dados
+DROP DATABASE IF EXISTS fatecZL_lab_reservations;
+CREATE DATABASE fatecZL_lab_reservations
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+USE fatecZL_lab_reservations;
+
+-- ==============================================================================
+-- 1. Tabelas Auxiliares e Configurações (Lookups)
+-- ==============================================================================
+-- Tabela: departments 
+-- Padroniza os cursos/departamentos para evitar "DSM", "D.S.M.", etc.
+CREATE TABLE departments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE COMMENT 'Nome do curso ou departamento (ex: Desenv. Software Multiplataforma)',
+    code VARCHAR(10) NULL COMMENT 'Sigla (ex: DSM, GTI, GE)',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB COMMENT='Catálogo de cursos e departamentos';
+
+-- ==============================================================================
+-- 2. Tabelas de Acesso e Usuários
+-- ==============================================================================
+
+-- Tabela: users
+-- Responsável por armazenar todos os atores do sistema (Professores e Admins).
+-- Substitui a antiga tabela 'usuario'.
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL COMMENT 'Nome completo do usuário',
+    email VARCHAR(150) NOT NULL UNIQUE COMMENT 'Email institucional, usado para login',
+    password_hash VARCHAR(255) NOT NULL COMMENT 'Senha criptografada (BCrypt/Argon2)',
+    password_reset_token VARCHAR(255) NULL COMMENT 'Token único para reset de senha',
+    password_reset_expires TIMESTAMP NULL COMMENT 'Validade do token de reset',
+    verification_token VARCHAR(255) NULL COMMENT 'Token para confirmar posse do e-mail (opcional)',
+    -- Role define as permissões macro (Baseado no arquivo constants/roles.js)
+    role ENUM('ADMIN', 'PROFESSOR', 'SUPPORT') NOT NULL DEFAULT 'PROFESSOR' COMMENT 'Nível de acesso',
+    
+    department_id INT NULL,
+    
+    -- Status para fluxo de aprovação de cadastro (RF02)
+    status ENUM('PENDING', 'APPROVED', 'REJECTED') NOT NULL DEFAULT 'PENDING' COMMENT 'Status da conta',
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL,
+    INDEX idx_user_email (email),
+    INDEX idx_user_status (status)
+) ENGINE=InnoDB COMMENT='Tabela central de usuários e autenticação';
+
+-- ==============================================================================
+-- 3. Tabelas de Configuração do Sistema (Ciclos e Ambientes)
+-- ==============================================================================
+
+-- Tabela: laboratories
+-- Substitui a antiga 'laboratorio'. Adicionado campo 'is_active' para soft delete.
+CREATE TABLE laboratories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL COMMENT 'Nome curto (ex: Lab 01, Auditório)',
+    location VARCHAR(100) NULL COMMENT 'Localização física (ex: Bloco A, 1º Andar)',
+    capacity INT NOT NULL DEFAULT 0 COMMENT 'Capacidade de alunos',
+    description_lab TEXT NULL COMMENT 'Descrição dos recursos (Projetor, Ar, PCs)',
+    is_active BOOLEAN DEFAULT TRUE COMMENT 'Se FALSE, não aparece para novas reservas',
+    type ENUM('LABORATORIO', 'SALA DE AULA', 'AUDITORIO') NOT NULL DEFAULT 'LABORATORIO',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB COMMENT='Cadastro de salas e laboratórios';
+
+-- Tabela: academic_cycles
+-- Substitui 'semestre'. Define o período letivo e regras de data.
+CREATE TABLE academic_cycles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(20) NOT NULL COMMENT 'Ex: 2026-1, 2026-2',
+    start_date DATE NOT NULL COMMENT 'Início do semestre letivo',
+    end_date DATE NOT NULL COMMENT 'Fim do semestre letivo',
+    
+    -- Regra de Negócio: RF19 - Período exclusivo para admins
+    admin_exclusive_end_date DATE NULL COMMENT 'Até esta data, apenas ADMINs podem reservar',
+    
+    is_active BOOLEAN DEFAULT FALSE COMMENT 'Define qual é o ciclo corrente',
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB COMMENT='Ciclos acadêmicos e configuração de datas limite';
+
+-- Tabela: holidays
+-- Regra de Negócio: RN03 - Reservas não podem ser feitas nestas datas.
+CREATE TABLE holidays (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cycle_id INT NOT NULL COMMENT 'Vincula o feriado a um ciclo específico',
+    date DATE NOT NULL,
+    description VARCHAR(100) NOT NULL COMMENT 'Motivo (ex: Carnaval, Feriado Nacional)',
+    
+    FOREIGN KEY (cycle_id) REFERENCES academic_cycles(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_holiday_date (date)
+) ENGINE=InnoDB COMMENT='Datas bloqueadas para reserva';
+
+-- Tabela: time_slots
+-- Padroniza os horários de aula (M1, M2, N1, N2) para evitar horários quebrados.
+CREATE TABLE time_slots (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(20) NOT NULL COMMENT 'Ex: M1, N2, Vespertino 1',
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    
+    INDEX idx_time_order (start_time)
+) ENGINE=InnoDB COMMENT='Grade de horários padrão da instituição';
+
+-- ==============================================================================
+-- 4. Tabelas de Reserva (Core Business)
+-- ==============================================================================
+
+-- Tabela: reservations
+-- Representa a "Intenção de Reserva". Pode gerar 1 ou N itens (dias).
+CREATE TABLE reservations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL COMMENT 'Quem solicitou',
+    lab_id INT NOT NULL COMMENT 'Qual laboratório',
+    cycle_id INT NOT NULL COMMENT 'Qual ciclo acadêmico',
+    
+    -- Tipo da reserva (RF10, RF11)
+    type ENUM('SINGLE', 'RECURRING') NOT NULL DEFAULT 'SINGLE' COMMENT 'Única ou Recorrente',
+    
+    -- Status Geral do Pedido
+    status ENUM('PENDING', 'APPROVED', 'REJECTED', 'CANCELED') NOT NULL DEFAULT 'PENDING',
+    
+    reason TEXT NULL COMMENT 'Motivo da rejeição ou observação da aprovação',
+    -- Rastreabilidade de quem aprovou
+    approved_by INT NULL COMMENT 'ID do Coordenador que aprovou',
+    approval_date TIMESTAMP NULL,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
+    FOREIGN KEY (lab_id) REFERENCES laboratories(id) ON DELETE RESTRICT,
+    FOREIGN KEY (cycle_id) REFERENCES academic_cycles(id) ON DELETE RESTRICT,
+    FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE RESTRICT 
+) ENGINE=InnoDB COMMENT='Cabeçalho da solicitação de reserva';
+
+-- Tabela: reservation_items
+-- Representa cada dia/horário ocupado de fato.
+-- É AQUI que a validação de conflito acontece.
+CREATE TABLE reservation_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    reservation_id INT NOT NULL,
+    
+    lab_id INT NOT NULL,
+    
+    date DATE NOT NULL COMMENT 'Data específica da aula',
+    time_slot_id INT NULL,
+    start_time TIME NOT NULL COMMENT 'Cópia do horário para facilitar queries de conflito',
+    end_time TIME NOT NULL,
+    -- Nota específica do dia (ex: "Prova neste dia")
+    note VARCHAR(255) NULL,
+    -- Status individual do dia (ex: Professor cancelou só a aula do dia 15)
+    status ENUM('ACTIVE', 'CANCELED', 'OVERWRITTEN') NOT NULL DEFAULT 'ACTIVE',
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (reservation_id) REFERENCES reservations(id) ON DELETE CASCADE,
+    FOREIGN KEY (lab_id) REFERENCES laboratories(id) ON DELETE CASCADE, 
+    FOREIGN KEY (time_slot_id) REFERENCES time_slots(id) ON DELETE CASCADE,
+    -- ======================================================================
+    -- A CONSTRAINT DE OURO (HARDWARE LEVEL CONFLICT CHECK)
+    -- ======================================================================
+    -- Impede que o MESMO laboratório tenha DOIS agendamentos ativos
+    -- no MESMO dia e MESMO horário de início.
+    -- Nota: Isso assume que o status 'CANCELED' remove a linha ou mudamos a lógica.
+    -- Como soft-delete mantém a linha, a constraint UNIQUE direta pode falhar se
+    -- não limparmos os cancelados.
+    -- SOLUÇÃO PROFISSIONAL: Em MySQL 8+, usar UNIQUE INDEX com filtro, mas para
+    -- compatibilidade geral, deixamos o UNIQUE simples e no backend deletamos
+    -- fisicamente itens rejeitados ou movemos para histórico.
+    -- Assumindo aqui que itens ativos ocupam o slot:
+    UNIQUE KEY unique_conflict_check (lab_id, date, start_time)
+) ENGINE=InnoDB COMMENT='Ocorrências individuais das reservas (dias ocupados)';
+
+-- ==============================================================================
+-- 5. Auditoria e Logs
+-- ==============================================================================
+
+-- Tabela: audit_logs
+-- Atende ao RF21 - Log de Reservas e Sobrescrita
+CREATE TABLE audit_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    action ENUM('CREATE', 'UPDATE', 'DELETE', 'OVERWRITE', 'APPROVE', 'REJECT') NOT NULL,
+    
+    table_name VARCHAR(50) NOT NULL COMMENT 'Qual tabela foi afetada (reservations, users)',
+    record_id INT NOT NULL COMMENT 'ID do registro afetado',
+    
+    changed_by INT NOT NULL COMMENT 'ID do usuário que realizou a ação',
+    
+    -- Armazena o "antes" e "depois" em JSON para flexibilidade
+    old_values JSON NULL COMMENT 'Snapshot dos dados antes da mudança',
+    new_values JSON NULL COMMENT 'Snapshot dos dados novos',
+    
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (changed_by) REFERENCES users(id)
+) ENGINE=InnoDB COMMENT='Rastreabilidade e segurança das operações críticas';
+
+-- ==============================================================================
+-- 6. Inserção Inicial (Seed Básica)
+-- ==============================================================================
+
+-- Criar o primeiro Administrador padrão para o sistema não nascer vazio
+-- Senha padrão temporária (ex: 'mudar123' - deve ser hashada na aplicação real)
+-- Aqui estamos apenas simulando o registro.
+
+INSERT INTO departments (name, code) VALUES 
+('Desenv. Software Multiplataforma', 'DSM'),
+('Gestão da Produção Industrial', 'GPI'),
+('Gestão Empresarial', 'GE');
+
+-- senha: senha123 ou senha1234
+INSERT INTO users (name, email, password_hash, role, status, department) VALUES 
+('Administrador Master', 'admin@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'ADMIN', 'ACTIVE', 'Gestão Empresarial');
+
+-- Criar horários padrão (Exemplo)
+INSERT INTO time_slots (name, start_time, end_time) VALUES 
+('M1', '07:30:00', '08:20:00'),
+('M2', '08:20:00', '09:10:00'),
+('M3', '09:10:00', '10:00:00'),
+('M4', '10:10:00', '11:00:00'),
+('N1', '19:00:00', '19:50:00'),
+('N2', '19:50:00', '20:40:00');
