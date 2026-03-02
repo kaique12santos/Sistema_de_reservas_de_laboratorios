@@ -65,7 +65,7 @@ Este repositório representa a evolução técnica e estrutural do sistema anter
 - Material UI
 - Node.js
 - Express
-- PostgreSQL
+- MySql
 
 ---
 
