@@ -136,3 +136,77 @@
 ]
 ```
 
+<!-- inicia a documentação daqui -->
+
+## Cadastro e Autenticação
+
+---
+
+### POST /api/auth/register
+
+**Descrição:** Realiza o cadastro inicial de um novo usuário. O usuário é criado com status `PENDING` (Pendente) aguardando aprovação, e a senha é criptografada antes de ser salva.
+
+**Corpo da Requisição (JSON):**
+
+```json
+{
+  "name": "Kaique Caitano",
+  "email": "kaique@fatec.sp.gov.br",
+  "password": "senha_segura_123",
+  "department_id": 1
+}
+
+```
+
+**Resposta de Sucesso:** `201 Created`
+
+**Exemplo de Retorno:**
+
+```json
+{
+  "id": 1,
+  "name": "Kaique Caitano",
+  "email": "kaique@fatec.sp.gov.br",
+  "status": "PENDING"
+}
+
+```
+
+**Resposta de Erro:** `400 Bad Request` (Ex: Email já cadastrado ou dados inválidos)
+
+---
+
+### POST /api/auth/login
+
+**Descrição:** Realiza a autenticação do usuário no sistema verificando hash de senha e gerando um Token JWT para sessões futuras.
+
+**Corpo da Requisição (JSON):**
+
+```json
+{
+  "email": "kaique@fatec.sp.gov.br",
+  "password": "senha_segura_123"
+}
+
+```
+
+**Resposta de Sucesso:** `200 OK`
+
+**Exemplo de Retorno:**
+
+```json
+{
+  "user": {
+    "id": 1,
+    "name": "Kaique Caetano",
+    "email": "kaique@fatec.sp.gov.br",
+    "role": "PROFESSOR"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+
+```
+
+**Resposta de Erro:** `401 Unauthorized` (Senha incorreta ou usuário não encontrado)
+
+---

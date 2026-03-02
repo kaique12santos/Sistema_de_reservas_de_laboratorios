@@ -15,3 +15,21 @@ GET https://jsonplaceholder.typicode.com/posts/1
 #   "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
 # }
 
+POST http://localhost:3001/api/auth/register
+Content-Type: application/json
+
+{
+    "name": "Kaique",
+    "email": "kaique@fatec.sp.gov.br",
+    "password": "123",
+    "department_id": 1
+}
+
+###
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "kaique@fatec.sp.gov.br",
+    "password": "123"
+}

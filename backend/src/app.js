@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-// Futuras importações de rotas
-// import userRoutes from './routes/user.routes.js';
+import authRoutes from './routes/auth.routes.js';
 
 class App {
   constructor() {
@@ -30,7 +29,7 @@ class App {
     });
 
     // Aqui você vai instanciar as rotas quando criarmos os arquivos
-    // this.server.use('/users', userRoutes);
+    this.server.use('/api/auth', authRoutes);
   }
 }
 
