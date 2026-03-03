@@ -1,18 +1,11 @@
-import { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useState, useContext } from 'react';
 import AuthService from '../services/auth.service';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Verifica se já tem usuário salvo ao recarregar a página
-    const storedUser = AuthService.getCurrentUser();
-    if (storedUser) setUser(storedUser);
-    setLoading(false);
-  }, []);
+  const [user, setUser] = useState(() => AuthService.getCurrentUser());
+  const [loading, setLoading] = useState(false);
 
   const login = async (email, password) => {
     const data = await AuthService.login(email, password);
