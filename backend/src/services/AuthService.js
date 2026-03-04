@@ -1,7 +1,8 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import UserRepository from '../repositories/UserRepository.js';
-
+import EmailService from '../services/EmailService.js';
 
 /**
  * Serviço de Autenticação.
@@ -13,31 +14,58 @@ class AuthService {
 
     /**
      * 
-     * @param {Object} data - Objeto contendo os dados do usuário a ser registrado
-     * @returns {Object} - Retorna o usuário criado (sem senha) e status PENDING 
+     * @param {Object} data - Objeto contendo os dados de registro do usuário (name, email, password, department_id, role)
+     * @returns {Object} - Retorna uma mensagem de sucesso, o ID do usuário e o email
      */
   async register(data) {
-    const userExists = await UserRepository.findByEmail(data.email);
+    const { name, email, password, department_id, role } = data;
 
-    if (userExists) {
-      throw new Error('usuario já existe');
+    const existingUser = await UserRepository.findByEmail(email);
+    const verificationToken = crypto.randomBytes(20).toString('hex');
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    let userId;
+
+    if (existingUser) {
+      if (existingUser.status !== 'PENDING') {
+        throw new Error(`Este e-mail já está cadastrado e a conta encontra-se: ${existingUser.status}`);
+      }
+
+      await UserRepository.updatePendingUser(existingUser.id, {
+        name,
+        password_hash: passwordHash,
+        department_id: department_id || null,
+        role: role || 'PROFESSOR',
+        verification_token: verificationToken
+      });
+      userId = existingUser.id;
+      
+    } else {
+      const newUser = await UserRepository.create({
+        name,
+        email,
+        password_hash: passwordHash,
+        department_id: department_id || null,
+        role: role || 'PROFESSOR',
+        verification_token: verificationToken,
+        status: 'PENDING'
+      });
+      userId = newUser.id;
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const password_hash = await bcrypt.hash(data.password, salt);
 
-    const newUser = await UserRepository.create({
-      ...data,
-      password_hash,
-    });
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const validationLink = `${frontendUrl}/verify?token=${verificationToken}`;
+    
+    await EmailService.sendVerificationCode(email, validationLink);
 
     return {
-      id: newUser.id,
-      name: newUser.name,
-      email: newUser.email,
-      status: 'PENDING' // RF02 - Cadastro pendente
+      message: 'Cadastro registrado com sucesso. Verifique seu e-mail para confirmar a conta.',
+      userId,
+      email
     };
   }
+
 
   /**
    * 
@@ -75,6 +103,20 @@ class AuthService {
       },
       token
     };
+  }
+
+  async verifyEmail(token) {
+    if (!token) throw new Error('Token não fornecido.');
+
+    const user = await UserRepository.findByVerificationToken(token);
+    
+    if (!user) {
+      throw new Error('Link de verificação inválido ou já utilizado.');
+    }
+
+    await UserRepository.clearVerificationToken(user.id);
+
+    return { message: 'E-mail verificado com sucesso! Sua conta agora aguarda aprovação do administrador do seu curso.' };
   }
 }
 

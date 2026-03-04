@@ -144,7 +144,7 @@
 
 ### POST /api/auth/register
 
-**Descrição:** Realiza o cadastro inicial de um novo usuário. O usuário é criado com status `PENDING` (Pendente) aguardando aprovação, e a senha é criptografada antes de ser salva.
+**Descrição:** Realiza o cadastro inicial de um novo usuário. O usuário é criado (ou atualizado, caso já esteja pendente) com status `PENDING`, a senha é criptografada e um token de verificação é gerado. Um e-mail contendo um *magic link* é disparado para validar a propriedade da conta.
 
 **Corpo da Requisição (JSON):**
 
@@ -164,17 +164,77 @@
 
 ```json
 {
-  "id": 1,
-  "name": "Kaique Caitano",
-  "email": "kaique@fatec.sp.gov.br",
-  "status": "PENDING"
+  "message": "Cadastro registrado com sucesso. Verifique seu e-mail para confirmar a conta.",
+  "userId": 1,
+  "email": "kaique@fatec.sp.gov.br"
 }
 
 ```
 
-**Resposta de Erro:** `400 Bad Request` (Ex: Email já cadastrado ou dados inválidos)
+**Resposta de Erro:** `400 Bad Request`
+*(Ex: "Este e-mail já está cadastrado e a conta encontra-se: APPROVED" ou dados inválidos)*
 
 ---
+
+### POST /api/auth/verify-email
+
+**Descrição:** Rota acessada indiretamente quando o usuário clica no *magic link* recebido por e-mail. Valida o token e confirma que o e-mail pertence ao solicitante. Após a verificação, o token é anulado e a conta aguarda a aprovação final do Administrador.
+
+**Corpo da Requisição (JSON):**
+
+```json
+{
+  "token": "d7f8a9b2c3d4e5f6g7h8..."
+}
+
+```
+
+**Resposta de Sucesso:** `200 OK`
+
+**Exemplo de Retorno:**
+
+```json
+{
+  "message": "E-mail verificado com sucesso! Sua conta agora aguarda aprovação do administrador."
+}
+
+```
+
+**Resposta de Erro:** `400 Bad Request`
+*(Ex: "Link de verificação inválido ou já utilizado." ou "Token não fornecido.")*
+
+---
+
+## Departamentos e Cursos
+
+---
+
+### GET /api/departments
+
+**Descrição:** Rota pública para listar todos os departamentos/cursos cadastrados no sistema. Utilizada para popular dinamicamente formulários de seleção (como o de cadastro de usuários).
+
+**Parâmetros de Requisição:** Nenhum.
+
+**Resposta de Sucesso:** `200 OK`
+
+**Exemplo de Retorno:**
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Desenv. Software Multiplataforma",
+    "code": "DSM"
+  },
+  {
+    "id": 2,
+    "name": "Gestão da Produção Industrial",
+    "code": "GPI"
+  }
+]
+
+```
+
 
 ### POST /api/auth/login
 

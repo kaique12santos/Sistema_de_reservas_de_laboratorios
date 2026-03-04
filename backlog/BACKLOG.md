@@ -40,7 +40,7 @@
 
 * **Descrição:** Rota POST `api/auth/register`. Apenas cria o registro no banco com senha hashada.
 * **Obs:** Apenas a criação esta implementada, falta validações, e verificação de email via token JWT
-* **Status:** 🟡 Em Andamento
+* **Status:** ✅ CONCLUÍDO
 * **Responsável:** Kaique
 
 #### [F1-BE-03] Sistema de login e JWT
@@ -65,8 +65,8 @@
 * **Descrição:** Configurar Nodemailer para envio de emails transacionais.
 * **Entregáveis:** `services/EmailService.js` com método `sendPasswordReset(email, token)`.
 * **Obs:** pedir arquivo do lider de projeto para tentar reaproveitar codigo do SGPI de serviço de email ou de projeto pessoal dele.
-* **Status:** 🔴 PENDENTE
-* **Responsável:** -
+* **Status:** ✅ CONCLUÍDO
+* **Responsável:** kaique
 
 #### [F1-BE-06] Solicitação de Recuperação (Forgot Password)
 * **Descrição:** Endpoint que gera token e envia por email.
@@ -92,7 +92,8 @@
   - GET `api/auth/verify-email?token=XYZ`
   - Atualiza campo `email_verified` no banco
   - Só permite login se email verificado
-* **Status:** 🔴 PENDENTE (Opcional)
+* **Status:** ✅ CONCLUÍDO
+* **Responsavel:** Kaique
 
 ---
 
@@ -133,6 +134,12 @@
 * **Status:** 🔴 PENDENTE
 * **Responsável:** -
 
+#### [F1-FE-06] Tela de Verificação de Email
+* **Descrição:** Acessa via link do email
+* **Entregáveis:** `VerifyEmailPage.jsx`
+* **Ação:** Valida Email pela rota `api/auth/verify-email` e apresenta mensagem de sucesso com botao de redirecionamento para o login ou msg de erro.
+* **Status:** 🟡 FALTANDO DESIGNER
+* **Responsável:** Luiz / Kaique
 ---
 
 ### 🔹 Teste final de fase
