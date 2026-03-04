@@ -1,22 +1,24 @@
-const nodemailer = require('nodemailer');
-require('dotenv').config();
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 class EmailService {
     constructor() {
         this.transporter = nodemailer.createTransport({
-            host: process.env.EMAIL_HOST,
-            port: process.env.EMAIL_PORT,
-            secure: false,
+            host: process.env.EMAIL_HOST, // smtp.gmail.com
+            port: Number(process.env.EMAIL_PORT), // 465
+            secure: true, // OBRIGATÓRIO ser true para a porta 465
             auth: {
                 user: process.env.EMAIL_FROM,
                 pass: process.env.EMAIL_PASSWORD,
             },
             tls: {
-                rejectUnauthorized: false,
-                ciphers: 'SSLv3'
-            },
-            connectionTimeout: 5000, 
-            greetingTimeout: 5000  
+                rejectUnauthorized: false
+            }
+        }, {
+            // Isso força o uso de IPv4 e costuma resolver o problema do ECONNREFUSED com endereços IPv6
+            family: 4
         });
     }
 
@@ -83,4 +85,4 @@ class EmailService {
     }
 }
 
-module.exports = new EmailService();
+export default new EmailService();

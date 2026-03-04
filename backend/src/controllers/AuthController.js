@@ -16,16 +16,24 @@ class AuthController {
     */
   async register(req, res) {
     try {
-      // DTO simples (idealmente validaríamos os campos aqui)
-      const { name, email, password, department_id } = req.body;
-      
-      const user = await AuthService.register({ name, email, password, department_id });
-      
-      return res.status(201).json(user);
+      const { name, email, password, department_id, role } = req.body;
+
+      if (!name || !email || !password) {
+        return res.status(400).json({ error: 'Nome, e-mail e senha são obrigatórios.' });
+      }
+      if (!department_id) {
+        return res.status(400).json({ error: 'O departamento é obrigatório.' });
+      }
+
+      const result = await AuthService.register({ name, email, password, department_id, role });
+
+      return res.status(201).json(result);
     } catch (error) {
-      return res.status(400).json({ error: error.message });
+      const statusCode = error.message.includes('já está cadastrado') ? 400 : 500;
+      return res.status(statusCode).json({ error: error.message });
     }
   }
+
   /**
    * 
    * @param {Object} req - Objeto de requisição do Express contendo os dados do usuário que deseja logar
@@ -41,6 +49,16 @@ class AuthController {
       return res.json(session);
     } catch (error) {
       return res.status(401).json({ error: error.message });
+    }
+  }
+
+  async verifyEmail(req, res) {
+    try {
+      const { token } = req.body;
+      const result = await AuthService.verifyEmail(token);
+      return res.status(200).json(result);
+    } catch (error) {
+      return res.status(400).json({ error: error.message });
     }
   }
 }
