@@ -40,7 +40,7 @@
 
 * **Descrição:** Rota POST `api/auth/register`. Apenas cria o registro no banco com senha hashada.
 * **Obs:** Apenas a criação esta implementada, falta validações, e verificação de email via token JWT
-* **Status:** 🟡 Em Andamento
+* **Status:** ✅ CONCLUÍDO
 * **Responsável:** Kaique
 
 #### [F1-BE-03] Sistema de login e JWT
@@ -92,7 +92,8 @@
   - GET `api/auth/verify-email?token=XYZ`
   - Atualiza campo `email_verified` no banco
   - Só permite login se email verificado
-* **Status:** 🔴 PENDENTE (Opcional)
+* **Status:** ✅ CONCLUÍDO
+* **Responsavel:** Kaique
 
 ---
 
@@ -133,6 +134,12 @@
 * **Status:** 🔴 PENDENTE
 * **Responsável:** -
 
+#### [F1-FE-06] Tela de Verificação de Email
+* **Descrição:** Acessa via link do email
+* **Entregáveis:** `VerifyEmailPage.jsx`
+* **Ação:** Valida Email pela rota `api/auth/verify-email` e apresenta mensagem de sucesso com botao de redirecionamento para o login ou msg de erro.
+* **Status:** 🟡 FALTANDO DESIGNER
+* **Responsável:** Luiz / Kaique
 ---
 
 ### 🔹 Teste final de fase
