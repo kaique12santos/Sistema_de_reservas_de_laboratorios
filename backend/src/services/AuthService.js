@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import UserRepository from '../repositories/UserRepository.js';
 import EmailService from '../services/EmailService.js';
+import UserModel from '../models/UserModel.js';
 
 /**
  * Serviço de Autenticação.
@@ -17,14 +18,14 @@ class AuthService {
      * @param {Object} data - Objeto contendo os dados de registro do usuário (name, email, password, department_id, role)
      * @returns {Object} - Retorna uma mensagem de sucesso, o ID do usuário e o email
      */
-  async register(data) {
-    const { name, email, password, department_id, role } = data;
+  async register(userDTO) {
+    const { name, email, password, department_id, role } = userDTO;
 
     const existingUser = await UserRepository.findByEmail(email);
     const verificationToken = crypto.randomBytes(20).toString('hex');
     const passwordHash = await bcrypt.hash(password, 10);
 
-    let userId;
+    let rawUserData;
 
     if (existingUser) {
       if (existingUser.status !== 'PENDING') {
@@ -38,10 +39,10 @@ class AuthService {
         role: role || 'PROFESSOR',
         verification_token: verificationToken
       });
-      userId = existingUser.id;
+      rawUserData = { ...existingUser, name, department_id, role }
       
     } else {
-      const newUser = await UserRepository.create({
+      rawUserData = await UserRepository.create({
         name,
         email,
         password_hash: passwordHash,
@@ -50,7 +51,6 @@ class AuthService {
         verification_token: verificationToken,
         status: 'PENDING'
       });
-      userId = newUser.id;
     }
 
 
@@ -59,10 +59,10 @@ class AuthService {
     
     await EmailService.sendVerificationCode(email, validationLink);
 
+    const user = new UserModel(rawUserData);
     return {
       message: 'Cadastro registrado com sucesso. Verifique seu e-mail para confirmar a conta.',
-      userId,
-      email
+      user: user.toSafeObject()
     };
   }
 
