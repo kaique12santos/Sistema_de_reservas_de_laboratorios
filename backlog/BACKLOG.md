@@ -65,8 +65,8 @@
 * **Descrição:** Configurar Nodemailer para envio de emails transacionais.
 * **Entregáveis:** `services/EmailService.js` com método `sendPasswordReset(email, token)`.
 * **Obs:** pedir arquivo do lider de projeto para tentar reaproveitar codigo do SGPI de serviço de email ou de projeto pessoal dele.
-* **Status:** 🔴 PENDENTE
-* **Responsável:** -
+* **Status:** ✅ CONCLUÍDO
+* **Responsável:** kaique
 
 #### [F1-BE-06] Solicitação de Recuperação (Forgot Password)
 * **Descrição:** Endpoint que gera token e envia por email.
