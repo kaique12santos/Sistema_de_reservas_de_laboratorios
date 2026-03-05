@@ -58,3 +58,9 @@
 - Ajuste na configuração do Nodemailer para forçar o uso de IPv4 (`family: 4`) e TLS moderno, resolvendo os erros de `ETIMEDOUT` e `ECONNREFUSED`.
 - Correção nas queries SQL do `UserRepository` para garantir que a coluna `verification_token` seja preenchida corretamente no `INSERT` e no `UPDATE`.
 - Ajuste na desestruturação de dados no `AuthController.verifyEmail` para ler corretamente o `token` a partir do `req.body`.
+
+## 05/03/2026
+
+### Middleware de Autenticação e Autorização (RBAC)
+- **Descrição:** Adaptação do arquivo de proteção de rotas para o padrão ES Modules (`import/export`). Implementação do `authMiddleware` para validação de JWT e extração de dados do usuário.
+- **Controle de Acesso por Cargo:** Criação da função `requireRole` para aplicar o padrão Role-Based Access Control (RBAC), permitindo restringir endpoints específicos apenas para perfis autorizados (ex: `ADMIN`), atendendo aos requisitos de segurança da arquitetura.

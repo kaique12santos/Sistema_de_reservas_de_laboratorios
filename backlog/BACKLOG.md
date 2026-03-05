@@ -54,12 +54,12 @@
 
 * **Descrição:** Implementar um middleware Express que proteja rotas usando o token JWT já gerado pela estrutura base. O middleware deve validar a expiração do token, extrair os dados úteis (ex.: id, role) e anexá‑los à requisição para uso posterior. Deve também suportar verificação opcional de permissões/roles e retornar respostas HTTP apropriadas quando o token estiver ausente, inválido ou sem permissão.
   * **Critérios de Aceite:**
-    - [ ] Rejeita requisições sem token (401)
-    - [ ] Rejeita tokens expirados (403)
-    - [ ] Injeta req.user com { id, email, role }
-    - [ ] Permite filtrar por role: authorize(['ADMIN']) 
-* **Status:** 🔴 PENDENTE
-* **Responsável:** -
+    - [x] Rejeita requisições sem token (401)
+    - [x] Rejeita tokens expirados (403)
+    - [x] Injeta req.user com { id, email, role }
+    - [x] Permite filtrar por role: authorize(['ADMIN']) 
+* **Status:** ✅ CONCLUÍDO
+* **Responsável:** Kaique
 
 #### [F1-BE-05] Serviço de Email (SMTP)
 * **Descrição:** Configurar Nodemailer para envio de emails transacionais.
