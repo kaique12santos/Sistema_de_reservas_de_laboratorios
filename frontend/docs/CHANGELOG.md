@@ -38,3 +38,7 @@
 ### 1. Refatoração Estrutural e Separação de Rotas
 - **Descrição:** Reorganização dos componentes principais para alinhar com a documentação de arquitetura. O arquivo `App.jsx` foi movido para a pasta `src/app/`, passando a atuar exclusivamente como wrapper de contextos globais (Providers). Criação do arquivo `src/app/routes.jsx` para centralizar a definição de rotas e implementação do componente `PrivateRoute` para proteção das rotas internas. Atualização do ponto de entrada no `main.jsx`.
 - **Autor:** Kaique Caitano
+
+### 2. Adequação Arquitetural: Camada de Serviços
+- **Descrição:** Remoção de chamadas diretas à API (`api.get` e `api.post`) de dentro dos componentes `RegisterPage` e `VerifyEmailPage`, adequando o código à Regra de Frontend nº 1 do Documento de Arquitetura. Criação do arquivo `department.service.js` para gerenciar as requisições de cursos e adição do método `verifyEmail` no `auth.service.js` para centralizar a comunicação com o backend e manter as páginas apenas como orquestradoras.
+- **Autor:** Kaique Caitano
