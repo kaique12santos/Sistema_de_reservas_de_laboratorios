@@ -1,82 +1,90 @@
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams, Link as RouterLink } from "react-router-dom";
 import {
+  Box,
   Paper,
+  Typography,
   TextField,
   Button,
-  Typography,
-  Box,
   Alert,
-  MenuItem,
-  Select,
-  InputLabel,
-  FormControl,
   Link as MuiLink,
 } from "@mui/material";
-
-import { useNavigate, Link as RouterLink } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import DepartmentService from "../services/department.service.js";
 
 import LogoFatec from "../assets/LogoFatec.png";
 import FotoFatec from "../assets/FOTOFATEC.jpeg";
 
-const RegisterPage = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    department_id: "",
-  });
+import AuthService from "../services/auth.service.js";
 
-  const [departments, setDepartments] = useState([]);
-  const [error, setError] = useState("");
-
-  const { register } = useAuth();
+const ResetPasswordPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Token vem do link do e-mail: /reset-password?token=xxxxx
+  const token = searchParams.get("token");
+
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [status, setStatus] = useState("idle"); // idle | loading | success | error
+  const [message, setMessage] = useState("");
+
+  // Evita disparar 2x no StrictMode caso você queira validar token no futuro
+  const hasChecked = useRef(false);
 
   useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const data = await DepartmentService.getDepartments();
-        setDepartments(data);
-      } catch (err) {
-        console.error("Erro ao carregar cursos", err);
-        setError("Não foi possível carregar a lista de cursos.");
-      }
-    };
+    if (hasChecked.current) return;
+    hasChecked.current = true;
 
-    fetchDepartments();
-  }, []);
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleCourseChange = (e) => {
-    setFormData({
-      ...formData,
-      department_id: e.target.value,
-    });
-  };
+    if (!token) {
+      setStatus("error");
+      setMessage("Token não encontrado na URL. Verifique o link recebido no e-mail.");
+    }
+  }, [token]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setMessage("");
 
-    if (!formData.department_id) {
-      setError("Por favor, selecione um curso.");
+    if (!token) {
+      setStatus("error");
+      setMessage("Token não encontrado na URL.");
+      return;
+    }
+
+    if (!password || !confirmPassword) {
+      setStatus("error");
+      setMessage("Preencha a nova senha e a confirmação.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setStatus("error");
+      setMessage("As senhas não conferem.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setStatus("error");
+      setMessage("A senha deve ter pelo menos 6 caracteres.");
       return;
     }
 
     try {
-      await register(formData);
-      alert("Cadastro realizado! Verifique seu e-mail.");
-      navigate("/login");
+      setStatus("loading");
+
+      // ✅ Padrão do projeto: página chama o service, não chama api direto
+      const response = await AuthService.resetPassword({ token, password });
+
+      setStatus("success");
+      setMessage(
+        response?.message ||
+          "Senha redefinida com sucesso! Você será redirecionado para o login."
+      );
+
+      setTimeout(() => navigate("/login"), 1200);
     } catch (err) {
-      setError(err.response?.data?.error || "Erro ao cadastrar.");
+      setStatus("error");
+      setMessage(err?.message || "Não foi possível redefinir a senha. Tente novamente.");
     }
   };
 
@@ -110,6 +118,7 @@ const RegisterPage = () => {
             backgroundImage: `url(${FotoFatec})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
             flexDirection: "column",
             justifyContent: "flex-end",
             alignItems: "center",
@@ -162,19 +171,28 @@ const RegisterPage = () => {
 
           {/* TITULO */}
           <Typography variant="h4" sx={{ mt: 2, fontWeight: "bold" }}>
-            Criar Conta
+            Nova senha
           </Typography>
 
-          {/* ERRO */}
-          {error && (
+          <Typography sx={{ mt: 1, color: "#777" }}>
+            Defina sua nova senha e confirme para finalizar.
+          </Typography>
+
+          {/* ALERTS */}
+          {status === "error" && (
             <Alert severity="error" sx={{ mt: 2 }}>
-              {error}
+              {message}
+            </Alert>
+          )}
+
+          {status === "success" && (
+            <Alert severity="success" sx={{ mt: 2 }}>
+              {message}
             </Alert>
           )}
 
           {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-            {/* NOME */}
             <Typography
               sx={{
                 fontSize: "12px",
@@ -184,104 +202,15 @@ const RegisterPage = () => {
                 color: "#777",
               }}
             >
-              NOME COMPLETO
+              NOVA SENHA
             </Typography>
 
             <TextField
               fullWidth
-              placeholder="Seu nome"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                  backgroundColor: "#ffffff",
-                },
-              }}
-            />
-
-            {/* EMAIL */}
-            <Typography
-              sx={{
-                fontSize: "12px",
-                letterSpacing: "2px",
-                mt: 3,
-                mb: 1,
-                color: "#777",
-              }}
-            >
-              E-MAIL INSTITUCIONAL
-            </Typography>
-
-            <TextField
-              fullWidth
-              placeholder="nome@cps.sp.gov.br"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                  backgroundColor: "#ffffff",
-                },
-              }}
-            />
-
-            {/* CURSO */}
-            <Typography
-              sx={{
-                fontSize: "12px",
-                letterSpacing: "2px",
-                mt: 3,
-                mb: 1,
-                color: "#777",
-              }}
-            >
-              CURSO
-            </Typography>
-
-            <FormControl fullWidth>
-              <InputLabel>Curso</InputLabel>
-
-              <Select
-                value={formData.department_id}
-                label="Curso"
-                onChange={handleCourseChange}
-                sx={{
-                  borderRadius: "12px",
-                  backgroundColor: "#ffffff",
-                }}
-              >
-                {departments.map((dept) => (
-                  <MenuItem key={dept.id} value={dept.id}>
-                    {dept.name} ({dept.code})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            {/* SENHA */}
-            <Typography
-              sx={{
-                fontSize: "12px",
-                letterSpacing: "2px",
-                mt: 3,
-                mb: 1,
-                color: "#777",
-              }}
-            >
-              SENHA
-            </Typography>
-
-            <TextField
-              fullWidth
-              placeholder="senha"
-              name="password"
+              placeholder="(senha)"
               type="password"
-              value={formData.password}
-              onChange={handleChange}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               sx={{
                 "& .MuiOutlinedInput-root": {
                   borderRadius: "12px",
@@ -290,10 +219,36 @@ const RegisterPage = () => {
               }}
             />
 
-            {/* BOTÃO */}
+            <Typography
+              sx={{
+                fontSize: "12px",
+                letterSpacing: "2px",
+                mt: 3,
+                mb: 1,
+                color: "#777",
+              }}
+            >
+              CONFIRMAR SENHA
+            </Typography>
+
+            <TextField
+              fullWidth
+              placeholder="(senha)"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                  backgroundColor: "#ffffff",
+                },
+              }}
+            />
+
             <Button
               type="submit"
               fullWidth
+              disabled={status === "loading" || !token}
               sx={{
                 mt: 4,
                 backgroundColor: "#9e1b1f",
@@ -302,12 +257,13 @@ const RegisterPage = () => {
                 height: "45px",
                 fontWeight: "bold",
                 "&:hover": { backgroundColor: "#7c1417" },
+                "&:disabled": { opacity: 0.7 },
               }}
             >
-              CADASTRAR
+              {status === "loading" ? "SALVANDO..." : "REDEFINIR SENHA"}
             </Button>
 
-            {/* LINK LOGIN */}
+            {/* LINKS */}
             <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
               <MuiLink
                 component={RouterLink}
@@ -315,7 +271,7 @@ const RegisterPage = () => {
                 underline="hover"
                 sx={{ color: "#9e1b1f", fontSize: "14px" }}
               >
-                Já tem conta? Faça Login
+                Voltar para o Login
               </MuiLink>
             </Box>
 
@@ -344,4 +300,4 @@ const RegisterPage = () => {
   );
 };
 
-export default RegisterPage;
+export default ResetPasswordPage;
