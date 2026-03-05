@@ -1,4 +1,5 @@
 import AuthService from '../services/AuthService.js';
+import CreateUserDTO from '../dtos/CreateUserDTO.js';
 
 
 /**
@@ -16,16 +17,16 @@ class AuthController {
     */
   async register(req, res) {
     try {
-      const { name, email, password, department_id, role } = req.body;
-
-      if (!name || !email || !password) {
-        return res.status(400).json({ error: 'Nome, e-mail e senha são obrigatórios.' });
+      const userDTO = new CreateUserDTO(req.body);
+      const validationErrors = userDTO.validate();
+      if (validationErrors.length > 0) {
+        return res.status(400).json({ 
+          error: 'Falha na validação dos dados', 
+          details: validationErrors 
+        });
       }
-      if (!department_id) {
-        return res.status(400).json({ error: 'O departamento é obrigatório.' });
-      }
 
-      const result = await AuthService.register({ name, email, password, department_id, role });
+      const result = await AuthService.register(userDTO);
 
       return res.status(201).json(result);
     } catch (error) {
