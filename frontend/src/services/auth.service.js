@@ -1,6 +1,7 @@
 import api from './api';
 
 class AuthService {
+
   async login(email, password) {
     const response = await api.post('/auth/login', { email, password });
     if (response.data.token) {
@@ -27,6 +28,16 @@ class AuthService {
 
   async verifyEmail(token) {
     const response = await api.post('/auth/verify-email', { token });
+    return response.data;
+  }
+
+  // ✅ NOVO MÉTODO (Tela Nova Senha)
+  async resetPassword(token, password) {
+    const response = await api.post('/auth/reset-password', {
+      token,
+      password
+    });
+
     return response.data;
   }
 }
