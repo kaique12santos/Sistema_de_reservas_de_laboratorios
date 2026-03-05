@@ -1,6 +1,6 @@
-# Instruções para Preenchimento dos documentos do backend
+ Instruções para Preenchimento dos documentos do backend
 
-### Estrutura Básica
+ Estrutura Básica
 - Cada entrada no CHANGELOG deve seguir o padrão como o primeiro exemplo
 do arquivo define, com data, numeração, nome da função, autor o
 impacto e opcional caso necessario dependendo do nivel de complexidade da funçao
