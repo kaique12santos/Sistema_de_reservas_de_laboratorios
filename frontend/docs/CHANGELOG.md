@@ -33,3 +33,8 @@
 ### 2. Tela de Verificação de E-mail (Magic Link)
 - **Descrição:** Criação da página `VerifyEmailPage`, que não possui formulário visível. Ela automaticamente captura o token passado na URL via `useSearchParams`, envia para validação na API e fornece um feedback visual de carregamento, sucesso ou erro, guiando o usuário para a tela de login.
 - **Autor:** Kaique Caitano
+
+## 05/03/2026
+### 1. Refatoração Estrutural e Separação de Rotas
+- **Descrição:** Reorganização dos componentes principais para alinhar com a documentação de arquitetura. O arquivo `App.jsx` foi movido para a pasta `src/app/`, passando a atuar exclusivamente como wrapper de contextos globais (Providers). Criação do arquivo `src/app/routes.jsx` para centralizar a definição de rotas e implementação do componente `PrivateRoute` para proteção das rotas internas. Atualização do ponto de entrada no `main.jsx`.
+- **Autor:** Kaique Caitano
