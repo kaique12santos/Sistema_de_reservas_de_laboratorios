@@ -1,42 +1,84 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams, Link as RouterLink } from "react-router-dom";
 import {
   Box, Paper, Typography, TextField, Button, Alert, Link as MuiLink,
 } from "@mui/material";
-import { useNavigate, Link as RouterLink } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 
 import LogoFatec from "../public/images/LogoFatec.png";
 import FotoFatec from "../public/images/FOTOFATEC.jpeg";
 
-const LoginPage = () => {
-  const { login } = useAuth();
+import AuthService from "../services/auth.service.js";
+
+const ResetPasswordPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  // Token vem do link do e-mail: /reset-password?token=xxxxx
+  const token = searchParams.get("token");
 
-  const [error, setError] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const [status, setStatus] = useState("idle"); // idle | loading | success | error
+  const [message, setMessage] = useState("");
+
+  // Evita disparar 2x no StrictMode caso você queira validar token no futuro
+  const hasChecked = useRef(false);
+
+  useEffect(() => {
+    if (hasChecked.current) return;
+    hasChecked.current = true;
+
+    if (!token) {
+      setStatus("error");
+      setMessage("Token não encontrado na URL. Verifique o link recebido no e-mail.");
+    }
+  }, [token]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setMessage("");
+
+    if (!token) {
+      setStatus("error");
+      setMessage("Token não encontrado na URL.");
+      return;
+    }
+
+    if (!password || !confirmPassword) {
+      setStatus("error");
+      setMessage("Preencha a nova senha e a confirmação.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setStatus("error");
+      setMessage("As senhas não conferem.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setStatus("error");
+      setMessage("A senha deve ter pelo menos 6 caracteres.");
+      return;
+    }
 
     try {
-      // Correção do Bug: O AuthContext exige email e senha separados, não o objeto
-      await login(formData.email, formData.password);
-      navigate("/dashboard"); // Redirecionando direto para a rota interna protegida
+      setStatus("loading");
+
+      // Chamada seguindo o padrão de Services da arquitetura
+      const response = await AuthService.resetPassword({ token, password });
+
+      setStatus("success");
+      setMessage(
+        response?.message ||
+          "Senha redefinida com sucesso! Você será redirecionado para o login."
+      );
+
+      setTimeout(() => navigate("/login"), 1200);
     } catch (err) {
-      // Mensagem IHC clara e orientada à solução
-      setError(err.response?.data?.error || "E-mail ou senha incorretos. Verifique seus dados e tente novamente.");
+      setStatus("error");
+      setMessage(err?.message || "Não foi possível redefinir a senha. Tente novamente.");
     }
   };
 
@@ -57,7 +99,7 @@ const LoginPage = () => {
       <Paper
         elevation={10}
         sx={{
-          margin: "auto", // Mágica da centralização absoluta que fizemos no Register
+          margin: "auto", // Mágica da centralização absoluta
           display: "flex",
           width: "100%",
           maxWidth: "900px",
@@ -121,43 +163,51 @@ const LoginPage = () => {
 
           {/* TITULO */}
           <Typography variant="h4" sx={{ mt: 2, fontWeight: "bold" }}>
-            Entrar
+            Nova senha
           </Typography>
 
-          {/* ERRO */}
-          {error && (
+          <Typography sx={{ mt: 1, color: "text.secondary" }}>
+            Defina sua nova senha e confirme para finalizar.
+          </Typography>
+
+          {/* ALERTS */}
+          {status === "error" && (
             <Alert severity="error" sx={{ mt: 2 }}>
-              {error}
+              {message}
+            </Alert>
+          )}
+
+          {status === "success" && (
+            <Alert severity="success" sx={{ mt: 2 }}>
+              {message}
             </Alert>
           )}
 
           {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
             
-            {/* EMAIL */}
+            {/* SENHA */}
             <Typography variant="inputLabel" sx={{ mt: 2, mb: 1, display: 'block' }}>
-              E-MAIL INSTITUCIONAL
+              NOVA SENHA
             </Typography>
             <TextField
               fullWidth
-              placeholder="nome@fatec.sp.gov.br"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
+              placeholder="(nova senha)"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
 
-            {/* SENHA */}
+            {/* CONFIRMAR SENHA */}
             <Typography variant="inputLabel" sx={{ mt: 3, mb: 1, display: 'block' }}>
-              SENHA
+              CONFIRMAR SENHA
             </Typography>
             <TextField
               fullWidth
-              placeholder="Sua senha"
-              name="password"
+              placeholder="(confirme a senha)"
               type="password"
-              value={formData.password}
-              onChange={handleChange}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
 
             {/* BOTÃO */}
@@ -166,37 +216,22 @@ const LoginPage = () => {
               fullWidth
               variant="contained"
               color="primary"
+              disabled={status === "loading" || !token}
               sx={{ mt: 4 }}
             >
-              ENTRAR
+              {status === "loading" ? "SALVANDO..." : "REDEFINIR SENHA"}
             </Button>
 
             {/* LINKS */}
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                mt: 2,
-              }}
-            >
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
               <MuiLink
                 component={RouterLink}
-                to="/forgot-password"
+                to="/login"
                 underline="hover"
                 color="primary"
                 sx={{ fontSize: "14px" }}
               >
-                Esqueci minha senha
-              </MuiLink>
-
-              <MuiLink
-                component={RouterLink}
-                to="/register"
-                underline="hover"
-                color="primary"
-                sx={{ fontSize: "14px" }}
-              >
-                Não tenho cadastro
+                Voltar para o Login
               </MuiLink>
             </Box>
 
@@ -219,4 +254,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default ResetPasswordPage;

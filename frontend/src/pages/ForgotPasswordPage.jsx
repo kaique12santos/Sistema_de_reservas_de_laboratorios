@@ -2,41 +2,40 @@ import { useState } from "react";
 import {
   Box, Paper, Typography, TextField, Button, Alert, Link as MuiLink,
 } from "@mui/material";
-import { useNavigate, Link as RouterLink } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { Link as RouterLink } from "react-router-dom";
 
 import LogoFatec from "../public/images/LogoFatec.png";
 import FotoFatec from "../public/images/FOTOFATEC.jpeg";
 
-const LoginPage = () => {
-  const { login } = useAuth();
-  const navigate = useNavigate();
+const ForgotPasswordPage = () => {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("idle"); // idle | loading | success | error
+  const [message, setMessage] = useState("");
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
-  const [error, setError] = useState("");
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  // Ajustado para aceitar tanto @cps quanto @fatec
+  const validarEmail = (value) => value.endsWith("@cps.sp.gov.br") || value.endsWith("@fatec.sp.gov.br");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setMessage("");
+
+    if (!validarEmail(email)) {
+      setStatus("error");
+      setMessage("Por favor, utilize um e-mail institucional válido (@fatec.sp.gov.br ou @cps.sp.gov.br).");
+      return;
+    }
 
     try {
-      // Correção do Bug: O AuthContext exige email e senha separados, não o objeto
-      await login(formData.email, formData.password);
-      navigate("/dashboard"); // Redirecionando direto para a rota interna protegida
+      setStatus("loading");
+
+      // Simulação da chamada de API (Mock) enquanto o backend não libera a rota
+      await new Promise((resolve) => setTimeout(resolve, 900));
+
+      setStatus("success");
+      setMessage("Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha em instantes.");
     } catch (err) {
-      // Mensagem IHC clara e orientada à solução
-      setError(err.response?.data?.error || "E-mail ou senha incorretos. Verifique seus dados e tente novamente.");
+      setStatus("error");
+      setMessage("Não foi possível solicitar a redefinição no momento. Tente novamente mais tarde.");
     }
   };
 
@@ -57,7 +56,7 @@ const LoginPage = () => {
       <Paper
         elevation={10}
         sx={{
-          margin: "auto", // Mágica da centralização absoluta que fizemos no Register
+          margin: "auto", // Mágica da centralização absoluta
           display: "flex",
           width: "100%",
           maxWidth: "900px",
@@ -121,13 +120,23 @@ const LoginPage = () => {
 
           {/* TITULO */}
           <Typography variant="h4" sx={{ mt: 2, fontWeight: "bold" }}>
-            Entrar
+            Esqueci a senha
           </Typography>
 
-          {/* ERRO */}
-          {error && (
+          <Typography sx={{ mt: 1, color: "text.secondary" }}>
+            Informe seu e-mail institucional para receber o link de redefinição.
+          </Typography>
+
+          {/* ALERTS */}
+          {status === "error" && (
             <Alert severity="error" sx={{ mt: 2 }}>
-              {error}
+              {message}
+            </Alert>
+          )}
+
+          {status === "success" && (
+            <Alert severity="success" sx={{ mt: 2 }}>
+              {message}
             </Alert>
           )}
 
@@ -143,21 +152,8 @@ const LoginPage = () => {
               placeholder="nome@fatec.sp.gov.br"
               name="email"
               type="email"
-              value={formData.email}
-              onChange={handleChange}
-            />
-
-            {/* SENHA */}
-            <Typography variant="inputLabel" sx={{ mt: 3, mb: 1, display: 'block' }}>
-              SENHA
-            </Typography>
-            <TextField
-              fullWidth
-              placeholder="Sua senha"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
 
             {/* BOTÃO */}
@@ -166,37 +162,22 @@ const LoginPage = () => {
               fullWidth
               variant="contained"
               color="primary"
+              disabled={status === "loading"}
               sx={{ mt: 4 }}
             >
-              ENTRAR
+              {status === "loading" ? "ENVIANDO..." : "ENVIAR LINK"}
             </Button>
 
             {/* LINKS */}
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                mt: 2,
-              }}
-            >
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
               <MuiLink
                 component={RouterLink}
-                to="/forgot-password"
+                to="/login"
                 underline="hover"
                 color="primary"
                 sx={{ fontSize: "14px" }}
               >
-                Esqueci minha senha
-              </MuiLink>
-
-              <MuiLink
-                component={RouterLink}
-                to="/register"
-                underline="hover"
-                color="primary"
-                sx={{ fontSize: "14px" }}
-              >
-                Não tenho cadastro
+                Voltar para o Login
               </MuiLink>
             </Box>
 
@@ -219,4 +200,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default ForgotPasswordPage;

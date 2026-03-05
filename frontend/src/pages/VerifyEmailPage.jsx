@@ -1,25 +1,28 @@
-import { useEffect, useState, useRef } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
-import { Container, Paper, Typography, Box, CircularProgress, Button } from '@mui/material';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import AuthService from '../services/auth.service';
+import { useEffect, useState, useRef } from "react";
+import { useSearchParams, useNavigate, Link as RouterLink } from "react-router-dom";
+import {
+  Paper, Typography, Box, CircularProgress, Button,
+} from "@mui/material";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+
+// ✅ Importando o Service no lugar da API (Regra de Arquitetura respeitada)
+import AuthService from "../services/auth.service.js";
 
 const VerifyEmailPage = () => {
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
+  const token = searchParams.get("token");
   const navigate = useNavigate();
-  
-  const [status, setStatus] = useState('loading'); // loading, success, error
-  const [message, setMessage] = useState('Verificando seu e-mail...');
-  
-  // useRef para evitar que o React StrictMode chame a API duas vezes no desenvolvimento
+
+  const [status, setStatus] = useState("loading");
+  const [message, setMessage] = useState("Verificando seu e-mail...");
+
   const hasFetched = useRef(false);
 
   useEffect(() => {
     if (!token) {
-      setStatus('error');
-      setMessage('Nenhum token de verificação encontrado na URL.');
+      setStatus("error");
+      setMessage("Nenhum token de verificação encontrado na URL.");
       return;
     }
 
@@ -28,12 +31,13 @@ const VerifyEmailPage = () => {
       hasFetched.current = true;
 
       try {
-        const data = await AuthService.verifyEmail(token);
-        setStatus('success');
-        setMessage(data.message);
+        // ✅ Chamada limpa utilizando a camada de Service
+        const response = await AuthService.verifyEmail(token);
+        setStatus("success");
+        setMessage(response?.message || "E-mail verificado com sucesso!");
       } catch (err) {
-        setStatus('error');
-        setMessage(err.response?.data?.error || 'Erro ao verificar o e-mail. Tente novamente.');
+        setStatus("error");
+        setMessage(err?.response?.data?.error || "Erro ao verificar o e-mail. Tente novamente.");
       }
     };
 
@@ -41,63 +45,101 @@ const VerifyEmailPage = () => {
   }, [token]);
 
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ mt: 10, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Paper elevation={3} sx={{ p: 5, width: '100%', textAlign: 'center', borderRadius: 2 }}>
-          
-          {status === 'loading' && (
-            <Box sx={{ my: 3 }}>
-              <CircularProgress size={60} sx={{ color: '#B30000' }} />
-              <Typography variant="h6" sx={{ mt: 3, color: 'text.secondary' }}>
-                {message}
-              </Typography>
-            </Box>
-          )}
+    <Box
+      sx={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        bgcolor: "background.default", // Fundo cinza global
+        display: "flex",
+        overflowY: "auto",
+        p: { xs: 2, md: 4 },
+      }}
+    >
+      <Paper
+        elevation={10}
+        sx={{
+          margin: "auto", // Mágica da centralização
+          p: { xs: 4, md: 6 },
+          width: "100%",
+          maxWidth: "500px", // Card menor, pois é só um aviso
+          textAlign: "center",
+          borderRadius: "20px",
+          bgcolor: "primary.main", // Puxa o vermelho do theme.js
+          color: "#ffffff",
+        }}
+      >
+        {status === "loading" && (
+          <Box sx={{ my: 3 }}>
+            <CircularProgress size={60} sx={{ color: "#ffffff" }} />
+            <Typography variant="h6" sx={{ mt: 3, fontWeight: "bold" }}>
+              {message}
+            </Typography>
+          </Box>
+        )}
 
-          {status === 'success' && (
-            <Box sx={{ my: 2 }}>
-              <CheckCircleOutlineIcon sx={{ fontSize: 80, color: 'success.main', mb: 2 }} />
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
-                E-mail Verificado!
-              </Typography>
-              <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4 }}>
-                {message}
-              </Typography>
-              <Button 
-                variant="contained" 
-                fullWidth 
-                onClick={() => navigate('/login')}
-                sx={{ backgroundColor: '#B30000', '&:hover': { backgroundColor: '#8a0000' } }}
-              >
-                Ir para o Login
-              </Button>
-            </Box>
-          )}
+        {status === "success" && (
+          <Box sx={{ my: 2 }}>
+            <CheckCircleOutlineIcon sx={{ fontSize: 80, color: "#ffffff", mb: 2 }} />
+            
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold" }}>
+              E-mail Verificado!
+            </Typography>
+            
+            <Typography variant="body1" sx={{ mb: 4, opacity: 0.9 }}>
+              {message}
+            </Typography>
 
-          {status === 'error' && (
-            <Box sx={{ my: 2 }}>
-              <ErrorOutlineIcon sx={{ fontSize: 80, color: 'error.main', mb: 2 }} />
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
-                Falha na Verificação
-              </Typography>
-              <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4 }}>
-                {message}
-              </Typography>
-              <Button 
-                variant="outlined" 
-                fullWidth 
-                component={Link} 
-                to="/register"
-                sx={{ color: '#B30000', borderColor: '#B30000' }}
-              >
-                Voltar para o Cadastro
-              </Button>
-            </Box>
-          )}
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={() => navigate("/login")}
+              sx={{
+                bgcolor: "background.paper", // Fundo branco do tema
+                color: "primary.main", // Texto vermelho do tema
+                fontWeight: "bold",
+                height: "45px",
+                "&:hover": { bgcolor: "#f5f5f5" },
+              }}
+            >
+              IR PARA O LOGIN
+            </Button>
+          </Box>
+        )}
 
-        </Paper>
-      </Box>
-    </Container>
+        {status === "error" && (
+          <Box sx={{ my: 2 }}>
+            <ErrorOutlineIcon sx={{ fontSize: 80, color: "#ffffff", mb: 2 }} />
+            
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold" }}>
+              Falha na Verificação
+            </Typography>
+            
+            <Typography variant="body1" sx={{ mb: 4, opacity: 0.9 }}>
+              {message}
+            </Typography>
+
+            <Button
+              variant="contained"
+              fullWidth
+              component={RouterLink}
+              to="/register"
+              sx={{
+                bgcolor: "background.paper",
+                color: "primary.main",
+                fontWeight: "bold",
+                height: "45px",
+                "&:hover": { bgcolor: "#f5f5f5" },
+              }}
+            >
+              VOLTAR PARA O CADASTRO
+            </Button>
+          </Box>
+        )}
+      </Paper>
+    </Box>
   );
 };
 
