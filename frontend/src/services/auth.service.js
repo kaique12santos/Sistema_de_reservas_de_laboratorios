@@ -24,6 +24,11 @@ class AuthService {
   getCurrentUser() {
     return JSON.parse(localStorage.getItem('user'));
   }
+
+  async verifyEmail(token) {
+    const response = await api.post('/auth/verify-email', { token });
+    return response.data;
+  }
 }
 
 export default new AuthService();

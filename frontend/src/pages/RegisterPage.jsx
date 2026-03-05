@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import api from '../services/api'; // Importante: confirme se o caminho do seu axios está certo
+import DepartmentService from '../services/department.service.js';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -24,9 +24,8 @@ const RegisterPage = () => {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        // A rota aqui depende de como você configurou no app.js (ex: '/departments' ou '/api/departments')
-        const response = await api.get('/departments'); 
-        setDepartments(response.data);
+        const data = await DepartmentService.getDepartments();
+        setDepartments(data);
       } catch (err) {
         console.error("Erro ao carregar departamentos", err);
         setError('Não foi possível carregar a lista de cursos.');

@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { Container, Paper, Typography, Box, CircularProgress, Button } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import api from '../services/api';
+import AuthService from '../services/auth.service';
 
 const VerifyEmailPage = () => {
   const [searchParams] = useSearchParams();
@@ -28,9 +28,9 @@ const VerifyEmailPage = () => {
       hasFetched.current = true;
 
       try {
-        const response = await api.post('/auth/verify-email', { token });
+        const data = await AuthService.verifyEmail(token);
         setStatus('success');
-        setMessage(response.data.message);
+        setMessage(data.message);
       } catch (err) {
         setStatus('error');
         setMessage(err.response?.data?.error || 'Erro ao verificar o e-mail. Tente novamente.');
