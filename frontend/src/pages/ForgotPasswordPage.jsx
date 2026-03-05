@@ -1,82 +1,51 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
+  Box,
   Paper,
+  Typography,
   TextField,
   Button,
-  Typography,
-  Box,
   Alert,
-  MenuItem,
-  Select,
-  InputLabel,
-  FormControl,
   Link as MuiLink,
 } from "@mui/material";
 
-import { useNavigate, Link as RouterLink } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import DepartmentService from "../services/department.service.js";
+import { Link as RouterLink } from "react-router-dom";
 
 import LogoFatec from "../assets/LogoFatec.png";
 import FotoFatec from "../assets/FOTOFATEC.jpeg";
 
-const RegisterPage = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    department_id: "",
-  });
+const ForgotPasswordPage = () => {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("idle"); // idle | loading | success | error
+  const [message, setMessage] = useState("");
 
-  const [departments, setDepartments] = useState([]);
-  const [error, setError] = useState("");
-
-  const { register } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const data = await DepartmentService.getDepartments();
-        setDepartments(data);
-      } catch (err) {
-        console.error("Erro ao carregar cursos", err);
-        setError("Não foi possível carregar a lista de cursos.");
-      }
-    };
-
-    fetchDepartments();
-  }, []);
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleCourseChange = (e) => {
-    setFormData({
-      ...formData,
-      department_id: e.target.value,
-    });
-  };
+  const validarEmail = (value) => value.endsWith("@cps.sp.gov.br");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setMessage("");
 
-    if (!formData.department_id) {
-      setError("Por favor, selecione um curso.");
+    if (!validarEmail(email)) {
+      setStatus("error");
+      setMessage("Email inválido. Use um e-mail institucional (@cps.sp.gov.br).");
       return;
     }
 
     try {
-      await register(formData);
-      alert("Cadastro realizado! Verifique seu e-mail.");
-      navigate("/login");
+      setStatus("loading");
+
+      // ✅ KAÍQUE: "não tem rota ainda" -> simula a chamada no front (mock)
+      // Quando o backend ficar pronto, você troca isso por:
+      // await api.post("/auth/forgot-password", { email });
+      await new Promise((resolve) => setTimeout(resolve, 900));
+
+      setStatus("success");
+      setMessage(
+        "Se este e-mail existir, enviaremos um link para redefinir sua senha."
+      );
     } catch (err) {
-      setError(err.response?.data?.error || "Erro ao cadastrar.");
+      setStatus("error");
+      setMessage("Não foi possível solicitar a redefinição. Tente novamente.");
     }
   };
 
@@ -110,6 +79,7 @@ const RegisterPage = () => {
             backgroundImage: `url(${FotoFatec})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
             flexDirection: "column",
             justifyContent: "flex-end",
             alignItems: "center",
@@ -162,51 +132,33 @@ const RegisterPage = () => {
 
           {/* TITULO */}
           <Typography variant="h4" sx={{ mt: 2, fontWeight: "bold" }}>
-            Criar Conta
+            Esqueci a senha
           </Typography>
 
-          {/* ERRO */}
-          {error && (
+          <Typography sx={{ mt: 1, color: "#777" }}>
+            Informe seu e-mail institucional para receber o link de redefinição.
+          </Typography>
+
+          {/* ALERT */}
+          {status === "error" && (
             <Alert severity="error" sx={{ mt: 2 }}>
-              {error}
+              {message}
+            </Alert>
+          )}
+
+          {status === "success" && (
+            <Alert severity="success" sx={{ mt: 2 }}>
+              {message}
             </Alert>
           )}
 
           {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-            {/* NOME */}
             <Typography
               sx={{
                 fontSize: "12px",
                 letterSpacing: "2px",
                 mt: 2,
-                mb: 1,
-                color: "#777",
-              }}
-            >
-              NOME COMPLETO
-            </Typography>
-
-            <TextField
-              fullWidth
-              placeholder="Seu nome"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                  backgroundColor: "#ffffff",
-                },
-              }}
-            />
-
-            {/* EMAIL */}
-            <Typography
-              sx={{
-                fontSize: "12px",
-                letterSpacing: "2px",
-                mt: 3,
                 mb: 1,
                 color: "#777",
               }}
@@ -219,8 +171,8 @@ const RegisterPage = () => {
               placeholder="nome@cps.sp.gov.br"
               name="email"
               type="email"
-              value={formData.email}
-              onChange={handleChange}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               sx={{
                 "& .MuiOutlinedInput-root": {
                   borderRadius: "12px",
@@ -229,71 +181,10 @@ const RegisterPage = () => {
               }}
             />
 
-            {/* CURSO */}
-            <Typography
-              sx={{
-                fontSize: "12px",
-                letterSpacing: "2px",
-                mt: 3,
-                mb: 1,
-                color: "#777",
-              }}
-            >
-              CURSO
-            </Typography>
-
-            <FormControl fullWidth>
-              <InputLabel>Curso</InputLabel>
-
-              <Select
-                value={formData.department_id}
-                label="Curso"
-                onChange={handleCourseChange}
-                sx={{
-                  borderRadius: "12px",
-                  backgroundColor: "#ffffff",
-                }}
-              >
-                {departments.map((dept) => (
-                  <MenuItem key={dept.id} value={dept.id}>
-                    {dept.name} ({dept.code})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            {/* SENHA */}
-            <Typography
-              sx={{
-                fontSize: "12px",
-                letterSpacing: "2px",
-                mt: 3,
-                mb: 1,
-                color: "#777",
-              }}
-            >
-              SENHA
-            </Typography>
-
-            <TextField
-              fullWidth
-              placeholder="senha"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                  backgroundColor: "#ffffff",
-                },
-              }}
-            />
-
-            {/* BOTÃO */}
             <Button
               type="submit"
               fullWidth
+              disabled={status === "loading"}
               sx={{
                 mt: 4,
                 backgroundColor: "#9e1b1f",
@@ -302,12 +193,13 @@ const RegisterPage = () => {
                 height: "45px",
                 fontWeight: "bold",
                 "&:hover": { backgroundColor: "#7c1417" },
+                "&:disabled": { opacity: 0.7 },
               }}
             >
-              CADASTRAR
+              {status === "loading" ? "ENVIANDO..." : "ENVIAR LINK"}
             </Button>
 
-            {/* LINK LOGIN */}
+            {/* LINKS */}
             <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
               <MuiLink
                 component={RouterLink}
@@ -315,7 +207,7 @@ const RegisterPage = () => {
                 underline="hover"
                 sx={{ color: "#9e1b1f", fontSize: "14px" }}
               >
-                Já tem conta? Faça Login
+                Voltar para o Login
               </MuiLink>
             </Box>
 
@@ -344,4 +236,4 @@ const RegisterPage = () => {
   );
 };
 
-export default RegisterPage;
+export default ForgotPasswordPage;
