@@ -73,37 +73,47 @@ class AuthService {
     * @param {string} password - Senha do usuário
     * @returns {Object} - Retorna os dados do usuário e o token JWT 
    */
-  async login(email, password) {
-    const user = await UserRepository.findByEmail(email);
+async login(email, password) {
+  const user = await UserRepository.findByEmail(email);
 
-    if (!user) {
-      throw new Error('Usuário não encontrado');
-    }
-
-    // Comparar senha enviada com o hash do banco
-    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-
-    if (!isPasswordValid) {
-      throw new Error('Senha inválida');
-    }
-
-    // Gerar Token JWT (RNF03)
-    const token = jwt.sign(
-      { id: user.id, role: user.role },
-      process.env.JWT_SECRET || 'secret_dev',
-      { expiresIn: '1d' }
-    );
-
-    return {
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      },
-      token
-    };
+  if (!user) {
+    throw new Error('Credenciais inválidas');
   }
+
+  if (user.status === 'PENDING') {
+    throw new Error('Sua conta ainda não foi verificada. Verifique seu e-mail.');
+  }
+
+  if (user.status === 'REJECTED') {
+    throw new Error('Sua conta foi rejeitada. Entre em contato com o administrador.');
+  }
+
+  if (user.status !== 'APPROVED') {
+    throw new Error('Sua conta não está ativa. Entre em contato com o administrador.');
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+
+  if (!isPasswordValid) {
+    throw new Error('Credenciais inválidas');
+  }
+
+  const token = jwt.sign(
+    { id: user.id, role: user.role },
+    process.env.JWT_SECRET || 'secret_dev',
+    { expiresIn: '1d' }
+  );
+
+  return {
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    },
+    token
+  };
+}
 
   async verifyEmail(token) {
     if (!token) throw new Error('Token não fornecido.');
