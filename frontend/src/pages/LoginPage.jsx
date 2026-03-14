@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Paper,
@@ -9,11 +9,16 @@ import {
   Link as MuiLink,
 } from "@mui/material";
 
+import Toast from "../utils/Toast";
+
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 import LogoFatec from "../assets/LogoFatec.png";
 import FotoFatec from "../assets/FOTOFATEC.jpeg";
+
+
+
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -24,7 +29,12 @@ const LoginPage = () => {
     password: "",
   });
 
-  const [error, setError] = useState("");
+  // --- ESTADO DO TOAST ---
+  const [notify, setNotify] = useState({
+    open: false,
+    message: "",
+    severity: "error",
+  });
 
   const handleChange = (e) => {
     setFormData({
@@ -33,15 +43,32 @@ const LoginPage = () => {
     });
   };
 
+  const handleCloseToast = (event, reason) => {
+    if (reason === "clickaway") return;
+    setNotify({ ...notify, open: false });
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     try {
       await login(formData);
+      setNotify({
+        open: true,
+        message: "Login Realizado com sucesso.",
+        severity: "success",
+      });
+
+      setTimeout(() => {
       navigate("/");
+       }, 1500);
     } catch (err) {
-      setError(err.response?.data?.error || "Erro ao fazer login.");
+      // --- DISPARANDO O TOAST NO ERRO ---
+      setNotify({
+        open: true,
+        message: err.response?.data?.error || "Erro ao fazer login.",
+        severity: "error",
+      });
     }
   };
 
@@ -131,12 +158,7 @@ const LoginPage = () => {
             Login
           </Typography>
 
-          {/* ERRO */}
-          {error && (
-            <Alert severity="error" sx={{ mt: 2 }}>
-              {error}
-            </Alert>
-          )}
+          
 
           {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
@@ -215,6 +237,8 @@ const LoginPage = () => {
               ENTRAR
             </Button>
 
+            
+
             {/* LINKS */}
             <Box
   sx={{
@@ -265,6 +289,14 @@ const LoginPage = () => {
           </Box>
         </Box>
       </Paper>
+
+      <Toast 
+        open={notify.open} 
+        handleClose={handleCloseToast} 
+        message={notify.message} 
+        severity={notify.severity} 
+      />
+      
     </Box>
   );
 };

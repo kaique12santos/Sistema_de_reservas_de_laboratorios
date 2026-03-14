@@ -109,36 +109,36 @@
 
 * **Descrição:** Inputs e lógica de envio.
 * **Obs:** Funcional, mas **sem identidade visual final**.
-* **Status:** 🟡 ENTREGUE (Aguardando Design)
+* **Status:** ✅ CONCLUÍDO
 * **Responsável:** Luiz / Kaique
 
 #### [F1-FE-03] Tela de Cadastro (Estrutura)
 
 * **Descrição:** Inputs e lógica de envio.
 * **Obs:** Funcional, mas **sem identidade visual final**.
-* **Status:** 🟡 ENTREGUE (Aguardando Design)
+* **Status:** ✅ CONCLUÍDO
 * **Responsável:** Luiz / Kaique 
 
 #### [F1-FE-04] Tela "Esqueci minha senha"
 * **Descrição:** Formulário simples pedindo o e-mail.
 * **Entregáveis:** `ForgotPasswordPage.jsx`
 * **Ação:** Chama POST `api/auth/forgot-password` e exibe feedback de sucesso.
-* **Status:** 🔴 PENDENTE
-* **Responsável:** -
+* **Status:** ✅ CONCLUÍDO
+* **Responsável:** - Luiz
 
 #### [F1-FE-05] Tela de Nova Senha
 * **Descrição:** Acessada via link do email (lê token da URL).
 * **Entregáveis:** `ResetPasswordPage.jsx`
 * **Campos:** Nova Senha, Confirmar Senha.
 * **Ação:** Chama POST `api/auth/reset-password` e redireciona para Login.
-* **Status:** 🔴 PENDENTE
-* **Responsável:** -
+* **Status:** ✅ CONCLUÍDO
+* **Responsável:** - Luiz
 
 #### [F1-FE-06] Tela de Verificação de Email
 * **Descrição:** Acessa via link do email
 * **Entregáveis:** `VerifyEmailPage.jsx`
 * **Ação:** Valida Email pela rota `api/auth/verify-email` e apresenta mensagem de sucesso com botao de redirecionamento para o login ou msg de erro.
-* **Status:** 🟡 FALTANDO DESIGNER
+* **Status:** ✅ CONCLUÍDO
 * **Responsável:** Luiz / Kaique
 ---
 

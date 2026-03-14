@@ -13,6 +13,8 @@ import {
   Link as MuiLink,
 } from "@mui/material";
 
+import Toast from "../utils/Toast";
+
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import DepartmentService from "../services/department.service.js";
@@ -48,12 +50,6 @@ const RegisterPage = () => {
     fetchDepartments();
   }, []);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
 
   const handleCourseChange = (e) => {
     setFormData({
@@ -62,22 +58,85 @@ const RegisterPage = () => {
     });
   };
 
+
+  // --- ESTADO DO TOAST ---
+  const [notify, setNotify] = useState({
+    open: false,
+    message: "",
+    severity: "error",
+  });
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleCloseToast = (event, reason) => {
+    if (reason === "clickaway") return;
+    setNotify({ ...notify, open: false });
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+      if (!formData.name){
+                setNotify({
+              open: true,
+              message:"Por favor, informe um nome.",
+              severity: "error",
+            });
+            return;
+          }
 
-    if (!formData.department_id) {
-      setError("Por favor, selecione um curso.");
+              if (!formData.email){
+          setNotify({
+        open: true,
+        message:"Por favor, informe um email válido.",
+        severity: "error",
+      });
+      return;
+    }
+
+     if (!formData.department_id) {
+          setNotify({
+        open: true,
+        message: "Por favor, selecione um curso.",
+        severity: "error",
+      });
+      return;
+    }
+    
+
+    if (!formData.password){
+    setNotify({
+        open: true,
+        message: "Por favor, informe uma senha.",
+        severity: "error",
+      });
       return;
     }
 
     try {
       await register(formData);
-      alert("Cadastro realizado! Verifique seu e-mail.");
-      navigate("/login");
+      setNotify({
+        open: true,
+        message: "Um Token foi emviado ao seu email.",
+        severity: "success",
+      });
+
+      setTimeout(() => {
+      navigate("/");
+       }, 3500);
     } catch (err) {
-      setError(err.response?.data?.error || "Erro ao cadastrar.");
+      // --- DISPARANDO O TOAST NO ERRO ---
+      setNotify({
+        open: true,
+        message: err.response?.data?.error || "Erro ao cadastrar.",
+        severity: "error",
+      });
     }
+    
   };
 
   return (
@@ -340,6 +399,14 @@ const RegisterPage = () => {
           </Box>
         </Box>
       </Paper>
+
+      <Toast 
+        open={notify.open} 
+        handleClose={handleCloseToast} 
+        message={notify.message} 
+        severity={notify.severity} 
+      />
+      
     </Box>
   );
 };
