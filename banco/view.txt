@@ -1,0 +1,44 @@
+USE fatecZL_lab_reservations;
+CREATE OR REPLACE VIEW view_calendario_reservas AS
+SELECT 
+    ri.date AS data_aula, 
+    ts.name AS horario, 
+    l.name AS lab, 
+    u.name AS professor, 
+    d.code AS depto
+FROM reservation_items ri
+JOIN time_slots ts ON ri.time_slot_id = ts.id
+JOIN laboratories l ON ri.lab_id = l.id
+JOIN reservations r ON ri.reservation_id = r.id
+JOIN users u ON r.user_id = u.id
+LEFT JOIN departments d ON u.department_id = d.id
+WHERE ri.status = 'ACTIVE';
+
+SELECT * FROM view_calendario_reservas;
+
+
+-- exemplo de utilização do view
+
+USE fatecZL_lab_reservations;
+
+-- 1. Cria a Reserva (Pai) - Para o Professor (ID 2) no Lab (ID 1)
+INSERT INTO reservations (id, user_id, lab_id, cycle_id, status) 
+VALUES (100, 2, 1, 1, 'APPROVED');
+
+-- 2. Cria o Item da Reserva (Filho) - O horário específico no calendário
+-- Nota: O status deve ser 'ACTIVE' para aparecer na View
+INSERT INTO reservation_items (reservation_id, lab_id, date, time_slot_id, start_time, end_time, status)
+VALUES (100, 1, '2026-03-20', 1, '07:30:00', '08:20:00', 'ACTIVE');
+
+-- 3. Outro exemplo para outro dia
+INSERT INTO reservation_items (reservation_id, lab_id, date, time_slot_id, start_time, end_time, status)
+VALUES (100, 1, '2026-03-21', 2, '08:20:00', '09:10:00', 'ACTIVE');
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Limpa as tabelas de movimentação e histórico
+TRUNCATE TABLE reservation_items;
+TRUNCATE TABLE reservations;
+
+-- Reativa as verificações de integridade
+SET FOREIGN_KEY_CHECKS = 1;
