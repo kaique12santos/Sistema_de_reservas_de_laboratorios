@@ -3,6 +3,8 @@ import {
   Paper, TextField, Button, Typography, Box, Alert, MenuItem,
   Select, InputLabel, FormControl, Link as MuiLink,
 } from "@mui/material";
+
+import Toast from "../utils/Toast";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import DepartmentService from "../services/department.service.js";
@@ -32,21 +34,37 @@ const RegisterPage = () => {
     fetchDepartments();
   }, []);
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-  const handleCourseChange = (e) => setFormData({ ...formData, department_id: e.target.value });
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleCourseChange = (e) => {
+    setFormData({
+      ...formData,
+      department_id: e.target.value,
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!formData.department_id) return setError("Por favor, selecione um curso.");
+
+    if (!formData.department_id) {
+      setError("Por favor, selecione um curso.");
+      return;
+    }
 
     try {
       await register(formData);
-      alert("Cadastro realizado! Verifique seu e-mail para validar a conta."); // Mensagem IHC clara
+      alert("Cadastro realizado! Verifique seu e-mail.");
       navigate("/login");
     } catch (err) {
-      setError(err.response?.data?.error || "Erro ao cadastrar. Tente novamente mais tarde."); // Mensagem IHC clara
+      setError(err.response?.data?.error || "Erro ao cadastrar.");
     }
+    
   };
 
   return (
@@ -123,6 +141,14 @@ const RegisterPage = () => {
           </Box>
         </Box>
       </Paper>
+
+      <Toast 
+        open={notify.open} 
+        handleClose={handleCloseToast} 
+        message={notify.message} 
+        severity={notify.severity} 
+      />
+      
     </Box>
   );
 };

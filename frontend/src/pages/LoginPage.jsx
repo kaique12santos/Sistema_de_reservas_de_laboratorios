@@ -1,12 +1,14 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Box, Paper, Typography, TextField, Button, Alert, Link as MuiLink,
 } from "@mui/material";
+
+import Toast from "../utils/Toast";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-import LogoFatec from "../public/images/LogoFatec.png";
-import FotoFatec from "../public/images/FOTOFATEC.jpeg";
+import LogoFatec from "../assets/LogoFatec.png";
+import FotoFatec from "../assets/FOTOFATEC.jpeg";
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -17,7 +19,12 @@ const LoginPage = () => {
     password: "",
   });
 
-  const [error, setError] = useState("");
+  // --- ESTADO DO TOAST ---
+  const [notify, setNotify] = useState({
+    open: false,
+    message: "",
+    severity: "error",
+  });
 
   const handleChange = (e) => {
     setFormData({
@@ -26,17 +33,19 @@ const LoginPage = () => {
     });
   };
 
+  const handleCloseToast = (event, reason) => {
+    if (reason === "clickaway") return;
+    setNotify({ ...notify, open: false });
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     try {
-      // Correção do Bug: O AuthContext exige email e senha separados, não o objeto
-      await login(formData.email, formData.password);
-      navigate("/dashboard"); // Redirecionando direto para a rota interna protegida
+      await login(formData);
+      navigate("/");
     } catch (err) {
-      // Mensagem IHC clara e orientada à solução
-      setError(err.response?.data?.error || "E-mail ou senha incorretos. Verifique seus dados e tente novamente.");
+      setError(err.response?.data?.error || "Erro ao fazer login.");
     }
   };
 
@@ -124,12 +133,7 @@ const LoginPage = () => {
             Entrar
           </Typography>
 
-          {/* ERRO */}
-          {error && (
-            <Alert severity="error" sx={{ mt: 2 }}>
-              {error}
-            </Alert>
-          )}
+          
 
           {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
@@ -170,6 +174,8 @@ const LoginPage = () => {
             >
               ENTRAR
             </Button>
+
+            
 
             {/* LINKS */}
             <Box
@@ -215,6 +221,14 @@ const LoginPage = () => {
           </Box>
         </Box>
       </Paper>
+
+      <Toast 
+        open={notify.open} 
+        handleClose={handleCloseToast} 
+        message={notify.message} 
+        severity={notify.severity} 
+      />
+      
     </Box>
   );
 };

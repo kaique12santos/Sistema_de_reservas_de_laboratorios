@@ -15,8 +15,7 @@ class EmailService {
             },
             tls: {
                 rejectUnauthorized: false
-            }
-        }, {
+            },
             // Isso força o uso de IPv4 e costuma resolver o problema do ECONNREFUSED com endereços IPv6
             family: 4
         });
