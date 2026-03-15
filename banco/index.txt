@@ -1,0 +1,4 @@
+USE fatecZL_lab_reservations;
+CREATE INDEX idx_user_email ON users(email);
+CREATE INDEX idx_items_date ON reservation_items(date);
+ALTER TABLE reservation_items ADD UNIQUE KEY uk_conflict (lab_id, date, time_slot_id, status);
