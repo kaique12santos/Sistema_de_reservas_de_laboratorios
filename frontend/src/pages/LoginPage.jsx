@@ -1,14 +1,24 @@
 import React, { useState } from "react";
 import {
-  Box, Paper, Typography, TextField, Button, Alert, Link as MuiLink,
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  Link as MuiLink,
 } from "@mui/material";
 
 import Toast from "../utils/Toast";
+
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 import LogoFatec from "../assets/LogoFatec.png";
 import FotoFatec from "../assets/FOTOFATEC.jpeg";
+
+
+
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -43,34 +53,43 @@ const LoginPage = () => {
 
     try {
       await login(formData);
+      setNotify({
+        open: true,
+        message: "Login Realizado com sucesso.",
+        severity: "success",
+      });
+
+      setTimeout(() => {
       navigate("/");
+       }, 1500);
     } catch (err) {
-      setError(err.response?.data?.error || "Erro ao fazer login.");
+      // --- DISPARANDO O TOAST NO ERRO ---
+      setNotify({
+        open: true,
+        message: err.response?.data?.error || "Erro ao fazer login.",
+        severity: "error",
+      });
     }
   };
 
   return (
     <Box
       sx={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        bgcolor: "background.default",
+        minHeight: "100vh",
+        width: "100%",
         display: "flex",
-        overflowY: "auto",
-        p: { xs: 2, md: 4 },
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#dfdfdf",
+        p: 2,
       }}
     >
       <Paper
         elevation={10}
         sx={{
-          margin: "auto", // Mágica da centralização absoluta que fizemos no Register
           display: "flex",
-          width: "100%",
-          maxWidth: "900px",
-          minHeight: { xs: "auto", md: "600px" },
+          width: { xs: "100%", md: "900px" },
+          height: { xs: "auto", md: "600px" },
           borderRadius: "20px",
           overflow: "hidden",
         }}
@@ -97,6 +116,7 @@ const LoginPage = () => {
               px: 3,
               py: 2,
               mb: 2,
+              width: "fit-content",
             }}
           >
             <Typography
@@ -108,7 +128,11 @@ const LoginPage = () => {
                 textAlign: "center",
               }}
             >
-              Sistema de<br />Reservas de<br />Laboratórios
+              Sistema de
+              <br />
+              Reservas de
+              <br />
+              Laboratórios
             </Typography>
           </Box>
         </Box>
@@ -117,10 +141,11 @@ const LoginPage = () => {
         <Box
           sx={{
             width: { xs: "100%", md: "60%" },
-            bgcolor: "background.paper",
+            backgroundColor: "#f5f5f5",
             p: { xs: 3, md: 5 },
             display: "flex",
             flexDirection: "column",
+            overflowY: "auto",
           }}
         >
           {/* LOGO */}
@@ -130,47 +155,84 @@ const LoginPage = () => {
 
           {/* TITULO */}
           <Typography variant="h4" sx={{ mt: 2, fontWeight: "bold" }}>
-            Entrar
+            Login
           </Typography>
 
           
 
           {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-            
             {/* EMAIL */}
-            <Typography variant="inputLabel" sx={{ mt: 2, mb: 1, display: 'block' }}>
-              E-MAIL INSTITUCIONAL
+            <Typography
+              sx={{
+                fontSize: "12px",
+                letterSpacing: "2px",
+                mt: 2,
+                mb: 1,
+                color: "#777",
+              }}
+            >
+              E-MAIL
             </Typography>
+
             <TextField
               fullWidth
-              placeholder="nome@fatec.sp.gov.br"
+              placeholder="nome@cps.sp.gov.br"
               name="email"
               type="email"
               value={formData.email}
               onChange={handleChange}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                  backgroundColor: "#ffffff",
+                },
+              }}
             />
 
             {/* SENHA */}
-            <Typography variant="inputLabel" sx={{ mt: 3, mb: 1, display: 'block' }}>
+            <Typography
+              sx={{
+                fontSize: "12px",
+                letterSpacing: "2px",
+                mt: 3,
+                mb: 1,
+                color: "#777",
+              }}
+            >
               SENHA
             </Typography>
+
             <TextField
               fullWidth
-              placeholder="Sua senha"
+              placeholder="senha"
               name="password"
               type="password"
               value={formData.password}
               onChange={handleChange}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                  backgroundColor: "#ffffff",
+                },
+              }}
             />
 
             {/* BOTÃO */}
             <Button
               type="submit"
               fullWidth
-              variant="contained"
-              color="primary"
-              sx={{ mt: 4 }}
+              sx={{
+                mt: 4,
+                backgroundColor: "#9e1b1f",
+                color: "#ffffff",
+                borderRadius: "12px",
+                height: "45px",
+                fontWeight: "bold",
+                "&:hover": {
+                  backgroundColor: "#7c1417",
+                },
+              }}
             >
               ENTRAR
             </Button>
@@ -179,32 +241,32 @@ const LoginPage = () => {
 
             {/* LINKS */}
             <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                mt: 2,
-              }}
-            >
-              <MuiLink
-                component={RouterLink}
-                to="/forgot-password"
-                underline="hover"
-                color="primary"
-                sx={{ fontSize: "14px" }}
-              >
-                Esqueci minha senha
-              </MuiLink>
+  sx={{
+    display: "flex",
+    justifyContent: "space-between",
+    mt: 2,
+  }}
+>
 
-              <MuiLink
-                component={RouterLink}
-                to="/register"
-                underline="hover"
-                color="primary"
-                sx={{ fontSize: "14px" }}
-              >
-                Não tenho cadastro
-              </MuiLink>
-            </Box>
+  <MuiLink
+    component={RouterLink}
+    to="/forgot-password"
+    underline="hover"
+    sx={{ color: "#9e1b1f", fontSize: "14px" }}
+  >
+    Esqueci minha senha
+  </MuiLink>
+
+  <MuiLink
+    component={RouterLink}
+    to="/register"
+    underline="hover"
+    sx={{ color: "#9e1b1f", fontSize: "14px" }}
+  >
+    Criar conta
+  </MuiLink>
+
+</Box>
 
             {/* RODAPÉ */}
             <Box
@@ -212,11 +274,17 @@ const LoginPage = () => {
                 display: "flex",
                 justifyContent: "space-between",
                 mt: 4,
-                color: "text.secondary",
+                fontSize: "12px",
+                color: "#777",
               }}
             >
-              <Typography variant="caption">© 2026 Centro Paula Souza</Typography>
-              <Typography variant="caption">www.cps.sp.gov.br</Typography>
+              <Typography>
+                © 2026
+                <br />
+                Centro Paula Souza
+              </Typography>
+
+              <Typography>www.cps.sp.gov.br</Typography>
             </Box>
           </Box>
         </Box>
