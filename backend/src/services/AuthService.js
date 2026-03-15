@@ -115,13 +115,25 @@ async login(email, password) {
   };
 }
 
+  /**
+   * 
+   * @param {string} token - Token de verificação recebido no e-mail do usuário 
+   * @returns  {Object} - Retorna uma mensagem de sucesso ou lança um erro caso o token seja inválido ou já utilizado
+   * 
+   */
   async verifyEmail(token) {
-    if (!token) throw new Error('Token não fornecido.');
+    if (!token) {
+      throw new Error('O link de verificação está incompleto. Verifique se copiou a URL inteira recebida no e-mail.');
+    }
 
     const user = await UserRepository.findByVerificationToken(token);
     
     if (!user) {
-      throw new Error('Link de verificação inválido ou já utilizado.');
+      throw new Error(
+        'Este link de verificação é inválido ou já foi utilizado. ' +
+        'Se você já confirmou seu e-mail antes, tente fazer o login. ' +
+        'Caso contrário, solicite um novo link de verificação na tela inicial.'
+      );
     }
 
     await UserRepository.clearVerificationToken(user.id);
