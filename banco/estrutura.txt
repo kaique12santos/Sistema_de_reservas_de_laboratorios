@@ -59,6 +59,7 @@ CREATE TABLE users (
     password_reset_token VARCHAR(255) NULL COMMENT 'Token único para reset de senha',
     password_reset_expires TIMESTAMP NULL COMMENT 'Validade do token de reset',
     verification_token VARCHAR(255) NULL COMMENT 'Token para confirmar posse do e-mail (opcional)',
+    department VARCHAR(255) NULL COMMENT 'Nome do departamento',
     -- Role define as permissões macro (Baseado no arquivo constants/roles.js)
     role ENUM('ADMIN', 'PROFESSOR', 'SUPPORT') NOT NULL DEFAULT 'PROFESSOR' COMMENT 'Nível de acesso',
     
@@ -240,8 +241,8 @@ INSERT INTO departments (name, code) VALUES
 ('Gestão Empresarial', 'GE');
 
 -- senha: senha123 ou senha1234
-INSERT INTO users (name, email, password_hash, role, status, department) VALUES 
-('Administrador Master', 'admin@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'ADMIN', 'ACTIVE', 'Gestão Empresarial');
+INSERT INTO users (name, email, password_hash, role, status, department_id) VALUES 
+('Administrador Master', 'admin@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'ADMIN', 'APPROVED', 3);
 
 -- Criar horários padrão (Exemplo)
 INSERT INTO time_slots (name, start_time, end_time) VALUES 
