@@ -73,47 +73,46 @@ class AuthService {
     * @param {string} password - Senha do usuário
     * @returns {Object} - Retorna os dados do usuário e o token JWT 
    */
-async login(email, password) {
-  const user = await UserRepository.findByEmail(email);
+  async login({ email, password }) {
+   
 
-  if (!user) {
-    throw new Error('Credenciais inválidas');
+    const user = await UserRepository.findByEmail(email);
+    
+    if (!user) {
+      throw new Error('Credenciais inválidas');
+    }
+
+    // A nossa validação segura da senha ANTES do status
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    if (!isPasswordValid) {
+      throw new Error('Credenciais inválidas');
+    }
+
+    if (user.status === 'PENDING') {
+      throw new Error('Sua conta ainda não foi Aprovada pelo coordenador do seu departamento.'
+        + ' Aguarde a aprovação para poder acessar o sistema.'
+      );
+    }
+    if (user.status === 'REJECTED') {
+      throw new Error('Sua conta foi rejeitada. Entre em contato com o coordenador do seu departamento.');
+    }
+    if (user.status !== 'APPROVED') {
+      throw new Error('Sua conta não está ativa. Entre em contato com o administrador.');
+    }
+
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET || 'secret_dev',
+      { expiresIn: '1d' }
+    );
+
+    const safeUser = new UserModel(user).toSafeObject();
+
+    return {
+      user: safeUser,
+      token
+    };
   }
-
-  if (user.status === 'PENDING') {
-    throw new Error('Sua conta ainda não foi verificada. Verifique seu e-mail.');
-  }
-
-  if (user.status === 'REJECTED') {
-    throw new Error('Sua conta foi rejeitada. Entre em contato com o administrador.');
-  }
-
-  if (user.status !== 'APPROVED') {
-    throw new Error('Sua conta não está ativa. Entre em contato com o administrador.');
-  }
-
-  const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-
-  if (!isPasswordValid) {
-    throw new Error('Credenciais inválidas');
-  }
-
-  const token = jwt.sign(
-    { id: user.id, role: user.role },
-    process.env.JWT_SECRET || 'secret_dev',
-    { expiresIn: '1d' }
-  );
-
-  return {
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role
-    },
-    token
-  };
-}
 
   /**
    * 
