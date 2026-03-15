@@ -47,8 +47,8 @@
 
 * **Descrição:** Rota POST `api/auth/login` gerando token.
 * **Obs:** Código base existe, mas falta validar e integrar.
-* **Status:** 🔴 PENDENTE (Na fila)
-* **Responsável:** -
+* **Status:** EM REVIEW
+* **Responsável:** Nicole
 
 #### [F1-BE-04] Middleware de autorização
 
@@ -74,8 +74,8 @@
   - Gerar token (crypto.randomBytes ou JWT curto)
   - Salvar hash do token e expiração (1h) no banco
   - Enviar link: `front/reset-password?token=XYZ`
-* **Status:** 🔴 PENDENTE
-* **Responsável:** -
+* **Status:** 🟡 EM ANDAMENTO
+* **Responsável:** Nicole
 
 #### [F1-BE-07] Redefinição de Senha (Reset Password)
 * **Descrição:** Endpoint que valida o token e atualiza a senha.
@@ -83,8 +83,8 @@
   - Validar se token existe e não expirou
   - Criptografar nova senha
   - Limpar token do banco
-* **Status:** 🔴 PENDENTE
-* **Responsável:** -
+* **Status:** 🟡 EM ANDAMENTO
+* **Responsável:** Nicole
 
 #### [F1-BE-08] Verificação de Email (Opcional se sobrar tempo)
 * **Descrição:** Endpoint que confirma o email do usuário via token.
