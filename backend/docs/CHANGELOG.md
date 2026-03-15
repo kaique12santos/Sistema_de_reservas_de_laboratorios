@@ -64,3 +64,12 @@
 ### Middleware de Autenticação e Autorização (RBAC)
 - **Descrição:** Adaptação do arquivo de proteção de rotas para o padrão ES Modules (`import/export`). Implementação do `authMiddleware` para validação de JWT e extração de dados do usuário.
 - **Controle de Acesso por Cargo:** Criação da função `requireRole` para aplicar o padrão Role-Based Access Control (RBAC), permitindo restringir endpoints específicos apenas para perfis autorizados (ex: `ADMIN`), atendendo aos requisitos de segurança da arquitetura.
+
+## 15/03/2026
+
+### 1. Corrigido (Fixed)
+- **Refatoração da Arquitetura do Banco:** Reversão do tipo de dado da coluna `department` (de VARCHAR para `department_id` INT) nas queries e migrations, restaurando a integridade referencial com a tabela de departamentos.
+- **Tratamento de Dados no Login:** Ajuste na assinatura do método `AuthService.login` para usar desestruturação de objetos (`{ email, password }`), corrigindo o erro de passagem de parâmetros (`undefined`) entre o Controller e o Service.
+- **Segurança de Autenticação:** Correção na ordem de validação do login. A verificação da senha (Bcrypt) agora ocorre *antes* da validação do status da conta (PENDING/REJECTED), prevenindo ataques de enumeração de usuários.
+- **UX do Front-End:** Inclusão de mensagens acionáveis nos retornos de erro do Back-End e ajuste no CSS (`maxWidth` e `wordBreak`) do componente `Toast` no React para evitar quebra de layout com mensagens longas.
+- **Validação do Axios:** Teste e homologação do Interceptor do Front-End (Injeção de Header Authorization e redirecionamento de Logout no 401) usando a rota dummy `/teste-seguranca`.

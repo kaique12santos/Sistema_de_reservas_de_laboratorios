@@ -60,8 +60,8 @@ const LoginPage = () => {
       });
 
       setTimeout(() => {
-      navigate("/");
-       }, 1500);
+      navigate("/Dashboard");
+       }, 3500);
     } catch (err) {
       // --- DISPARANDO O TOAST NO ERRO ---
       setNotify({

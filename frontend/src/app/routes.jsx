@@ -5,8 +5,8 @@ import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 import DashboardPage from '../pages/DashboardPage';
 import VerifyEmailPage from '../pages/VerifyEmailPage';
+import ResetPasswordPage from '../pages/ResetPasswordPage';
 import ForgotPasswordPage from '../pages/ForgotPasswordPage';
-import ResetPasswordPage from "../pages/ResetPasswordPage";
 
 // Componente para proteger rotas privadas
 const PrivateRoute = ({ children }) => {
@@ -34,7 +34,6 @@ const AppRoutes = () => {
       <Route path="/verify" element={<VerifyEmailPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
-      
       
       {/* Rota Privada */}
       <Route 

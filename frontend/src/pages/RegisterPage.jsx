@@ -121,7 +121,7 @@ const RegisterPage = () => {
       await register(formData);
       setNotify({
         open: true,
-        message: "Um Token foi emviado ao seu email.",
+        message: "Verifique o seu Email para validar o cadastro.",
         severity: "success",
       });
 

@@ -15,15 +15,15 @@
   * 1- Executar script no arquivo da pasta do banco de dados do repositorio `estrutura.txt` no seu banco MySQL.
   * 2- preenchimento do arquivo `seed.txt`
   **Seed Mínimo Obrigatório:**
-    - [ ] 3 Departamentos (DSM, GPI, GE)
-    - [ ] 5 Time Slots (M1 a M4, N1)
-    - [ ] 3 Laboratórios (Lab 01, Lab 02, Auditório)
-    - [ ] 1 ADMIN (email: admin@fatec.sp.gov.br, senha: admin123)
-    - [ ] 2 PROFESSORES de teste
-    - [ ] 1 Ciclo Acadêmico ativo (2026-1)
-    - [ ] 5 Feriados (Carnaval, Páscoa, etc)
+    - [x] 3 Departamentos (DSM, GPI, GE)
+    - [x] 5 Time Slots (M1 a M4, N1)
+    - [x] 3 Laboratórios (Lab 01, Lab 02, Auditório)
+    - [x] 1 ADMIN (email: admin@fatec.sp.gov.br, senha: admin123)
+    - [x] 2 PROFESSORES de teste
+    - [x] 1 Ciclo Acadêmico ativo (2026-1)
+    - [x] 5 Feriados (Carnaval, Páscoa, etc)
   * 3- desenvolver index e views conforme achar necessario para otimizar os acessos ao BD (procedures podem ser desenvolvidas pórem essa otimização deve ser feita com aval do backend conforme os comandos sql necessarios em alguns processos ao longo do desenvolvimento entao nessa fase apenas o necessario para otimizar)
-* **Status:** 🟡 Em Andamento
+* **Status:** ✅ CONCLUÍDO
 * **Responsável:** Vinicius / Kaique
 
 ---
@@ -47,7 +47,7 @@
 
 * **Descrição:** Rota POST `api/auth/login` gerando token.
 * **Obs:** Código base existe, mas falta validar e integrar.
-* **Status:** EM REVIEW
+* **Status:** ✅ CONCLUÍDO
 * **Responsável:** Nicole
 
 #### [F1-BE-04] Middleware de autorização
@@ -74,7 +74,7 @@
   - Gerar token (crypto.randomBytes ou JWT curto)
   - Salvar hash do token e expiração (1h) no banco
   - Enviar link: `front/reset-password?token=XYZ`
-* **Status:** 🟡 EM ANDAMENTO
+* **Status:** ✅ CONCLUÍDO
 * **Responsável:** Nicole
 
 #### [F1-BE-07] Redefinição de Senha (Reset Password)
@@ -83,7 +83,7 @@
   - Validar se token existe e não expirou
   - Criptografar nova senha
   - Limpar token do banco
-* **Status:** 🟡 EM ANDAMENTO
+* **Status:** ✅ CONCLUÍDO
 * **Responsável:** Nicole
 
 #### [F1-BE-08] Verificação de Email (Opcional se sobrar tempo)
@@ -147,14 +147,14 @@
 #### [F1-INT-01] Teste End-to-End da Autenticação
 * **Descrição:** Testar fluxo completo: Cadastro → Login → Acesso protegido
 * **Checklist:**
-  - [ ] Cadastrar usuário via frontend
-  - [ ] Verificar no banco que status = PENDING
-  - [ ] Tentar fazer login (deve falhar - aguardando aprovação)
-  - [ ] Admin aprova usuário manualmente no banco
-  - [ ] Login funciona e redireciona para dashboard
-  - [ ] Acessar rota protegida com token válido (sucesso)
-  - [ ] Acessar rota protegida sem token (401)
-* **Status:** 🔴 PENDENTE
+  - [x] Cadastrar usuário via frontend
+  - [x] Verificar no banco que status = PENDING
+  - [x] Tentar fazer login (deve falhar - aguardando aprovação)
+  - [x] Admin aprova usuário manualmente no banco
+  - [x] Login funciona e redireciona para dashboard
+  - [x] Acessar rota protegida com token válido (sucesso)
+  - [x] Acessar rota protegida sem token (401)
+* **Status:** ✅ CONCLUÍDO
 * **Responsável:** Kaique
 ---
 

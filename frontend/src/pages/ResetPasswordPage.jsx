@@ -1,17 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams, Link as RouterLink } from "react-router-dom";
 import {
-  Box,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Alert,
-  Link as MuiLink,
+  Box, Paper, Typography, TextField, Button, Alert, Link as MuiLink,
 } from "@mui/material";
 
-import LogoFatec from "../assets/LogoFatec.png";
-import FotoFatec from "../assets/FOTOFATEC.jpeg";
+import LogoFatec from "../public/images/LogoFatec.png";
+import FotoFatec from "../public/images/FOTOFATEC.jpeg";
 
 import AuthService from "../services/auth.service.js";
 
@@ -72,7 +66,7 @@ const ResetPasswordPage = () => {
     try {
       setStatus("loading");
 
-      // ✅ Padrão do projeto: página chama o service, não chama api direto
+      // Chamada seguindo o padrão de Services da arquitetura
       const response = await AuthService.resetPassword({ token, password });
 
       setStatus("success");
@@ -91,21 +85,25 @@ const ResetPasswordPage = () => {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
-        width: "100%",
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        bgcolor: "background.default",
         display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#dfdfdf",
-        p: 2,
+        overflowY: "auto",
+        p: { xs: 2, md: 4 },
       }}
     >
       <Paper
         elevation={10}
         sx={{
+          margin: "auto", // Mágica da centralização absoluta
           display: "flex",
-          width: { xs: "100%", md: "900px" },
-          height: { xs: "auto", md: "600px" },
+          width: "100%",
+          maxWidth: "900px",
+          minHeight: { xs: "auto", md: "600px" },
           borderRadius: "20px",
           overflow: "hidden",
         }}
@@ -132,7 +130,6 @@ const ResetPasswordPage = () => {
               px: 3,
               py: 2,
               mb: 2,
-              width: "fit-content",
             }}
           >
             <Typography
@@ -144,11 +141,7 @@ const ResetPasswordPage = () => {
                 textAlign: "center",
               }}
             >
-              Sistema de
-              <br />
-              Reservas de
-              <br />
-              Laboratórios
+              Sistema de<br />Reservas de<br />Laboratórios
             </Typography>
           </Box>
         </Box>
@@ -157,11 +150,10 @@ const ResetPasswordPage = () => {
         <Box
           sx={{
             width: { xs: "100%", md: "60%" },
-            backgroundColor: "#f5f5f5",
+            bgcolor: "background.paper",
             p: { xs: 3, md: 5 },
             display: "flex",
             flexDirection: "column",
-            overflowY: "auto",
           }}
         >
           {/* LOGO */}
@@ -174,7 +166,7 @@ const ResetPasswordPage = () => {
             Nova senha
           </Typography>
 
-          <Typography sx={{ mt: 1, color: "#777" }}>
+          <Typography sx={{ mt: 1, color: "text.secondary" }}>
             Defina sua nova senha e confirme para finalizar.
           </Typography>
 
@@ -193,72 +185,39 @@ const ResetPasswordPage = () => {
 
           {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-            <Typography
-              sx={{
-                fontSize: "12px",
-                letterSpacing: "2px",
-                mt: 2,
-                mb: 1,
-                color: "#777",
-              }}
-            >
+            
+            {/* SENHA */}
+            <Typography variant="inputLabel" sx={{ mt: 2, mb: 1, display: 'block' }}>
               NOVA SENHA
             </Typography>
-
             <TextField
               fullWidth
-              placeholder="(senha)"
+              placeholder="(nova senha)"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                  backgroundColor: "#ffffff",
-                },
-              }}
             />
 
-            <Typography
-              sx={{
-                fontSize: "12px",
-                letterSpacing: "2px",
-                mt: 3,
-                mb: 1,
-                color: "#777",
-              }}
-            >
+            {/* CONFIRMAR SENHA */}
+            <Typography variant="inputLabel" sx={{ mt: 3, mb: 1, display: 'block' }}>
               CONFIRMAR SENHA
             </Typography>
-
             <TextField
               fullWidth
-              placeholder="(senha)"
+              placeholder="(confirme a senha)"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                  backgroundColor: "#ffffff",
-                },
-              }}
             />
 
+            {/* BOTÃO */}
             <Button
               type="submit"
               fullWidth
+              variant="contained"
+              color="primary"
               disabled={status === "loading" || !token}
-              sx={{
-                mt: 4,
-                backgroundColor: "#9e1b1f",
-                color: "#ffffff",
-                borderRadius: "12px",
-                height: "45px",
-                fontWeight: "bold",
-                "&:hover": { backgroundColor: "#7c1417" },
-                "&:disabled": { opacity: 0.7 },
-              }}
+              sx={{ mt: 4 }}
             >
               {status === "loading" ? "SALVANDO..." : "REDEFINIR SENHA"}
             </Button>
@@ -269,7 +228,8 @@ const ResetPasswordPage = () => {
                 component={RouterLink}
                 to="/login"
                 underline="hover"
-                sx={{ color: "#9e1b1f", fontSize: "14px" }}
+                color="primary"
+                sx={{ fontSize: "14px" }}
               >
                 Voltar para o Login
               </MuiLink>
@@ -281,17 +241,11 @@ const ResetPasswordPage = () => {
                 display: "flex",
                 justifyContent: "space-between",
                 mt: 4,
-                fontSize: "12px",
-                color: "#777",
+                color: "text.secondary",
               }}
             >
-              <Typography>
-                © 2026
-                <br />
-                Centro Paula Souza
-              </Typography>
-
-              <Typography>www.cps.sp.gov.br</Typography>
+              <Typography variant="caption">© 2026 Centro Paula Souza</Typography>
+              <Typography variant="caption">www.cps.sp.gov.br</Typography>
             </Box>
           </Box>
         </Box>
