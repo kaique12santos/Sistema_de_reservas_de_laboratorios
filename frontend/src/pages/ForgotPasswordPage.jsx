@@ -1,6 +1,8 @@
+import Toast from "../utils/Toast";
+
 import { useState } from "react";
 import {
-  Box, Paper, Typography, TextField, Button, Alert, Link as MuiLink,
+  Box, Paper, Typography, TextField, Button, Link as MuiLink,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -12,8 +14,20 @@ const ForgotPasswordPage = () => {
   const [status, setStatus] = useState("idle"); // idle | loading | success | error
   const [message, setMessage] = useState("");
 
+  const [notify, setNotify] = useState({
+    open: false,
+    message: "",
+    severity: "error",
+  });
+
+  const handleCloseToast = (event, reason) => {
+    if (reason === "clickaway") return;
+    setNotify({ ...notify, open: false });
+  };
+
   // Ajustado para aceitar tanto @cps quanto @fatec
-  const validarEmail = (value) => value.endsWith("@cps.sp.gov.br") || value.endsWith("@fatec.sp.gov.br");
+  const validarEmail = (value) =>
+    value.endsWith("@cps.sp.gov.br") || value.endsWith("@fatec.sp.gov.br");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,21 +35,50 @@ const ForgotPasswordPage = () => {
 
     if (!validarEmail(email)) {
       setStatus("error");
-      setMessage("Por favor, utilize um e-mail institucional válido (@fatec.sp.gov.br ou @cps.sp.gov.br).");
+      setMessage(
+        "Por favor, utilize um e-mail institucional válido (@fatec.sp.gov.br ou @cps.sp.gov.br)."
+      );
+
+      setNotify({
+        open: true,
+        message:
+          "Por favor, utilize um e-mail institucional válido (@fatec.sp.gov.br ou @cps.sp.gov.br).",
+        severity: "error",
+      });
+
       return;
     }
 
     try {
       setStatus("loading");
 
-      // Simulação da chamada de API (Mock) enquanto o backend não libera a rota
+      // Simulação da chamada de API (Mock)
       await new Promise((resolve) => setTimeout(resolve, 900));
 
       setStatus("success");
-      setMessage("Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha em instantes.");
+      setMessage(
+        "Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha em instantes."
+      );
+
+      setNotify({
+        open: true,
+        message:
+          "Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha em instantes.",
+        severity: "success",
+      });
+
     } catch (err) {
       setStatus("error");
-      setMessage("Não foi possível solicitar a redefinição no momento. Tente novamente mais tarde.");
+      setMessage(
+        "Não foi possível solicitar a redefinição no momento. Tente novamente mais tarde."
+      );
+
+      setNotify({
+        open: true,
+        message:
+          "Não foi possível solicitar a redefinição no momento. Tente novamente mais tarde.",
+        severity: "error",
+      });
     }
   };
 
@@ -56,7 +99,7 @@ const ForgotPasswordPage = () => {
       <Paper
         elevation={10}
         sx={{
-          margin: "auto", // Mágica da centralização absoluta
+          margin: "auto",
           display: "flex",
           width: "100%",
           maxWidth: "900px",
@@ -65,7 +108,7 @@ const ForgotPasswordPage = () => {
           overflow: "hidden",
         }}
       >
-        {/* COLUNA ESQUERDA (FOTO) */}
+        {/* COLUNA ESQUERDA */}
         <Box
           sx={{
             width: { xs: "0%", md: "40%" },
@@ -127,26 +170,13 @@ const ForgotPasswordPage = () => {
             Informe seu e-mail institucional para receber o link de redefinição.
           </Typography>
 
-          {/* ALERTS */}
-          {status === "error" && (
-            <Alert severity="error" sx={{ mt: 2 }}>
-              {message}
-            </Alert>
-          )}
-
-          {status === "success" && (
-            <Alert severity="success" sx={{ mt: 2 }}>
-              {message}
-            </Alert>
-          )}
-
           {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
             
-            {/* EMAIL */}
-            <Typography variant="inputLabel" sx={{ mt: 2, mb: 1, display: 'block' }}>
+            <Typography variant="inputLabel" sx={{ mt: 2, mb: 1, display: "block" }}>
               E-MAIL INSTITUCIONAL
             </Typography>
+
             <TextField
               fullWidth
               placeholder="nome@fatec.sp.gov.br"
@@ -156,7 +186,6 @@ const ForgotPasswordPage = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            {/* BOTÃO */}
             <Button
               type="submit"
               fullWidth
@@ -168,7 +197,6 @@ const ForgotPasswordPage = () => {
               {status === "loading" ? "ENVIANDO..." : "ENVIAR LINK"}
             </Button>
 
-            {/* LINKS */}
             <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
               <MuiLink
                 component={RouterLink}
@@ -181,7 +209,6 @@ const ForgotPasswordPage = () => {
               </MuiLink>
             </Box>
 
-            {/* RODAPÉ */}
             <Box
               sx={{
                 display: "flex",
@@ -196,6 +223,14 @@ const ForgotPasswordPage = () => {
           </Box>
         </Box>
       </Paper>
+
+      {/* TOAST */}
+      <Toast
+        open={notify.open}
+        handleClose={handleCloseToast}
+        message={notify.message}
+        severity={notify.severity}
+      />
     </Box>
   );
 };
