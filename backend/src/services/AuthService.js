@@ -140,33 +140,61 @@ class AuthService {
     return { message: 'E-mail verificado com sucesso! Sua conta agora aguarda aprovação do administrador do seu curso.' };
   }
 
+
+  async forgotPassword({ email }) {
+    if (!email) throw new Error('E-mail não fornecido');
+
+    const user = await UserRepository.findByEmail(email);
+
+    if (!user){
+      
+      return { message: 'Se este e-mail estiver cadastrado, você receberá as instruções em breve' };
+    }
+
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    const expires = new Date(Date.now() + 60 * 60 * 1000);
+
+    await UserRepository.savePasswordResetToken(user.id, tokenHash, expires);
+
+    
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const resetLink = `${frontendUrl}/reset-password?token=${rawToken}`;
+
+    
+    await EmailService.sendPasswordReset(user.email, resetLink);
+
+    return { message: 'Se este e-mail estiver cadastrado, você receberá as instruções em breve' };
+  }
+
   /**
    * 
    * @param {string} rawToken - Token de redefinição de senha recebido no e-mail do usuário
    * @param {string} newPassword - Nova senha que o usuário deseja definir
    * @returns {Object} - Retorna uma mensagem de sucesso ou lança um erro caso o token seja inválido, expirado ou a nova senha não atenda aos critérios de segurança 
    */
-  async restPassword(rawToken, newPassword){
-    if (!rawToken) throw new Error ('Token não fornecido.');
-    if (!newPassword) throw new Error ('Nova senha não fornecida');
+  
+  async resetPassword({ token, password }) {
+    if (!token) throw new Error('Token não fornecido.');
+    if (!password) throw new Error('Nova senha não fornecida.');
 
-    if (newPassword.length < 6){
-      throw new Error ('A senha deve ter no mínimo 6 caracteres.');
+    if (password.length < 6) {
+      throw new Error('A senha deve ter no mínimo 6 caracteres.');
     }
 
-    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     
     const user = await UserRepository.findByResetToken(tokenHash);
 
-    if (!user){
+    if (!user) {
       throw new Error('Token inválido ou expirado. Solicite um novo link de recuperação.');
     }
 
-    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+    const newPasswordHash = await bcrypt.hash(password, 10);
 
     await UserRepository.updatePasswordAndClearToken(user.id, newPasswordHash);
 
-    return { message: 'Senha redefinida com sucesso!'};
+    return { message: 'Senha redefinida com sucesso!' };
   }
 }
 
