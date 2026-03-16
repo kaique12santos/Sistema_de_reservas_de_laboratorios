@@ -12,6 +12,8 @@ class UserRepository {
    * @param {string} email - E-mail do usuário a ser encontrado
    * @returns {Object|null} - Retorna o usuário encontrado ou null se não existir
   */
+
+  
   async findByEmail(email) {
     const [rows] = await db.connection.query(
       'SELECT * FROM users WHERE email = ?',
