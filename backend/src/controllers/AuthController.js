@@ -53,6 +53,11 @@ class AuthController {
     }
   }
 
+  /**
+   * @param {Object} req - Objeto de requisição do Express contendo o token de verificação
+   * @param {Object} res - Objeto de resposta do Express para enviar a resposta ao cliente
+   * @returns {Object} - Retorna uma mensagem de sucesso ou um erro caso o token seja inválido ou expirado 
+   */
   async verifyEmail(req, res) {
     try {
       const { token } = req.body;
@@ -63,13 +68,36 @@ class AuthController {
     }
   }
 
+/**
+   * @param {Object} req - Objeto de requisição do Express contendo o token e a nova senha
+   * @param {Object} res - Objeto de resposta do Express para enviar a resposta ao cliente
+   * @returns {Object} - Retorna uma mensagem de sucesso ou um erro caso o token seja inválido ou expirado
+   */
   async resetPassword (req, res){
     try {
-      const { token, newPassword } = req.body;
-      const result = await AuthService.restPassword(token, newPassword);
+      const { token, password } = req.body;
+
+      const result = await AuthService.resetPassword({ token, password });
+      
       return res.status(200).json(result);
     } catch (error){
-      return res.status(400).json({ error: error.message});
+      return res.status(400).json({ error: error.message });
+    }
+  }
+
+  /**
+   * 
+   * @param {Object} req - Objeto de requisição do Express contendo o e-mail
+   * @param {Object} res - Objeto de resposta do Express para enviar a resposta ao cliente
+   * @returns {Object} - Retorna uma mensagem de sucesso ou um erro caso o e-mail não esteja cadastrado
+   */
+  async forgotPassword (req, res){
+    try{
+      const { email } = req.body;
+      const result = await AuthService.forgotPassword({ email });
+      return res.status(200).json(result);
+    } catch (error){
+      return res.status(400).json({ error: error.message });
     }
   }
 }

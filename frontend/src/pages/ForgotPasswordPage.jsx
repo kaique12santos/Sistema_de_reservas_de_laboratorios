@@ -4,15 +4,17 @@ import { useState } from "react";
 import {
   Box, Paper, Typography, TextField, Button, Link as MuiLink,
 } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { useNavigate,Link as RouterLink } from "react-router-dom";
 
 import LogoFatec from "../public/images/LogoFatec.png";
 import FotoFatec from "../public/images/FOTOFATEC.jpeg";
 
+import AuthService from "../services/auth.service.js"; // Garanta que essa importação existe!
+
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState("idle"); // idle | loading | success | error
-  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState("idle");
+   const navigate = useNavigate();
 
   const [notify, setNotify] = useState({
     open: false,
@@ -25,58 +27,45 @@ const ForgotPasswordPage = () => {
     setNotify({ ...notify, open: false });
   };
 
-  // Ajustado para aceitar tanto @cps quanto @fatec
-  const validarEmail = (value) =>
-    value.endsWith("@cps.sp.gov.br") || value.endsWith("@fatec.sp.gov.br");
+  const validarEmail = (value) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(value);
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("");
+  e.preventDefault();
 
     if (!validarEmail(email)) {
       setStatus("error");
-      setMessage(
-        "Por favor, utilize um e-mail institucional válido (@fatec.sp.gov.br ou @cps.sp.gov.br)."
-      );
-
       setNotify({
         open: true,
-        message:
-          "Por favor, utilize um e-mail institucional válido (@fatec.sp.gov.br ou @cps.sp.gov.br).",
+        message: "Por favor, informe um endereço de e-mail válido.",
         severity: "error",
       });
-
       return;
     }
 
     try {
       setStatus("loading");
 
-      // Simulação da chamada de API (Mock)
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      // Chamada REAL para a sua API!
+      await AuthService.forgotPassword({ email });
 
       setStatus("success");
-      setMessage(
-        "Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha em instantes."
-      );
-
       setNotify({
         open: true,
-        message:
-          "Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha em instantes.",
+        message: "Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha em instantes.",
         severity: "success",
       });
 
+      setTimeout(() => {
+      navigate("/login");
+       }, 3500);
     } catch (err) {
       setStatus("error");
-      setMessage(
-        "Não foi possível solicitar a redefinição no momento. Tente novamente mais tarde."
-      );
-
       setNotify({
         open: true,
-        message:
-          "Não foi possível solicitar a redefinição no momento. Tente novamente mais tarde.",
+        message: err?.message || "Não foi possível solicitar a redefinição no momento. Tente novamente mais tarde.",
         severity: "error",
       });
     }

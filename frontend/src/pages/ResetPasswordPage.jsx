@@ -20,7 +20,6 @@ const ResetPasswordPage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [status, setStatus] = useState("idle");
-  const [message, setMessage] = useState("");
 
   const [notify, setNotify] = useState({
     open: false,
@@ -40,9 +39,8 @@ const ResetPasswordPage = () => {
     hasChecked.current = true;
 
     if (!token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus("error");
-      setMessage("Token não encontrado na URL. Verifique o link recebido no e-mail.");
-
       setNotify({
         open: true,
         message: "Token não encontrado na URL. Verifique o link recebido no e-mail.",
@@ -53,57 +51,44 @@ const ResetPasswordPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
 
     if (!token) {
       setStatus("error");
-      setMessage("Token não encontrado na URL.");
-
       setNotify({
         open: true,
         message: "Token não encontrado na URL.",
         severity: "error",
       });
-
       return;
     }
 
     if (!password || !confirmPassword) {
       setStatus("error");
-      setMessage("Preencha a nova senha e a confirmação.");
-
       setNotify({
         open: true,
         message: "Preencha a nova senha e a confirmação.",
         severity: "error",
       });
-
       return;
     }
 
     if (password !== confirmPassword) {
       setStatus("error");
-      setMessage("As senhas não conferem.");
-
       setNotify({
         open: true,
         message: "As senhas não conferem.",
         severity: "error",
       });
-
       return;
     }
 
     if (password.length < 6) {
       setStatus("error");
-      setMessage("A senha deve ter pelo menos 6 caracteres.");
-
       setNotify({
         open: true,
         message: "A senha deve ter pelo menos 6 caracteres.",
         severity: "error",
       });
-
       return;
     }
 
@@ -113,24 +98,15 @@ const ResetPasswordPage = () => {
       const response = await AuthService.resetPassword({ token, password });
 
       setStatus("success");
-      setMessage(
-        response?.message ||
-          "Senha redefinida com sucesso! Você será redirecionado para o login."
-      );
-
       setNotify({
         open: true,
-        message:
-          response?.message ||
-          "Senha redefinida com sucesso! Você será redirecionado para o login.",
+        message: response?.message || "Senha redefinida com sucesso! Você será redirecionado para o login.",
         severity: "success",
       });
 
       setTimeout(() => navigate("/login"), 1200);
     } catch (err) {
       setStatus("error");
-      setMessage(err?.message || "Não foi possível redefinir a senha. Tente novamente.");
-
       setNotify({
         open: true,
         message: err?.message || "Não foi possível redefinir a senha. Tente novamente.",
