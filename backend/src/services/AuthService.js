@@ -140,6 +140,12 @@ class AuthService {
     return { message: 'E-mail verificado com sucesso! Sua conta agora aguarda aprovação do administrador do seu curso.' };
   }
 
+  /**
+   * 
+   * @param {string} rawToken - Token de redefinição de senha recebido no e-mail do usuário
+   * @param {string} newPassword - Nova senha que o usuário deseja definir
+   * @returns {Object} - Retorna uma mensagem de sucesso ou lança um erro caso o token seja inválido, expirado ou a nova senha não atenda aos critérios de segurança 
+   */
   async restPassword(rawToken, newPassword){
     if (!rawToken) throw new Error ('Token não fornecido.');
     if (!newPassword) throw new Error ('Nova senha não fornecida');
