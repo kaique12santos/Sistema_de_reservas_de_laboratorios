@@ -139,6 +139,30 @@ class AuthService {
 
     return { message: 'E-mail verificado com sucesso! Sua conta agora aguarda aprovação do administrador do seu curso.' };
   }
+
+  async forgotPassword(email){
+    if (!email) throw new Error('E-mail não fornecido');
+
+    const user = await UserRepository.findByEmail(email);
+
+    if (!user){
+      return { message: 'Se este e-mail estiver cadastrado, você receberá as instruções em breve'}
+    }
+
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    const expires = new Date(Date.now() + 60 * 60 * 1000);
+
+    await UserRepository.savePasswordResetToken(user.id, tokenHash, expires);
+
+    const frontendUrl = process.env.FRONTEND_URL || 'https://localhost:5173';
+    const resetLink = `${frontendUrl}/reset-password?token=${rawToken}`;
+
+    await EmailService.sendVerificationCode(user.email, resetLink);
+
+    return { message: 'Se este e-mail estiver cadastrado, você receberá as instruções em breve' }
+  }
+
 }
 
 export default new AuthService();
