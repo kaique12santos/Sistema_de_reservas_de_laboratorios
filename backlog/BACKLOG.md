@@ -110,6 +110,8 @@
 * **Descrição:** Inputs e lógica de envio.
 * **Obs:** Funcional, mas **sem identidade visual final**.
 * **Status:** ✅ CONCLUÍDO
+* **Obs:** Funcional
+* **Status:** ✅ CONCLUÍDO (Aguardando Design)
 * **Responsável:** Luiz / Kaique
 
 #### [F1-FE-03] Tela de Cadastro (Estrutura)
@@ -117,6 +119,8 @@
 * **Descrição:** Inputs e lógica de envio.
 * **Obs:** Funcional, mas **sem identidade visual final**.
 * **Status:** ✅ CONCLUÍDO
+* **Obs:** Funcional
+* **Status:** ✅ CONCLUÍDO (Aguardando Design)
 * **Responsável:** Luiz / Kaique 
 
 #### [F1-FE-04] Tela "Esqueci minha senha"

@@ -1,28 +1,38 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams, Link as RouterLink } from "react-router-dom";
 import {
-  Box, Paper, Typography, TextField, Button, Alert, Link as MuiLink,
+  Box, Paper, Typography, TextField, Button, Link as MuiLink,
 } from "@mui/material";
 
 import LogoFatec from "../public/images/LogoFatec.png";
 import FotoFatec from "../public/images/FOTOFATEC.jpeg";
 
 import AuthService from "../services/auth.service.js";
+import Toast from "../utils/Toast";
 
 const ResetPasswordPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Token vem do link do e-mail: /reset-password?token=xxxxx
   const token = searchParams.get("token");
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [status, setStatus] = useState("idle"); // idle | loading | success | error
+  const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
 
-  // Evita disparar 2x no StrictMode caso você queira validar token no futuro
+  const [notify, setNotify] = useState({
+    open: false,
+    message: "",
+    severity: "error",
+  });
+
+  const handleCloseToast = (event, reason) => {
+    if (reason === "clickaway") return;
+    setNotify({ ...notify, open: false });
+  };
+
   const hasChecked = useRef(false);
 
   useEffect(() => {
@@ -32,6 +42,12 @@ const ResetPasswordPage = () => {
     if (!token) {
       setStatus("error");
       setMessage("Token não encontrado na URL. Verifique o link recebido no e-mail.");
+
+      setNotify({
+        open: true,
+        message: "Token não encontrado na URL. Verifique o link recebido no e-mail.",
+        severity: "error",
+      });
     }
   }, [token]);
 
@@ -42,31 +58,58 @@ const ResetPasswordPage = () => {
     if (!token) {
       setStatus("error");
       setMessage("Token não encontrado na URL.");
+
+      setNotify({
+        open: true,
+        message: "Token não encontrado na URL.",
+        severity: "error",
+      });
+
       return;
     }
 
     if (!password || !confirmPassword) {
       setStatus("error");
       setMessage("Preencha a nova senha e a confirmação.");
+
+      setNotify({
+        open: true,
+        message: "Preencha a nova senha e a confirmação.",
+        severity: "error",
+      });
+
       return;
     }
 
     if (password !== confirmPassword) {
       setStatus("error");
       setMessage("As senhas não conferem.");
+
+      setNotify({
+        open: true,
+        message: "As senhas não conferem.",
+        severity: "error",
+      });
+
       return;
     }
 
     if (password.length < 6) {
       setStatus("error");
       setMessage("A senha deve ter pelo menos 6 caracteres.");
+
+      setNotify({
+        open: true,
+        message: "A senha deve ter pelo menos 6 caracteres.",
+        severity: "error",
+      });
+
       return;
     }
 
     try {
       setStatus("loading");
 
-      // Chamada seguindo o padrão de Services da arquitetura
       const response = await AuthService.resetPassword({ token, password });
 
       setStatus("success");
@@ -75,10 +118,24 @@ const ResetPasswordPage = () => {
           "Senha redefinida com sucesso! Você será redirecionado para o login."
       );
 
+      setNotify({
+        open: true,
+        message:
+          response?.message ||
+          "Senha redefinida com sucesso! Você será redirecionado para o login.",
+        severity: "success",
+      });
+
       setTimeout(() => navigate("/login"), 1200);
     } catch (err) {
       setStatus("error");
       setMessage(err?.message || "Não foi possível redefinir a senha. Tente novamente.");
+
+      setNotify({
+        open: true,
+        message: err?.message || "Não foi possível redefinir a senha. Tente novamente.",
+        severity: "error",
+      });
     }
   };
 
@@ -99,7 +156,7 @@ const ResetPasswordPage = () => {
       <Paper
         elevation={10}
         sx={{
-          margin: "auto", // Mágica da centralização absoluta
+          margin: "auto",
           display: "flex",
           width: "100%",
           maxWidth: "900px",
@@ -108,7 +165,7 @@ const ResetPasswordPage = () => {
           overflow: "hidden",
         }}
       >
-        {/* COLUNA ESQUERDA (FOTO) */}
+        {/* COLUNA ESQUERDA */}
         <Box
           sx={{
             width: { xs: "0%", md: "40%" },
@@ -156,12 +213,10 @@ const ResetPasswordPage = () => {
             flexDirection: "column",
           }}
         >
-          {/* LOGO */}
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <img src={LogoFatec} alt="CPS FATEC" style={{ height: "45px" }} />
           </Box>
 
-          {/* TITULO */}
           <Typography variant="h4" sx={{ mt: 2, fontWeight: "bold" }}>
             Nova senha
           </Typography>
@@ -170,23 +225,8 @@ const ResetPasswordPage = () => {
             Defina sua nova senha e confirme para finalizar.
           </Typography>
 
-          {/* ALERTS */}
-          {status === "error" && (
-            <Alert severity="error" sx={{ mt: 2 }}>
-              {message}
-            </Alert>
-          )}
-
-          {status === "success" && (
-            <Alert severity="success" sx={{ mt: 2 }}>
-              {message}
-            </Alert>
-          )}
-
-          {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
             
-            {/* SENHA */}
             <Typography variant="inputLabel" sx={{ mt: 2, mb: 1, display: 'block' }}>
               NOVA SENHA
             </Typography>
@@ -198,7 +238,6 @@ const ResetPasswordPage = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            {/* CONFIRMAR SENHA */}
             <Typography variant="inputLabel" sx={{ mt: 3, mb: 1, display: 'block' }}>
               CONFIRMAR SENHA
             </Typography>
@@ -210,7 +249,6 @@ const ResetPasswordPage = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
 
-            {/* BOTÃO */}
             <Button
               type="submit"
               fullWidth
@@ -222,7 +260,6 @@ const ResetPasswordPage = () => {
               {status === "loading" ? "SALVANDO..." : "REDEFINIR SENHA"}
             </Button>
 
-            {/* LINKS */}
             <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
               <MuiLink
                 component={RouterLink}
@@ -235,7 +272,6 @@ const ResetPasswordPage = () => {
               </MuiLink>
             </Box>
 
-            {/* RODAPÉ */}
             <Box
               sx={{
                 display: "flex",
@@ -250,6 +286,13 @@ const ResetPasswordPage = () => {
           </Box>
         </Box>
       </Paper>
+
+      <Toast
+        open={notify.open}
+        handleClose={handleCloseToast}
+        message={notify.message}
+        severity={notify.severity}
+      />
     </Box>
   );
 };
