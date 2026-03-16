@@ -140,29 +140,28 @@ class AuthService {
     return { message: 'E-mail verificado com sucesso! Sua conta agora aguarda aprovação do administrador do seu curso.' };
   }
 
-  async forgotPassword(email){
-    if (!email) throw new Error('E-mail não fornecido');
+  async restPassword(rawToken, newPassword){
+    if (!rawToken) throw new Error ('Token não fornecido.');
+    if (!newPassword) throw new Error ('Nova senha não fornecida');
 
-    const user = await UserRepository.findByEmail(email);
-
-    if (!user){
-      return { message: 'Se este e-mail estiver cadastrado, você receberá as instruções em breve'}
+    if (newPassword.length < 6){
+      throw new Error ('A senha deve ter no mínimo 6 caracteres.');
     }
 
-    const rawToken = crypto.randomBytes(32).toString('hex');
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
-    const expires = new Date(Date.now() + 60 * 60 * 1000);
+    
+    const user = await UserRepository.findByResetToken(tokenHash);
 
-    await UserRepository.savePasswordResetToken(user.id, tokenHash, expires);
+    if (!user){
+      throw new Error('Token inválido ou expirado. Solicite um novo link de recuperação.');
+    }
 
-    const frontendUrl = process.env.FRONTEND_URL || 'https://localhost:5173';
-    const resetLink = `${frontendUrl}/reset-password?token=${rawToken}`;
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
 
-    await EmailService.sendVerificationCode(user.email, resetLink);
+    await UserRepository.updatePasswordAndClearToken(user.id, newPasswordHash);
 
-    return { message: 'Se este e-mail estiver cadastrado, você receberá as instruções em breve' }
+    return { message: 'Senha redefinida com sucesso!'};
   }
-
 }
 
 export default new AuthService();
