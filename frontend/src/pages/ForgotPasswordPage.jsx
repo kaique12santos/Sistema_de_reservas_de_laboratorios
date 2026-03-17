@@ -1,77 +1,103 @@
+import Toast from "../utils/Toast";
+
 import { useState } from "react";
 import {
-  Box,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Alert,
-  Link as MuiLink,
+  Box, Paper, Typography, TextField, Button, Link as MuiLink,
 } from "@mui/material";
+import { useNavigate,Link as RouterLink } from "react-router-dom";
 
-import { Link as RouterLink } from "react-router-dom";
+import LogoFatec from "../public/images/LogoFatec.png";
+import FotoFatec from "../public/images/FOTOFATEC.jpeg";
 
-import LogoFatec from "../assets/LogoFatec.png";
-import FotoFatec from "../assets/FOTOFATEC.jpeg";
+import AuthService from "../services/auth.service.js"; // Garanta que essa importação existe!
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState("idle"); // idle | loading | success | error
-  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState("idle");
+   const navigate = useNavigate();
 
-  const validarEmail = (value) => value.endsWith("@cps.sp.gov.br");
+  const [notify, setNotify] = useState({
+    open: false,
+    message: "",
+    severity: "error",
+  });
+
+  const handleCloseToast = (event, reason) => {
+    if (reason === "clickaway") return;
+    setNotify({ ...notify, open: false });
+  };
+
+  const validarEmail = (value) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(value);
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("");
+  e.preventDefault();
 
     if (!validarEmail(email)) {
       setStatus("error");
-      setMessage("Email inválido. Use um e-mail institucional (@cps.sp.gov.br).");
+      setNotify({
+        open: true,
+        message: "Por favor, informe um endereço de e-mail válido.",
+        severity: "error",
+      });
       return;
     }
 
     try {
       setStatus("loading");
 
-      // ✅ KAÍQUE: "não tem rota ainda" -> simula a chamada no front (mock)
-      // Quando o backend ficar pronto, você troca isso por:
-      // await api.post("/auth/forgot-password", { email });
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      // Chamada REAL para a sua API!
+      await AuthService.forgotPassword({ email });
 
       setStatus("success");
-      setMessage(
-        "Se este e-mail existir, enviaremos um link para redefinir sua senha."
-      );
+      setNotify({
+        open: true,
+        message: "Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha em instantes.",
+        severity: "success",
+      });
+
+      setTimeout(() => {
+      navigate("/login");
+       }, 3500);
     } catch (err) {
       setStatus("error");
-      setMessage("Não foi possível solicitar a redefinição. Tente novamente.");
+      setNotify({
+        open: true,
+        message: err?.message || "Não foi possível solicitar a redefinição no momento. Tente novamente mais tarde.",
+        severity: "error",
+      });
     }
   };
 
   return (
     <Box
       sx={{
-        minHeight: "100vh",
-        width: "100%",
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        bgcolor: "background.default",
         display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#dfdfdf",
-        p: 2,
+        overflowY: "auto",
+        p: { xs: 2, md: 4 },
       }}
     >
       <Paper
         elevation={10}
         sx={{
+          margin: "auto",
           display: "flex",
-          width: { xs: "100%", md: "900px" },
-          height: { xs: "auto", md: "600px" },
+          width: "100%",
+          maxWidth: "900px",
+          minHeight: { xs: "auto", md: "600px" },
           borderRadius: "20px",
           overflow: "hidden",
         }}
       >
-        {/* COLUNA ESQUERDA (FOTO) */}
+        {/* COLUNA ESQUERDA */}
         <Box
           sx={{
             width: { xs: "0%", md: "40%" },
@@ -93,7 +119,6 @@ const ForgotPasswordPage = () => {
               px: 3,
               py: 2,
               mb: 2,
-              width: "fit-content",
             }}
           >
             <Typography
@@ -105,11 +130,7 @@ const ForgotPasswordPage = () => {
                 textAlign: "center",
               }}
             >
-              Sistema de
-              <br />
-              Reservas de
-              <br />
-              Laboratórios
+              Sistema de<br />Reservas de<br />Laboratórios
             </Typography>
           </Box>
         </Box>
@@ -118,11 +139,10 @@ const ForgotPasswordPage = () => {
         <Box
           sx={{
             width: { xs: "100%", md: "60%" },
-            backgroundColor: "#f5f5f5",
+            bgcolor: "background.paper",
             p: { xs: 3, md: 5 },
             display: "flex",
             flexDirection: "column",
-            overflowY: "auto",
           }}
         >
           {/* LOGO */}
@@ -135,103 +155,71 @@ const ForgotPasswordPage = () => {
             Esqueci a senha
           </Typography>
 
-          <Typography sx={{ mt: 1, color: "#777" }}>
+          <Typography sx={{ mt: 1, color: "text.secondary" }}>
             Informe seu e-mail institucional para receber o link de redefinição.
           </Typography>
 
-          {/* ALERT */}
-          {status === "error" && (
-            <Alert severity="error" sx={{ mt: 2 }}>
-              {message}
-            </Alert>
-          )}
-
-          {status === "success" && (
-            <Alert severity="success" sx={{ mt: 2 }}>
-              {message}
-            </Alert>
-          )}
-
           {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-            <Typography
-              sx={{
-                fontSize: "12px",
-                letterSpacing: "2px",
-                mt: 2,
-                mb: 1,
-                color: "#777",
-              }}
-            >
+            
+            <Typography variant="inputLabel" sx={{ mt: 2, mb: 1, display: "block" }}>
               E-MAIL INSTITUCIONAL
             </Typography>
 
             <TextField
               fullWidth
-              placeholder="nome@cps.sp.gov.br"
+              placeholder="nome@fatec.sp.gov.br"
               name="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                  backgroundColor: "#ffffff",
-                },
-              }}
             />
 
             <Button
               type="submit"
               fullWidth
+              variant="contained"
+              color="primary"
               disabled={status === "loading"}
-              sx={{
-                mt: 4,
-                backgroundColor: "#9e1b1f",
-                color: "#ffffff",
-                borderRadius: "12px",
-                height: "45px",
-                fontWeight: "bold",
-                "&:hover": { backgroundColor: "#7c1417" },
-                "&:disabled": { opacity: 0.7 },
-              }}
+              sx={{ mt: 4 }}
             >
               {status === "loading" ? "ENVIANDO..." : "ENVIAR LINK"}
             </Button>
 
-            {/* LINKS */}
             <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
               <MuiLink
                 component={RouterLink}
                 to="/login"
                 underline="hover"
-                sx={{ color: "#9e1b1f", fontSize: "14px" }}
+                color="primary"
+                sx={{ fontSize: "14px" }}
               >
                 Voltar para o Login
               </MuiLink>
             </Box>
 
-            {/* RODAPÉ */}
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
                 mt: 4,
-                fontSize: "12px",
-                color: "#777",
+                color: "text.secondary",
               }}
             >
-              <Typography>
-                © 2026
-                <br />
-                Centro Paula Souza
-              </Typography>
-
-              <Typography>www.cps.sp.gov.br</Typography>
+              <Typography variant="caption">© 2026 Centro Paula Souza</Typography>
+              <Typography variant="caption">www.cps.sp.gov.br</Typography>
             </Box>
           </Box>
         </Box>
       </Paper>
+
+      {/* TOAST */}
+      <Toast
+        open={notify.open}
+        handleClose={handleCloseToast}
+        message={notify.message}
+        severity={notify.severity}
+      />
     </Box>
   );
 };

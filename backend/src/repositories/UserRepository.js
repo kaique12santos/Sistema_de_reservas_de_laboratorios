@@ -12,6 +12,8 @@ class UserRepository {
    * @param {string} email - E-mail do usuário a ser encontrado
    * @returns {Object|null} - Retorna o usuário encontrado ou null se não existir
   */
+
+
   async findByEmail(email) {
     const [rows] = await db.connection.query(
       'SELECT * FROM users WHERE email = ?',
@@ -77,6 +79,53 @@ class UserRepository {
       [userId]
     );
   }
+
+  /**
+   * @param {number} userId - ID do usuário
+   * @param {string} tokenHash - Hash do token gerado
+   * @param {Date} expires - Data/hora de expiração
+   */
+
+  async savePasswordResetToken(userId, tokenHash, expires){
+    await db.connection.query(
+      `UPDATE users
+      SET password_reset_token = ?, password_reset_expires = ?
+      WHERE id = ?`,
+      [ tokenHash, expires, userId]
+    );
+  }
+
+  /**
+   * @param {string} tokenHash - Hash do token a ser buscado
+   * @returns {Object|null}
+   */
+
+  async findByResetToken(tokenHash){
+    const [ rows ] = await db.connection.query(
+      `SELECT * FROM users
+      WHERE password_reset_token = ?
+      AND password_reset_expires > NOW()`,
+      [ tokenHash]
+    );
+    return rows[0]
+  }
+
+  /**
+   * @param {number} userId - ID do usuário
+   * @param {string} newPasswordHash - Nova senha já hasheada
+   */
+
+  async updatePasswordAndClearToken(userId, newPasswordHash){
+    await db.connection.query(
+      `UPDATE users
+      SET password_hash = ?,
+      password_reset_token = NULL,
+      password_reset_expires = NULL
+      WHERE id = ?`,
+      [ newPasswordHash,userId ]
+    );
+  }
+
 
 }
 

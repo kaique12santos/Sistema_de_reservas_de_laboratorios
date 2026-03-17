@@ -29,11 +29,9 @@ class App {
       });
     });
 
-    // Aqui você vai instanciar as rotas quando criarmos os arquivos
     this.server.use('/api/auth', authRoutes);
     this.server.use('/api', departmentRoutes);
   }
 }
 
-// Exportamos apenas a instância do server (o express configurado)
 export default new App().server;

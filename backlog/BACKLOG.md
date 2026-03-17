@@ -15,15 +15,15 @@
   * 1- Executar script no arquivo da pasta do banco de dados do repositorio `estrutura.txt` no seu banco MySQL.
   * 2- preenchimento do arquivo `seed.txt`
   **Seed Mínimo Obrigatório:**
-    - [ ] 3 Departamentos (DSM, GPI, GE)
-    - [ ] 5 Time Slots (M1 a M4, N1)
-    - [ ] 3 Laboratórios (Lab 01, Lab 02, Auditório)
-    - [ ] 1 ADMIN (email: admin@fatec.sp.gov.br, senha: admin123)
-    - [ ] 2 PROFESSORES de teste
-    - [ ] 1 Ciclo Acadêmico ativo (2026-1)
-    - [ ] 5 Feriados (Carnaval, Páscoa, etc)
+    - [x] 3 Departamentos (DSM, GPI, GE)
+    - [x] 5 Time Slots (M1 a M4, N1)
+    - [x] 3 Laboratórios (Lab 01, Lab 02, Auditório)
+    - [x] 1 ADMIN (email: admin@fatec.sp.gov.br, senha: admin123)
+    - [x] 2 PROFESSORES de teste
+    - [x] 1 Ciclo Acadêmico ativo (2026-1)
+    - [x] 5 Feriados (Carnaval, Páscoa, etc)
   * 3- desenvolver index e views conforme achar necessario para otimizar os acessos ao BD (procedures podem ser desenvolvidas pórem essa otimização deve ser feita com aval do backend conforme os comandos sql necessarios em alguns processos ao longo do desenvolvimento entao nessa fase apenas o necessario para otimizar)
-* **Status:** 🟡 Em Andamento
+* **Status:** ✅ CONCLUÍDO
 * **Responsável:** Vinicius / Kaique
 
 ---
@@ -47,8 +47,8 @@
 
 * **Descrição:** Rota POST `api/auth/login` gerando token.
 * **Obs:** Código base existe, mas falta validar e integrar.
-* **Status:** 🔴 PENDENTE (Na fila)
-* **Responsável:** -
+* **Status:** ✅ CONCLUÍDO
+* **Responsável:** Nicole
 
 #### [F1-BE-04] Middleware de autorização
 
@@ -74,8 +74,8 @@
   - Gerar token (crypto.randomBytes ou JWT curto)
   - Salvar hash do token e expiração (1h) no banco
   - Enviar link: `front/reset-password?token=XYZ`
-* **Status:** 🔴 PENDENTE
-* **Responsável:** -
+* **Status:** ✅ CONCLUÍDO
+* **Responsável:** Nicole
 
 #### [F1-BE-07] Redefinição de Senha (Reset Password)
 * **Descrição:** Endpoint que valida o token e atualiza a senha.
@@ -83,8 +83,8 @@
   - Validar se token existe e não expirou
   - Criptografar nova senha
   - Limpar token do banco
-* **Status:** 🔴 PENDENTE
-* **Responsável:** -
+* **Status:** ✅ CONCLUÍDO
+* **Responsável:** Nicole
 
 #### [F1-BE-08] Verificação de Email (Opcional se sobrar tempo)
 * **Descrição:** Endpoint que confirma o email do usuário via token.
@@ -109,36 +109,40 @@
 
 * **Descrição:** Inputs e lógica de envio.
 * **Obs:** Funcional, mas **sem identidade visual final**.
-* **Status:** 🟡 ENTREGUE (Aguardando Design)
+* **Status:** ✅ CONCLUÍDO
+* **Obs:** Funcional
+* **Status:** ✅ CONCLUÍDO (Aguardando Design)
 * **Responsável:** Luiz / Kaique
 
 #### [F1-FE-03] Tela de Cadastro (Estrutura)
 
 * **Descrição:** Inputs e lógica de envio.
 * **Obs:** Funcional, mas **sem identidade visual final**.
-* **Status:** 🟡 ENTREGUE (Aguardando Design)
+* **Status:** ✅ CONCLUÍDO
+* **Obs:** Funcional
+* **Status:** ✅ CONCLUÍDO (Aguardando Design)
 * **Responsável:** Luiz / Kaique 
 
 #### [F1-FE-04] Tela "Esqueci minha senha"
 * **Descrição:** Formulário simples pedindo o e-mail.
 * **Entregáveis:** `ForgotPasswordPage.jsx`
 * **Ação:** Chama POST `api/auth/forgot-password` e exibe feedback de sucesso.
-* **Status:** 🔴 PENDENTE
-* **Responsável:** -
+* **Status:** ✅ CONCLUÍDO
+* **Responsável:** - Luiz
 
 #### [F1-FE-05] Tela de Nova Senha
 * **Descrição:** Acessada via link do email (lê token da URL).
 * **Entregáveis:** `ResetPasswordPage.jsx`
 * **Campos:** Nova Senha, Confirmar Senha.
 * **Ação:** Chama POST `api/auth/reset-password` e redireciona para Login.
-* **Status:** 🔴 PENDENTE
-* **Responsável:** -
+* **Status:** ✅ CONCLUÍDO
+* **Responsável:** - Luiz
 
 #### [F1-FE-06] Tela de Verificação de Email
 * **Descrição:** Acessa via link do email
 * **Entregáveis:** `VerifyEmailPage.jsx`
 * **Ação:** Valida Email pela rota `api/auth/verify-email` e apresenta mensagem de sucesso com botao de redirecionamento para o login ou msg de erro.
-* **Status:** 🟡 FALTANDO DESIGNER
+* **Status:** ✅ CONCLUÍDO
 * **Responsável:** Luiz / Kaique
 ---
 
@@ -147,14 +151,14 @@
 #### [F1-INT-01] Teste End-to-End da Autenticação
 * **Descrição:** Testar fluxo completo: Cadastro → Login → Acesso protegido
 * **Checklist:**
-  - [ ] Cadastrar usuário via frontend
-  - [ ] Verificar no banco que status = PENDING
-  - [ ] Tentar fazer login (deve falhar - aguardando aprovação)
-  - [ ] Admin aprova usuário manualmente no banco
-  - [ ] Login funciona e redireciona para dashboard
-  - [ ] Acessar rota protegida com token válido (sucesso)
-  - [ ] Acessar rota protegida sem token (401)
-* **Status:** 🔴 PENDENTE
+  - [x] Cadastrar usuário via frontend
+  - [x] Verificar no banco que status = PENDING
+  - [x] Tentar fazer login (deve falhar - aguardando aprovação)
+  - [x] Admin aprova usuário manualmente no banco
+  - [x] Login funciona e redireciona para dashboard
+  - [x] Acessar rota protegida com token válido (sucesso)
+  - [x] Acessar rota protegida sem token (401)
+* **Status:** ✅ CONCLUÍDO
 * **Responsável:** Kaique
 ---
 

@@ -132,3 +132,23 @@
   - Chamada para o endpoint `POST /auth/reset-password`
 
 - **Autor:** Luiz Carlos
+
+## 14/03/2026
+### 1. Criação do Componente de Feedback Flutuante (Toast)
+- Descrição: Desenvolvimento de um componente reutilizável (Toast.jsx) localizado na pasta de utilitários. 
+- O componente integra os módulos Snackbar e Alert do Material UI para criar notificações sobrepostas ao conteúdo (flutuantes). 
+- Foi configurado com suporte a diferentes severidades (success, error, warning, info) e fechamento automático após 4 segundos.
+
+**Autor**: Luiz Carlos
+
+### 2. Substituição de Alertas Estáticos por Notificações Dinâmicas
+- Descrição: Refatoração das telas de LoginPage e RegisterPage para remover os componentes <Alert> que deslocavam o layout e os alert() nativos do navegador. 
+- Implementação de estados de notificação (notify) para gerenciar feedbacks de erro vindos do backend e mensagens de sucesso de forma elegante e consistente com a identidade visual do sistema.
+
+**Autor**: Luiz Carlos
+
+### 3. Ajuste de Fluxo: Feedback com Delay de Navegação
+- Descrição: Implementação de uma lógica de temporização (setTimeout) nos métodos de handleSubmit das páginas de autenticação. 
+- Essa alteração garante que o usuário receba a confirmação visual de sucesso (ex: "Login realizado" ou "Token enviado") antes do redirecionamento de rota, resolvendo o problema de desmontagem precoce do componente de feedback.
+
+**Autor**: Luiz Carlos

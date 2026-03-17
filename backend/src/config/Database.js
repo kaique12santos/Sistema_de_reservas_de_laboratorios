@@ -13,7 +13,7 @@ class Database {
       database: process.env.DB_NAME,
       port: process.env.DB_PORT || 3306,
       waitForConnections: true,
-      connectionLimit: 10, // Importante para não estourar conexões na nuvem
+      connectionLimit: 10, 
       queueLimit: 0,
     };
   }

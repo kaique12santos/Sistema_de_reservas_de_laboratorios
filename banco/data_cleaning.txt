@@ -1,0 +1,16 @@
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Limpa as tabelas de movimentação e histórico
+TRUNCATE TABLE reservation_items;
+TRUNCATE TABLE reservations;
+TRUNCATE TABLE holidays;
+
+-- Limpa as tabelas de cadastro base
+TRUNCATE TABLE users;
+TRUNCATE TABLE laboratories;
+TRUNCATE TABLE time_slots;
+TRUNCATE TABLE academic_cycles;
+TRUNCATE TABLE departments;
+
+-- Reativa as verificações de integridade
+SET FOREIGN_KEY_CHECKS = 1;

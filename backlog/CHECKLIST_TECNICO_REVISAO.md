@@ -55,117 +55,117 @@ src/
 ### 🔹 Backend - Checklist Técnico
 
 #### ✓ Estrutura Base
-- [ ] **app.js** existe e configura Express corretamente
-  - [ ] `express.json()` configurado
-  - [ ] CORS configurado (permitir frontend)
-  - [ ] Rotas importadas e registradas
-  - [ ] Middleware de erro global no final
+- [x] **app.js** existe e configura Express corretamente
+  - [x] `express.json()` configurado
+  - [x] CORS configurado (permitir frontend)
+  - [x] Rotas importadas e registradas
+  - [x] Middleware de erro global no final
   
-- [ ] **server.js** inicializa servidor
-  - [ ] Porta definida via `process.env.PORT` ou fallback
-  - [ ] Mensagem de log ao iniciar
-  - [ ] Testa conexão com banco antes de subir
+- [x] **server.js** inicializa servidor
+  - [x] Porta definida via `process.env.PORT` ou fallback
+  - [x] Mensagem de log ao iniciar
+  - [x] Testa conexão com banco antes de subir
 
-- [ ] **config/database.js** - Singleton de Conexão
-  - [ ] Usa `mysql2/promise`
-  - [ ] Pool de conexões configurado (min: 5, max: 20)
-  - [ ] Credenciais via `.env` (host, user, password, database)
-  - [ ] Método `getConnection()` funciona
-  - [ ] Tratamento de erro de conexão
+- [x] **config/database.js** - Singleton de Conexão
+  - [x] Usa `mysql2/promise`
+  - [x] Pool de conexões configurado (min: 5, max: 20)
+  - [x] Credenciais via `.env` (host, user, password, database)
+  - [x] Método `getConnection()` funciona
+  - [x] Tratamento de erro de conexão
 
 #### ✓ Autenticação (AuthController, AuthService, UserRepository)
 
 **UserRepository.js:**
-- [ ] Método `create(userData)` insere usuário
-  - [ ] INSERT em `users` com campos: name, email, password_hash, department_id, role, status
-  - [ ] Status inicial: `PENDING`
-  - [ ] Role padrão: `PROFESSOR`
-  - [ ] Retorna ID do usuário criado
+- [x] Método `create(userData)` insere usuário
+  - [x] INSERT em `users` com campos: name, email, password_hash, department_id, role, status
+  - [x] Status inicial: `PENDING`
+  - [x] Role padrão: `PROFESSOR`
+  - [x] Retorna ID do usuário criado
   
-- [ ] Método `findByEmail(email)` busca usuário
-  - [ ] SELECT com WHERE email = ?
-  - [ ] Retorna null se não encontrar
+- [x] Método `findByEmail(email)` busca usuário
+  - [x] SELECT com WHERE email = ?
+  - [x] Retorna null se não encontrar
   
-- [ ] Método `findById(id)` busca por ID
-  - [ ] SELECT com WHERE id = ?
-  - [ ] JOIN com `departments` para trazer nome do departamento
+- [x] Método `findById(id)` busca por ID
+  - [x] SELECT com WHERE id = ?
+  - [x] JOIN com `departments` para trazer nome do departamento
 
 **AuthService.js:**
-- [ ] Método `register(dto)` valida e cria usuário
-  - [ ] Valida se email já existe (UserRepository.findByEmail)
-  - [ ] Se existir: lançar erro "Email já cadastrado"
-  - [ ] Criptografa senha com `bcrypt.hash(password, 10)`
-  - [ ] Chama UserRepository.create()
-  - [ ] Retorna dados do usuário (sem password_hash)
+- [x] Método `register(dto)` valida e cria usuário
+  - [x] Valida se email já existe (UserRepository.findByEmail)
+  - [x] Se existir: lançar erro "Email já cadastrado"
+  - [x] Criptografa senha com `bcrypt.hash(password, 10)`
+  - [x] Chama UserRepository.create()
+  - [x] Retorna dados do usuário (sem password_hash)
   
-- [ ] Método `login(email, password)` autentica
-  - [ ] Busca usuário por email
-  - [ ] Se não encontrar: lançar erro "Credenciais inválidas"
-  - [ ] Verifica status: se `PENDING`, lançar erro "Conta aguardando aprovação"
-  - [ ] Verifica status: se `REJECTED`, lançar erro "Conta rejeitada"
-  - [ ] Compara senha com `bcrypt.compare(password, user.password_hash)`
-  - [ ] Se senha errada: lançar erro "Credenciais inválidas"
-  - [ ] Gera token JWT com `jwt.sign({ id, email, role }, SECRET, { expiresIn: '24h' })`
-  - [ ] Retorna `{ token, user: { id, name, email, role } }`
+- [x] Método `login(email, password)` autentica
+  - [x] Busca usuário por email
+  - [x] Se não encontrar: lançar erro "Credenciais inválidas"
+  - [x] Verifica status: se `PENDING`, lançar erro "Conta aguardando aprovação"
+  - [x] Verifica status: se `REJECTED`, lançar erro "Conta rejeitada"
+  - [x] Compara senha com `bcrypt.compare(password, user.password_hash)`
+  - [x] Se senha errada: lançar erro "Credenciais inválidas"
+  - [x] Gera token JWT com `jwt.sign({ id, email, role }, SECRET, { expiresIn: '24h' })`
+  - [x] Retorna `{ token, user: { id, name, email, role } }`
 
 **AuthService.js (novos métodos):**
 
-* [ ] `forgotPassword(email)`
-* [ ] Busca usuário. Se não achar, não retorna erro (segurança), apenas finge que enviou.
-* [ ] Gera token aleatório: `crypto.randomBytes(20).toString('hex')`
-* [ ] Define expiração: `Date.now() + 3600000` (1 hora)
-* [ ] Salva no banco (`UPDATE users SET password_reset_token = ?, password_reset_expires = ?`)
-* [ ] Chama `EmailService.sendPasswordReset(email, token)`
+* [x] `forgotPassword(email)`
+* [x] Busca usuário. Se não achar, não retorna erro (segurança), apenas finge que enviou.
+* [x] Gera token aleatório: `crypto.randomBytes(20).toString('hex')`
+* [x] Define expiração: `Date.now() + 3600000` (1 hora)
+* [x] Salva no banco (`UPDATE users SET password_reset_token = ?, password_reset_expires = ?`)
+* [x] Chama `EmailService.sendPasswordReset(email, token)`
 
 
-* [ ] `resetPassword(token, newPassword)`
-* [ ] Busca usuário por token e verifica se `password_reset_expires > now`
-* [ ] Se inválido: lança erro "Token inválido ou expirado"
-* [ ] Hash da nova senha (`bcrypt`)
-* [ ] Atualiza banco e limpa campos de token (`token = null, expires = null`)
+* [x] `resetPassword(token, newPassword)`
+* [x] Busca usuário por token e verifica se `password_reset_expires > now`
+* [x] Se inválido: lança erro "Token inválido ou expirado"
+* [x] Hash da nova senha (`bcrypt`)
+* [x] Atualiza banco e limpa campos de token (`token = null, expires = null`)
 
 **EmailService.js (Básico F1):**
 
-* [ ] Configuração do `nodemailer` (ou log no console para dev)
-* [ ] Template simples de texto: "Para redefinir sua senha, clique em: http://localhost:5173/reset-password?token=..."
+* [x] Configuração do `nodemailer` (ou log no console para dev)
+* [x] Template simples de texto: "Para redefinir sua senha, clique em: http://localhost:5173/reset-password?token=..."
 
 
 **AuthController.js:**
-- [ ] Método `register(req, res)` recebe POST
-  - [ ] Valida DTO (nome, email, senha obrigatórios)
-  - [ ] Chama AuthService.register()
-  - [ ] Retorna 201 com mensagem "Cadastro realizado. Aguarde aprovação."
-  - [ ] Catch: retorna 400 ou 500 com mensagem de erro
+- [x] Método `register(req, res)` recebe POST
+  - [x] Valida DTO (nome, email, senha obrigatórios)
+  - [x] Chama AuthService.register()
+  - [x] Retorna 201 com mensagem "Cadastro realizado. Aguarde aprovação."
+  - [x] Catch: retorna 400 ou 500 com mensagem de erro
   
-- [ ] Método `login(req, res)` recebe POST
-  - [ ] Valida DTO (email, senha obrigatórios)
-  - [ ] Chama AuthService.login()
-  - [ ] Retorna 200 com `{ token, user }`
-  - [ ] Catch: retorna 401 ou 500
+- [x] Método `login(req, res)` recebe POST
+  - [x] Valida DTO (email, senha obrigatórios)
+  - [x] Chama AuthService.login()
+  - [x] Retorna 200 com `{ token, user }`
+  - [x] Catch: retorna 401 ou 500
 
 **routes/auth.routes.js:**
-- [ ] POST `/register` → AuthController.register
-- [ ] POST `/login` → AuthController.login
-- [ ] Rotas registradas em `app.js` como `/auth`
+- [x] POST `/register` → AuthController.register
+- [x] POST `/login` → AuthController.login
+- [x] Rotas registradas em `app.js` como `/auth`
 
 #### ✓ Middleware de Autenticação
 
 **middlewares/auth.middleware.js:**
-- [ ] Função `verifyToken(req, res, next)`
-  - [ ] Extrai token do header `Authorization: Bearer {token}`
-  - [ ] Se não houver token: retorna 401 "Token não fornecido"
-  - [ ] Verifica token com `jwt.verify(token, SECRET)`
-  - [ ] Se inválido/expirado: retorna 403 "Token inválido"
-  - [ ] Se válido: injeta `req.user = { id, email, role }`
-  - [ ] Chama `next()`
+- [x] Função `verifyToken(req, res, next)`
+  - [x] Extrai token do header `Authorization: Bearer {token}`
+  - [x] Se não houver token: retorna 401 "Token não fornecido"
+  - [x] Verifica token com `jwt.verify(token, SECRET)`
+  - [x] Se inválido/expirado: retorna 403 "Token inválido"
+  - [x] Se válido: injeta `req.user = { id, email, role }`
+  - [x] Chama `next()`
 
 #### ✓ Middleware de Autorização (RBAC)
 
 **middlewares/authorize.middleware.js:**
-- [ ] Função `authorize(allowedRoles)` retorna middleware
-  - [ ] Verifica se `req.user.role` está em `allowedRoles`
-  - [ ] Se não: retorna 403 "Acesso negado"
-  - [ ] Se sim: chama `next()`
+- [x] Função `authorize(allowedRoles)` retorna middleware
+  - [x] Verifica se `req.user.role` está em `allowedRoles`
+  - [x] Se não: retorna 403 "Acesso negado"
+  - [x] Se sim: chama `next()`
   
 **Exemplo de uso:**
 ```javascript
@@ -193,8 +193,8 @@ NODE_ENV=development
 
 **Validação:**
 - [ ] `.env.example` criado com campos vazios
-- [ ] `.env` no `.gitignore`
-- [ ] dotenv carregado em `app.js`: `require('dotenv').config()`
+- [x] `.env` no `.gitignore`
+- [x] dotenv carregado em `app.js`: `require('dotenv').config()`
 
 ---
 
@@ -203,38 +203,38 @@ NODE_ENV=development
 #### ✓ Configuração Inicial
 
 **package.json (dependências essenciais):**
-- [ ] `react`, `react-dom`
-- [ ] `react-router-dom` (v6+)
-- [ ] `@mui/material`, `@emotion/react`, `@emotion/styled`
-- [ ] `axios`
+- [x] `react`, `react-dom`
+- [x] `react-router-dom` (v6+)
+- [x] `@mui/material`, `@emotion/react`, `@emotion/styled`
+- [x] `axios`
 - [ ] `date-fns` ou `dayjs` (manipulação de datas)
 
 **src/app/theme.js:**
-- [ ] Tema MUI customizado
-- [ ] Paleta de cores institucional CPS:
-  - [ ] `primary.main`: Vermelho CPS (#C8102E ou similar)
-  - [ ] `secondary.main`: Cinza escuro ou azul
-- [ ] Tipografia padrão (Roboto ou institucional)
-- [ ] Exporta `createTheme()`
+- [x] Tema MUI customizado
+- [x] Paleta de cores institucional CPS:
+  - [x] `primary.main`: Vermelho CPS (#C8102E ou similar)
+  - [x] `secondary.main`: Cinza escuro ou azul
+- [x] Tipografia padrão (Roboto ou institucional)
+- [x] Exporta `createTheme()`
 
 **src/app/App.jsx:**
-- [ ] Envolto em `<ThemeProvider theme={theme}>`
-- [ ] Envolto em `<BrowserRouter>`
-- [ ] Envolto em `<AuthProvider>` (context)
-- [ ] Renderiza `<Routes>` com rotas definidas
+- [x] Envolto em `<ThemeProvider theme={theme}>`
+- [x] Envolto em `<BrowserRouter>`
+- [x] Envolto em `<AuthProvider>` (context)
+- [x] Renderiza `<Routes>` com rotas definidas
 
 #### ✓ Sistema de Rotas
 
 **src/app/routes.jsx:**
-- [ ] Rotas públicas:
-  - [ ] `/login` → LoginPage
-  - [ ] `/register` → RegisterPage
+- [x] Rotas públicas:
+  - [x] `/login` → LoginPage
+  - [x] `/register` → RegisterPage
   
-- [ ] Rotas protegidas (dentro de `<ProtectedRoute>`):
-  - [ ] `/` ou `/dashboard` → DashboardPage
-  - [ ] `/reservations` → MyReservationsPage (ou AdminReservationsPage)
-  - [ ] `/laboratories` → LaboratoriesPage (ADMIN only)
-  - [ ] Adicionar conforme fases avançam
+- [x] Rotas protegidas (dentro de `<ProtectedRoute>`):
+  - [x] `/` ou `/dashboard` → DashboardPage
+  - [x] `/reservations` → MyReservationsPage (ou AdminReservationsPage)
+  - [x] `/laboratories` → LaboratoriesPage (ADMIN only)
+  - [x] Adicionar conforme fases avançam
 
 **components/layout/ProtectedRoute.jsx:**
 - [ ] Verifica se `user` está no AuthContext
@@ -244,127 +244,90 @@ NODE_ENV=development
 #### ✓ Context de Autenticação
 
 **src/context/AuthContext.jsx:**
-- [ ] Estado: `user` (null ou objeto), `loading`
-- [ ] Métodos:
-  - [ ] `login(email, password)` → chama API, armazena token e user
-  - [ ] `register(userData)` → chama API
-  - [ ] `logout()` → limpa token e user, redireciona para login
+- [x] Estado: `user` (null ou objeto), `loading`
+- [x] Métodos:
+  - [x] `login(email, password)` → chama API, armazena token e user
+  - [x] `register(userData)` → chama API
+  - [x] `logout()` → limpa token e user, redireciona para login
   
-- [ ] Persistência:
-  - [ ] Token salvo no `localStorage.setItem('token', token)`
-  - [ ] User salvo no `localStorage.setItem('user', JSON.stringify(user))`
-  - [ ] No `useEffect` inicial: restaura token e user do localStorage
+- [x] Persistência:
+  - [x] Token salvo no `localStorage.setItem('token', token)`
+  - [x] User salvo no `localStorage.setItem('user', JSON.stringify(user))`
+  - [x] No `useEffect` inicial: restaura token e user do localStorage
   
-- [ ] Axios interceptor:
-  - [ ] Inclui `Authorization: Bearer {token}` em toda requisição
-  - [ ] Se 401: chama `logout()` automaticamente
+- [x] Axios interceptor:
+  - [x] Inclui `Authorization: Bearer {token}` em toda requisição
+  - [x] Se 401: chama `logout()` automaticamente
 
 **src/services/api.js:**
-- [ ] Instância Axios configurada:
-  - [ ] `baseURL: process.env.REACT_APP_API_URL` (ex: http://localhost:3000)
-  - [ ] Interceptor de request: adiciona `Authorization`
-  - [ ] Interceptor de response: trata 401 globalmente
+- [x] Instância Axios configurada:
+  - [x] `baseURL: process.env.REACT_APP_API_URL` (ex: http://localhost:3000)
+  - [x] Interceptor de request: adiciona `Authorization`
+  - [x] Interceptor de response: trata 401 globalmente
 
 **src/services/auth.service.js:**
-- [ ] `async login(email, password)` → POST `/auth/login`
-- [ ] `async register(userData)` → POST `/auth/register`
-- [ ] Exporta funções
+- [x] `async login(email, password)` → POST `/auth/login`
+- [x] `async register(userData)` → POST `/auth/register`
+- [x] Exporta funções
 
 #### ✓ Telas de Autenticação
 
 **src/pages/LoginPage.jsx:**
-- [ ] Formulário MUI com:
-  - [ ] `<TextField>` para email
-  - [ ] `<TextField type="password">` para senha
-  - [ ] `<Button>` para submeter
-  - [ ] Link para `/register`
+- [x] Formulário MUI com:
+  - [x] `<TextField>` para email
+  - [x] `<TextField type="password">` para senha
+  - [x] `<Button>` para submeter
+  - [x] Link para `/register`
   
-- [ ] Estado: `email`, `password`, `loading`, `error`
-- [ ] Submit:
-  - [ ] Chama `AuthContext.login()`
-  - [ ] Se sucesso: redireciona para `/dashboard`
-  - [ ] Se erro: exibe mensagem de erro
+- [x] Estado: `email`, `password`, `loading`, `error`
+- [x] Submit:
+  - [x] Chama `AuthContext.login()`
+  - [x] Se sucesso: redireciona para `/dashboard`
+  - [x] Se erro: exibe mensagem de erro
   
-- [ ] Validação:
-  - [ ] Email obrigatório e formato válido
-  - [ ] Senha obrigatória
+- [x] Validação:
+  - [x] Email obrigatório e formato válido
+  - [x] Senha obrigatória
 
 **src/pages/RegisterPage.jsx:**
-- [ ] Formulário MUI com:
-  - [ ] `<TextField>` para nome
-  - [ ] `<TextField>` para email
-  - [ ] `<Select>` para departamento (buscar de API ou hardcoded)
-  - [ ] `<TextField type="password">` para senha
-  - [ ] `<TextField type="password">` para confirmar senha
-  - [ ] `<Button>` para submeter
+- [x] Formulário MUI com:
+  - [x] `<TextField>` para nome
+  - [x] `<TextField>` para email
+  - [x] `<Select>` para departamento (buscar de API ou hardcoded)
+  - [x] `<TextField type="password">` para senha
+  - [x] `<TextField type="password">` para confirmar senha
+  - [x] `<Button>` para submeter
   
-- [ ] Validação:
-  - [ ] Todos campos obrigatórios
-  - [ ] Senhas coincidem
-  - [ ] Email formato válido
+- [x] Validação:
+  - [x] Todos campos obrigatórios
+  - [x] Senhas coincidem
+  - [x] Email formato válido
   
-- [ ] Submit:
-  - [ ] Chama `AuthContext.register()`
-  - [ ] Se sucesso: exibe mensagem "Aguarde aprovação" e redireciona para login
-  - [ ] Se erro: exibe mensagem
+- [x] Submit:
+  - [x] Chama `AuthContext.register()`
+  - [x] Se sucesso: exibe mensagem "Aguarde aprovação" e redireciona para login
+  - [x] Se erro: exibe mensagem
 
 **src/app/routes.jsx:**
 
-* [ ] Rota pública: `/forgot-password` → ForgotPasswordPage
-* [ ] Rota pública: `/reset-password` → ResetPasswordPage (ler query param `?token=`)
+* [x] Rota pública: `/forgot-password` → ForgotPasswordPage
+* [x] Rota pública: `/reset-password` → ResetPasswordPage (ler query param `?token=`)
 
 **src/pages/ForgotPasswordPage.jsx:**
 
-* [ ] Input email
-* [ ] Botão "Enviar Link"
-* [ ] Feedback: "Se o email existir, você receberá um link."
+* [x] Input email
+* [x] Botão "Enviar Link"
+* [x] Feedback: "Se o email existir, você receberá um link."
 
 **src/pages/ResetPasswordPage.jsx:**
 
-* [ ] `const [searchParams] = useSearchParams(); const token = searchParams.get('token');`
-* [ ] Inputs: Senha e Confirmação
-* [ ] Validação: Senhas iguais
-* [ ] Submit envia `{ token, password }`
-* [ ] Sucesso: Redireciona para `/login`
+* [x] `const [searchParams] = useSearchParams(); const token = searchParams.get('token');`
+* [x] Inputs: Senha e Confirmação
+* [x] Validação: Senhas iguais
+* [x] Submit envia `{ token, password }`
+* [x] Sucesso: Redireciona para `/login`
 
-#### ✓ Layout Base
 
-**src/components/layout/MainLayout.jsx:**
-- [ ] `<Box sx={{ display: 'flex' }}>`
-  - [ ] `<Sidebar />` (menu lateral fixo)
-  - [ ] `<Box component="main">` (conteúdo principal)
-    - [ ] `<Topbar />` (barra superior)
-    - [ ] `<Outlet />` (renderiza páginas)
-
-**src/components/layout/Sidebar.jsx:**
-- [ ] `<Drawer variant="permanent">`
-- [ ] Logo da Fatec no topo
-- [ ] Menu dinâmico baseado em role:
-  - [ ] Se ADMIN:
-    - [ ] Dashboard
-    - [ ] Laboratórios
-    - [ ] Ciclos Acadêmicos
-    - [ ] Horários
-    - [ ] Feriados
-    - [ ] Aprovações (cadastros e reservas)
-    - [ ] Minhas Reservas
-  - [ ] Se PROFESSOR:
-    - [ ] Dashboard
-    - [ ] Minhas Reservas
-    - [ ] Nova Reserva
-    - [ ] Perfil
-    
-- [ ] Usa `<ListItem>` e `<ListItemButton>` do MUI
-- [ ] Ícones do `@mui/icons-material`
-
-**src/components/layout/Topbar.jsx:**
-- [ ] `<AppBar position="sticky">`
-- [ ] Mostra nome do usuário logado
-- [ ] Avatar ou ícone do usuário
-- [ ] Botão de logout (chama `AuthContext.logout()`)
-- [ ] (Opcional) Sino de notificações
-
----
 
 ## ✅ FASE 2 - APROVAÇÃO DE CADASTROS E CONFIGURAÇÕES BÁSICAS
 
@@ -467,6 +430,44 @@ NODE_ENV=development
 
 ### 🔹 Frontend - Checklist Técnico
 
+#### ✓ Layout Base
+
+**src/components/layout/MainLayout.jsx:**
+- [ ] `<Box sx={{ display: 'flex' }}>`
+  - [ ] `<Sidebar />` (menu lateral fixo)
+  - [ ] `<Box component="main">` (conteúdo principal)
+    - [ ] `<Topbar />` (barra superior)
+    - [ ] `<Outlet />` (renderiza páginas)
+
+**src/components/layout/Sidebar.jsx:**
+- [ ] `<Drawer variant="permanent">`
+- [ ] Logo da Fatec no topo
+- [ ] Menu dinâmico baseado em role:
+  - [ ] Se ADMIN:
+    - [ ] Dashboard
+    - [ ] Laboratórios
+    - [ ] Ciclos Acadêmicos
+    - [ ] Horários
+    - [ ] Feriados
+    - [ ] Aprovações (cadastros e reservas)
+    - [ ] Minhas Reservas
+  - [ ] Se PROFESSOR:
+    - [ ] Dashboard
+    - [ ] Minhas Reservas
+    - [ ] Nova Reserva
+    - [ ] Perfil
+    
+- [ ] Usa `<ListItem>` e `<ListItemButton>` do MUI
+- [ ] Ícones do `@mui/icons-material`
+
+**src/components/layout/Topbar.jsx:**
+- [ ] `<AppBar position="sticky">`
+- [ ] Mostra nome do usuário logado
+- [ ] Avatar ou ícone do usuário
+- [ ] Botão de logout (chama `AuthContext.logout()`)
+- [ ] (Opcional) Sino de notificações
+
+---
 #### ✓ Tela de Gestão de Laboratórios (ADMIN)
 
 **src/pages/LaboratoriesPage.jsx:**

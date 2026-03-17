@@ -270,3 +270,54 @@
 **Resposta de Erro:** `401 Unauthorized` (Senha incorreta ou usuário não encontrado)
 
 ---
+
+### POST /api/auth/forgot-password
+
+**Descrição:** Inicia o fluxo de recuperação de senha. Recebe o e-mail do usuário, gera um token seguro via `crypto.randomBytes`, salva o hash SHA-256 no banco com expiração de 1 hora e envia um link de redefinição por e-mail. Por segurança, retorna a mesma mensagem independente de o e-mail existir ou não no sistema.
+
+**Corpo da Requisição (JSON):**
+```json
+{
+  "email": "professor@fatec.sp.gov.br"
+}
+```
+
+**Resposta de Sucesso:** `200 OK`
+
+**Exemplo de Retorno:**
+```json
+{
+  "message": "Se este e-mail estiver cadastrado, você receberá as instruções em breve."
+}
+```
+
+**Resposta de Erro:** `400 Bad Request`
+*(Ex: "E-mail não fornecido.")*
+
+---
+
+### POST /api/auth/reset-password
+
+**Descrição:** Finaliza o fluxo de recuperação de senha. Recebe o token bruto enviado no link do e-mail e a nova senha. Valida o token recriando o hash SHA-256 e verificando a expiração diretamente no banco (`expires > NOW()`). Após redefinição, o token é apagado garantindo uso único do link.
+
+**Corpo da Requisição (JSON):**
+```json
+{
+  "token": "d7f8a9b2c3d4e5f6...",
+  "newPassword": "nova_senha_segura_123"
+}
+```
+
+**Resposta de Sucesso:** `200 OK`
+
+**Exemplo de Retorno:**
+```json
+{
+  "message": "Senha redefinida com sucesso!"
+}
+```
+
+**Respostas de Erro:** `400 Bad Request`
+*(Ex: "Token inválido ou expirado. Solicite um novo link de recuperação.", "A senha deve ter no mínimo 6 caracteres.", "Token não fornecido.", "Nova senha não fornecida.")*
+
+---
