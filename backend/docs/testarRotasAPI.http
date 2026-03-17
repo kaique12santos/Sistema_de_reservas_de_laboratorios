@@ -33,3 +33,20 @@ Content-Type: application/json
     "email": "kaique@fatec.sp.gov.br",
     "password": "123"
 }
+
+###
+POST http://localhost:3000/api/auth/forgot-password
+Content-Type: application/json
+
+{
+    "email": "kaique@fatec.sp.gov.br"
+}
+
+###
+POST http://localhost:3000/api/auth/reset-password
+Content-Type: application/json
+
+{
+    "token": "substitua_pelo_token_do_email",
+    "newPassword": "novaSenha123"
+}
