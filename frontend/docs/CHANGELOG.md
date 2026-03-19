@@ -152,3 +152,16 @@
 - Essa alteração garante que o usuário receba a confirmação visual de sucesso (ex: "Login realizado" ou "Token enviado") antes do redirecionamento de rota, resolvendo o problema de desmontagem precoce do componente de feedback.
 
 **Autor**: Luiz Carlos
+
+## [19/03/2026]
+### 1. Refatoração Arquitetural e BaseLayout
+- **Descrição:** Extração do Header e Menu Lateral do Dashboard para um componente central (`BaseLayout`), utilizando `<Outlet />` do React Router para aninhamento de rotas e aplicação do princípio DRY.
+- **Autor:** Kaique Caitano
+
+### 2. Menu Dinâmico com Controle de Acesso (RBAC)
+- **Descrição:** Implementação de configuração de menu baseada em permissões (Role-Based Access Control) na Sidebar do `BaseLayout`, garantindo que Professores, Coordenadores e Suporte vejam apenas as rotas autorizadas.
+- **Autor:** Kaique Caitano
+
+### 3. Página de Laboratórios e Grid Responsivo
+- **Descrição:** Criação da `LaboratoriesPage` com barra de filtros e listagem em CSS Grid blindado (travado em máximo de 3 cards por linha no desktop, com altura fixa e truncamento de texto inteligente usando `break-word` e `line-clamp` para impedir a quebra do layout).
+- **Autor:** Kaique Caitano
