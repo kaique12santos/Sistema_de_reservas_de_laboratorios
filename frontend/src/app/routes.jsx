@@ -7,6 +7,8 @@ import DashboardPage from '../pages/DashboardPage';
 import VerifyEmailPage from '../pages/VerifyEmailPage';
 import ResetPasswordPage from '../pages/ResetPasswordPage';
 import ForgotPasswordPage from '../pages/ForgotPasswordPage';
+import LaboratoriesPage from '../pages/LaboratoriesPage';
+import BaseLayout from '../layout/BaseLayout';
 
 // Componente para proteger rotas privadas
 const PrivateRoute = ({ children }) => {
@@ -37,13 +39,17 @@ const AppRoutes = () => {
       
       {/* Rota Privada */}
       <Route 
-        path="/dashboard" 
         element={
           <PrivateRoute>
-            <DashboardPage />
+            <BaseLayout />
           </PrivateRoute>
         } 
-      />
+      >
+        <Route path="/dashboard" element={<DashboardPage />} />
+        {/* Já podemos deixar as rotas futuras preparadas/comentadas aqui: */}
+        <Route path="/laboratories" element={<LaboratoriesPage />} /> 
+          {/* <Route path="/reservas" element={<MinhasReservasPage />} /> */}
+      </Route>
     </Routes>
   );
 };
