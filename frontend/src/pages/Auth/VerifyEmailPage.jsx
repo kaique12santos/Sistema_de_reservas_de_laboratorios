@@ -7,7 +7,7 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 
 // ✅ Importando o Service no lugar da API (Regra de Arquitetura respeitada)
-import AuthService from "../services/auth.service.js";
+import AuthService from "../../services/auth.service.js";
 
 const VerifyEmailPage = () => {
   const [searchParams] = useSearchParams();

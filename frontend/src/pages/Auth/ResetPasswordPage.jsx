@@ -1,20 +1,28 @@
-import Toast from "../utils/Toast";
-
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams, Link as RouterLink } from "react-router-dom";
 import {
   Box, Paper, Typography, TextField, Button, Link as MuiLink,
 } from "@mui/material";
-import { useNavigate,Link as RouterLink } from "react-router-dom";
 
-import LogoFatec from "../public/images/LogoFatec.png";
-import FotoFatec from "../public/images/FOTOFATEC.jpeg";
+import LogoFatec from "../../public/images/LogoFatec.png";
+import FotoFatec from "../../public/images/FOTOFATEC.jpeg";
 
-import AuthService from "../services/auth.service.js"; // Garanta que essa importação existe!
+import LoadingOverlay from "../../components/LoadingOverlay.jsx";
 
-const ForgotPasswordPage = () => {
-  const [email, setEmail] = useState("");
+import AuthService from "../../services/auth.service.js";
+import Toast from "../../utils/Toast.jsx";
+
+const ResetPasswordPage = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const token = searchParams.get("token");
+
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const [status, setStatus] = useState("idle");
-   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const [notify, setNotify] = useState({
     open: false,
@@ -27,45 +35,84 @@ const ForgotPasswordPage = () => {
     setNotify({ ...notify, open: false });
   };
 
-  const validarEmail = (value) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(value);
-  };
+  const hasChecked = useRef(false);
 
-  const handleSubmit = async (e) => {
-  e.preventDefault();
+  useEffect(() => {
+    if (hasChecked.current) return;
+    hasChecked.current = true;
 
-    if (!validarEmail(email)) {
+    if (!token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus("error");
       setNotify({
         open: true,
-        message: "Por favor, informe um endereço de e-mail válido.",
+        message: "Token não encontrado na URL. Verifique o link recebido no e-mail.",
+        severity: "error",
+      });
+    }
+  }, [token]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!token) {
+      setStatus("error");
+      setNotify({
+        open: true,
+        message: "Token não encontrado na URL.",
         severity: "error",
       });
       return;
     }
 
-    try {
-      setStatus("loading");
-
-      // Chamada REAL para a sua API!
-      await AuthService.forgotPassword({ email });
-
-      setStatus("success");
-      setNotify({
-        open: true,
-        message: "Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha em instantes.",
-        severity: "success",
-      });
-
-      setTimeout(() => {
-      navigate("/login");
-       }, 3500);
-    } catch (err) {
+    if (!password || !confirmPassword) {
       setStatus("error");
       setNotify({
         open: true,
-        message: err?.message || "Não foi possível solicitar a redefinição no momento. Tente novamente mais tarde.",
+        message: "Preencha a nova senha e a confirmação.",
+        severity: "error",
+      });
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setStatus("error");
+      setNotify({
+        open: true,
+        message: "As senhas não conferem.",
+        severity: "error",
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      setStatus("error");
+      setNotify({
+        open: true,
+        message: "A senha deve ter pelo menos 6 caracteres.",
+        severity: "error",
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+
+      const response = await AuthService.resetPassword({ token, password });
+
+      setLoading(false);
+      setNotify({
+        open: true,
+        message: response?.message || "Senha redefinida com sucesso! Você será redirecionado para o login.",
+        severity: "success",
+      });
+
+      setTimeout(() => navigate("/login"), 1200);
+    } catch (err) {
+      setLoading(false);
+      
+      setNotify({
+        open: true,
+        message: err?.message || "Não foi possível redefinir a senha. Tente novamente.",
         severity: "error",
       });
     }
@@ -145,34 +192,40 @@ const ForgotPasswordPage = () => {
             flexDirection: "column",
           }}
         >
-          {/* LOGO */}
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <img src={LogoFatec} alt="CPS FATEC" style={{ height: "45px" }} />
           </Box>
 
-          {/* TITULO */}
           <Typography variant="h4" sx={{ mt: 2, fontWeight: "bold" }}>
-            Esqueci a senha
+            Nova senha
           </Typography>
 
           <Typography sx={{ mt: 1, color: "text.secondary" }}>
-            Informe seu e-mail institucional para receber o link de redefinição.
+            Defina sua nova senha e confirme para finalizar.
           </Typography>
 
-          {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
             
-            <Typography variant="inputLabel" sx={{ mt: 2, mb: 1, display: "block" }}>
-              E-MAIL INSTITUCIONAL
+            <Typography variant="inputLabel" sx={{ mt: 2, mb: 1, display: 'block' }}>
+              NOVA SENHA
             </Typography>
-
             <TextField
               fullWidth
-              placeholder="nome@fatec.sp.gov.br"
-              name="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="(nova senha)"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <Typography variant="inputLabel" sx={{ mt: 3, mb: 1, display: 'block' }}>
+              CONFIRMAR SENHA
+            </Typography>
+            <TextField
+              fullWidth
+              placeholder="(confirme a senha)"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
 
             <Button
@@ -180,10 +233,10 @@ const ForgotPasswordPage = () => {
               fullWidth
               variant="contained"
               color="primary"
-              disabled={status === "loading"}
+              disabled={status === "loading" || !token}
               sx={{ mt: 4 }}
             >
-              {status === "loading" ? "ENVIANDO..." : "ENVIAR LINK"}
+              {status === "loading" ? "SALVANDO..." : "REDEFINIR SENHA"}
             </Button>
 
             <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
@@ -213,15 +266,15 @@ const ForgotPasswordPage = () => {
         </Box>
       </Paper>
 
-      {/* TOAST */}
       <Toast
         open={notify.open}
         handleClose={handleCloseToast}
         message={notify.message}
         severity={notify.severity}
       />
+      <LoadingOverlay open={loading} message="Redefinindo senha..." />
     </Box>
   );
 };
 
-export default ForgotPasswordPage;
+export default ResetPasswordPage;

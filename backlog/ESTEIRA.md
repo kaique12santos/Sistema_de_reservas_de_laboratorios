@@ -96,15 +96,15 @@ git commit -m "test(F10-BE-01): adiciona testes unitários de ReservationService
 
 ## 🎯 Cronograma Sugerido (12 Semanas)
 
-### 📅 Semana 1 - FASE 1 (🟡 pendente)
+### 📅 Semana 1 - FASE 1 (🟢 Concluida)
 - [x] Infraestrutura base
-- [] Autenticação JWT
-- [] Telas de login/cadastro
+- [x] Autenticação JWT
+- [x] Telas de login/cadastro
 
 ### 📅 Semana 2-3 - FASE 2
 **Meta:** Aprovação de cadastros + CRUD básico  
 **Tasks:**
-- [ ] F1-BE-04: Middleware de autorização
+- [x] F1-BE-04: Middleware de autorização
 - [ ] F2-BE-01: Aprovação de cadastros (Backend)
 - [ ] F2-BE-02: CRUD de Laboratórios (Backend)
 - [ ] F2-BE-03: CRUD de Horários (Backend)

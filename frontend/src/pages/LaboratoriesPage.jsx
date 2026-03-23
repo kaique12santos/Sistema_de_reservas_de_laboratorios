@@ -5,6 +5,7 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
+import StaggerItem from '../utils/StaggerItem';
 
 // Mock Temporário de Laboratórios
 const mockLaboratorios = [
@@ -54,11 +55,14 @@ const LaboratoriesPage = () => {
 
   return (
     <Box>
-      <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'primary.main', mb: 3 }}>
-        Laboratórios Disponíveis
-      </Typography>
+      <StaggerItem index={0}>
+        <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'primary.main', mb: 3 }}>
+          Laboratórios Disponíveis
+        </Typography>
+      </StaggerItem>
 
       {/* BARRA DE FILTROS */}
+      <StaggerItem index={1}>
       <Paper elevation={0} sx={{ p: 2, mb: 4, borderRadius: 2, bgcolor: '#ffffff', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} md={4}>
@@ -91,94 +95,96 @@ const LaboratoriesPage = () => {
           </Grid>
         </Grid>
       </Paper>
+      </StaggerItem>
 
       {/* GRID DE LABORATÓRIOS */}
     {/* ========================================== */}
       {/* CSS GRID: O "Ditador" do Layout (3 colunas exatas) */}
       {/* ========================================== */}
+      {/* CSS GRID */}
       <Box sx={{ 
         display: 'grid', 
-        // Aqui está a mágica: 1 coluna no celular, 2 no tablet, 3 cravadas no desktop
         gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, 
-        gap: 3 // Espaçamento entre os cards (antigo spacing do Grid)
+        gap: 3 
       }}>
         
-        {laboratoriosFiltrados.map((lab) => (
-          <Paper 
-            key={lab.id} 
-            elevation={0} 
-            sx={{ 
-              p: 3, 
-              height: '100%', // <--- Deixa o CSS Grid cuidar da altura igualitária
-              display: 'flex', 
-              flexDirection: 'column', 
-              borderRadius: 2, 
-              borderTop: '4px solid', 
-              borderColor: lab.status === 'Livre' ? 'success.main' : 'error.main',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.03)'
-            }}
-          >
+        {/* Adicionamos o 'index' como segundo parâmetro do map */}
+        {laboratoriosFiltrados.map((lab, index) => (
+          
+          // O StaggerItem vira o pai, recebe a KEY e o INDEX automático!
+          <StaggerItem key={lab.id} index={index} sx={{ height: '100%' }}>
             
-            <Box sx={{ mb: 1 }}>
-              <Typography variant="h6" sx={{ fontWeight: 'bold', lineHeight: 1.2, mb: 0.5 }}>{lab.nome}</Typography>
-              <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>Localização: {lab.local}</Typography>
-              <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>Capacidade: {lab.capacidade} lugares</Typography>
-            </Box>
-            
-            {/* flexGrow: 1 empurra tudo abaixo (o botão) para o rodapé */}
-            <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+            <Paper 
+              elevation={0} 
+              sx={{ 
+                p: 3, 
+                height: '100%', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                borderRadius: 2, 
+                borderTop: '4px solid', 
+                borderColor: lab.status === 'Livre' ? 'success.main' : 'error.main',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.03)'
+              }}
+            >
               
-              {/* Box da descrição com minHeight fixo para alinhar todos os cards */}
-              <Box sx={{ mb: 2, minHeight: '60px' }}>
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    color: 'text.secondary', 
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2, 
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    wordBreak: 'break-word', // <--- MATA O BUG DO TEXTO SEM ESPAÇO
-                  }}
-                >
-                  {lab.descricao}
-                </Typography>
-
-                {lab.descricao.length > 50 && (
+              <Box sx={{ mb: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 'bold', lineHeight: 1.2, mb: 0.5 }}>{lab.nome}</Typography>
+                <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>Localização: {lab.local}</Typography>
+                <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>Capacidade: {lab.capacidade} lugares</Typography>
+              </Box>
+              
+              <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ mb: 2, minHeight: '60px' }}>
                   <Typography 
-                    variant="caption" 
-                    color="primary" 
-                    sx={{ cursor: 'pointer', display: 'inline-block', fontWeight: 'bold', mt: 0.5 }}
-                    onClick={() => alert(`Detalhes de ${lab.nome}:\n\n${lab.descricao}`)}
+                    variant="body2" 
+                    sx={{ 
+                      color: 'text.secondary', 
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2, 
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      wordBreak: 'break-word', 
+                    }}
                   >
-                    Ver detalhes
+                    {lab.descricao}
                   </Typography>
-                )}
+
+                  {lab.descricao.length > 50 && (
+                    <Typography 
+                      variant="caption" 
+                      color="primary" 
+                      sx={{ cursor: 'pointer', display: 'inline-block', fontWeight: 'bold', mt: 0.5 }}
+                      onClick={() => alert(`Detalhes de ${lab.nome}:\n\n${lab.descricao}`)}
+                    >
+                      Ver detalhes
+                    </Typography>
+                  )}
+                </Box>
+                
+                <Box>
+                  <Typography variant="body2"><strong>Tipo:</strong> {lab.tipo}</Typography>
+                  <Typography variant="body2" sx={{ color: lab.status === 'Livre' ? 'success.main' : 'error.main', fontWeight: 'bold' }}>
+                    Status: {lab.status}
+                  </Typography>
+                </Box>
               </Box>
-              
-              <Box>
-                <Typography variant="body2"><strong>Tipo:</strong> {lab.tipo}</Typography>
-                <Typography variant="body2" sx={{ color: lab.status === 'Livre' ? 'success.main' : 'error.main', fontWeight: 'bold' }}>
-                  Status: {lab.status}
-                </Typography>
+
+              <Box sx={{ mt: 3 }}>
+                <Button 
+                  variant={lab.status === 'Livre' ? "contained" : "outlined"}
+                  color={lab.status === 'Livre' ? "primary" : "inherit"}
+                  fullWidth disableElevation
+                  disabled={lab.status !== 'Livre'}
+                  onClick={() => handleOpenModal(lab)}
+                >
+                  {lab.status === 'Livre' ? 'Reservar' : 'Indisponível'}
+                </Button>
               </Box>
 
-            </Box>
-
-            <Box sx={{ mt: 3 }}>
-              <Button 
-                variant={lab.status === 'Livre' ? "contained" : "outlined"}
-                color={lab.status === 'Livre' ? "primary" : "inherit"}
-                fullWidth disableElevation
-                disabled={lab.status !== 'Livre'}
-                onClick={() => handleOpenModal(lab)}
-              >
-                {lab.status === 'Livre' ? 'Reservar' : 'Indisponível'}
-              </Button>
-            </Box>
-
-          </Paper>
+            </Paper>
+          </StaggerItem>
         ))}
       </Box>
 

@@ -1,63 +1,36 @@
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
+  Box,
   Paper,
+  Typography,
   TextField,
   Button,
-  Typography,
-  Box,
   Alert,
-  MenuItem,
-  Select,
-  InputLabel,
-  FormControl,
   Link as MuiLink,
 } from "@mui/material";
 
-import Toast from "../utils/Toast";
+import Toast from "../../utils/Toast";
 
 import { useNavigate, Link as RouterLink } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import DepartmentService from "../services/department.service.js";
+import LoadingOverlay from "../../components/LoadingOverlay";
+import { useAuth } from "../../context/AuthContext";
 
-import LogoFatec from "../assets/LogoFatec.png";
-import FotoFatec from "../assets/FOTOFATEC.jpeg";
+import LogoFatec from "../../public/images/LogoFatec.png";
+import FotoFatec from "../../public/images/FOTOFATEC.jpeg";
 
-const RegisterPage = () => {
+
+
+
+const LoginPage = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  // 1. O Estado de Loading
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
     password: "",
-    department_id: "",
   });
-
-  const [departments, setDepartments] = useState([]);
-  const [error, setError] = useState("");
-
-  const { register } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const data = await DepartmentService.getDepartments();
-        setDepartments(data);
-      } catch (err) {
-        console.error("Erro ao carregar cursos", err);
-        setError("Não foi possível carregar a lista de cursos.");
-      }
-    };
-
-    fetchDepartments();
-  }, []);
-
-
-  const handleCourseChange = (e) => {
-    setFormData({
-      ...formData,
-      department_id: e.target.value,
-    });
-  };
-
 
   // --- ESTADO DO TOAST ---
   const [notify, setNotify] = useState({
@@ -80,63 +53,30 @@ const RegisterPage = () => {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
-      if (!formData.name){
-                setNotify({
-              open: true,
-              message:"Por favor, informe um nome.",
-              severity: "error",
-            });
-            return;
-          }
 
-              if (!formData.email){
-          setNotify({
-        open: true,
-        message:"Por favor, informe um email válido.",
-        severity: "error",
-      });
-      return;
-    }
-
-     if (!formData.department_id) {
-          setNotify({
-        open: true,
-        message: "Por favor, selecione um curso.",
-        severity: "error",
-      });
-      return;
-    }
-    
-
-    if (!formData.password){
-    setNotify({
-        open: true,
-        message: "Por favor, informe uma senha.",
-        severity: "error",
-      });
-      return;
-    }
+    setLoading(true);
 
     try {
-      await register(formData);
+      await login(formData);
+      setLoading(false);
       setNotify({
         open: true,
-        message: "Verifique o seu Email para validar o cadastro.",
+        message: "Login Realizado com sucesso.",
         severity: "success",
       });
 
       setTimeout(() => {
-      navigate("/");
+      navigate("/Dashboard");
        }, 3500);
     } catch (err) {
+      setLoading(false);
       // --- DISPARANDO O TOAST NO ERRO ---
       setNotify({
         open: true,
-        message: err.response?.data?.error || "Erro ao cadastrar.",
+        message: err.response?.data?.error || "Erro ao fazer login.",
         severity: "error",
       });
     }
-    
   };
 
   return (
@@ -169,6 +109,7 @@ const RegisterPage = () => {
             backgroundImage: `url(${FotoFatec})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
             flexDirection: "column",
             justifyContent: "flex-end",
             alignItems: "center",
@@ -221,19 +162,14 @@ const RegisterPage = () => {
 
           {/* TITULO */}
           <Typography variant="h4" sx={{ mt: 2, fontWeight: "bold" }}>
-            Criar Conta
+            Login
           </Typography>
 
-          {/* ERRO */}
-          {error && (
-            <Alert severity="error" sx={{ mt: 2 }}>
-              {error}
-            </Alert>
-          )}
+          
 
           {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-            {/* NOME */}
+            {/* EMAIL */}
             <Typography
               sx={{
                 fontSize: "12px",
@@ -243,34 +179,7 @@ const RegisterPage = () => {
                 color: "#777",
               }}
             >
-              NOME COMPLETO
-            </Typography>
-
-            <TextField
-              fullWidth
-              placeholder="Seu nome"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                  backgroundColor: "#ffffff",
-                },
-              }}
-            />
-
-            {/* EMAIL */}
-            <Typography
-              sx={{
-                fontSize: "12px",
-                letterSpacing: "2px",
-                mt: 3,
-                mb: 1,
-                color: "#777",
-              }}
-            >
-              E-MAIL INSTITUCIONAL
+              E-MAIL
             </Typography>
 
             <TextField
@@ -287,39 +196,6 @@ const RegisterPage = () => {
                 },
               }}
             />
-
-            {/* CURSO */}
-            <Typography
-              sx={{
-                fontSize: "12px",
-                letterSpacing: "2px",
-                mt: 3,
-                mb: 1,
-                color: "#777",
-              }}
-            >
-              CURSO
-            </Typography>
-
-            <FormControl fullWidth>
-              <InputLabel>Curso</InputLabel>
-
-              <Select
-                value={formData.department_id}
-                label="Curso"
-                onChange={handleCourseChange}
-                sx={{
-                  borderRadius: "12px",
-                  backgroundColor: "#ffffff",
-                }}
-              >
-                {departments.map((dept) => (
-                  <MenuItem key={dept.id} value={dept.id}>
-                    {dept.name} ({dept.code})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
 
             {/* SENHA */}
             <Typography
@@ -360,23 +236,44 @@ const RegisterPage = () => {
                 borderRadius: "12px",
                 height: "45px",
                 fontWeight: "bold",
-                "&:hover": { backgroundColor: "#7c1417" },
+                "&:hover": {
+                  backgroundColor: "#7c1417",
+                },
               }}
             >
-              CADASTRAR
+              ENTRAR
             </Button>
 
-            {/* LINK LOGIN */}
-            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-              <MuiLink
-                component={RouterLink}
-                to="/login"
-                underline="hover"
-                sx={{ color: "#9e1b1f", fontSize: "14px" }}
-              >
-                Já tem conta? Faça Login
-              </MuiLink>
-            </Box>
+            
+
+            {/* LINKS */}
+            <Box
+  sx={{
+    display: "flex",
+    justifyContent: "space-between",
+    mt: 2,
+  }}
+>
+
+  <MuiLink
+    component={RouterLink}
+    to="/forgot-password"
+    underline="hover"
+    sx={{ color: "#9e1b1f", fontSize: "14px" }}
+  >
+    Esqueci minha senha
+  </MuiLink>
+
+  <MuiLink
+    component={RouterLink}
+    to="/register"
+    underline="hover"
+    sx={{ color: "#9e1b1f", fontSize: "14px" }}
+  >
+    Criar conta
+  </MuiLink>
+
+</Box>
 
             {/* RODAPÉ */}
             <Box
@@ -407,8 +304,9 @@ const RegisterPage = () => {
         severity={notify.severity} 
       />
       
+      <LoadingOverlay open={loading} message="Autenticando..." />
     </Box>
   );
 };
 
-export default RegisterPage;
+export default LoginPage;
