@@ -165,3 +165,19 @@
 ### 3. Página de Laboratórios e Grid Responsivo
 - **Descrição:** Criação da `LaboratoriesPage` com barra de filtros e listagem em CSS Grid blindado (travado em máximo de 3 cards por linha no desktop, com altura fixa e truncamento de texto inteligente usando `break-word` e `line-clamp` para impedir a quebra do layout).
 - **Autor:** Kaique Caitano
+
+## [23/03/2026]
+### 1. Gestão de Reservas (MinhasReservasPage)
+- **Descrição:** Implementação da tabela de listagem das solicitações do usuário com filtros dinâmicos de status. Criação de modais interativos baseados no MUI `<Dialog>` para visualização de detalhes completos da reserva e confirmação segura de cancelamento.
+- **Autor:** Kaique Caitano
+
+### 2. Microinterações e Utilitários Globais de UX
+- **Descrição:** Desenvolvimento de componentes utilitários universais para elevar a experiência do usuário sem dependências pesadas: 
+  - `PageTransition`: Fade-in suave na navegação entre telas.
+  - `StaggerItem`: Efeito visual de entrada em cascata (Staggered Animation) adaptável a cards e listas (Data Grids).
+  - `LoadingOverlay`: Backdrop de carregamento global para bloqueio de interações durante chamadas de API.
+- **Autor:** Kaique Caitano
+
+### 3. Refatoração do BaseLayout (App Shell)
+- **Descrição:** Evolução da navegação principal para o padrão "Mini Sidebar" (colapsável) no Desktop, otimizando o espaço de tela com suporte a tooltips em ícones. Inclusão de modal de confirmação customizado para a ação de Logout, prevenindo cliques acidentais e perda de contexto.
+- **Autor:** Kaique Caitano

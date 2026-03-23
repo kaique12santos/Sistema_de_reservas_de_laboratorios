@@ -1,26 +1,24 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams, Link as RouterLink } from "react-router-dom";
+import Toast from "../../utils/Toast.jsx";
+
+import { useState } from "react";
 import {
   Box, Paper, Typography, TextField, Button, Link as MuiLink,
 } from "@mui/material";
+import { useNavigate,Link as RouterLink } from "react-router-dom";
+import LoadingOverlay from "../../components/LoadingOverlay.jsx";
 
-import LogoFatec from "../public/images/LogoFatec.png";
-import FotoFatec from "../public/images/FOTOFATEC.jpeg";
+import LogoFatec from "../../public/images/LogoFatec.png";
+import FotoFatec from "../../public/images/FOTOFATEC.jpeg";
 
-import AuthService from "../services/auth.service.js";
-import Toast from "../utils/Toast";
+import AuthService from "../../services/auth.service.js"; 
 
-const ResetPasswordPage = () => {
+const ForgotPasswordPage = () => {
+  const [email, setEmail] = useState("");
+  const [status] = useState("idle");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
-  const token = searchParams.get("token");
-
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  const [status, setStatus] = useState("idle");
-
+   
   const [notify, setNotify] = useState({
     open: false,
     message: "",
@@ -32,84 +30,48 @@ const ResetPasswordPage = () => {
     setNotify({ ...notify, open: false });
   };
 
-  const hasChecked = useRef(false);
-
-  useEffect(() => {
-    if (hasChecked.current) return;
-    hasChecked.current = true;
-
-    if (!token) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setStatus("error");
-      setNotify({
-        open: true,
-        message: "Token não encontrado na URL. Verifique o link recebido no e-mail.",
-        severity: "error",
-      });
-    }
-  }, [token]);
+  const validarEmail = (value) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(value);
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!token) {
-      setStatus("error");
+    
+    if (!validarEmail(email)) {
+     
       setNotify({
         open: true,
-        message: "Token não encontrado na URL.",
+        message: "Por favor, informe um endereço de e-mail válido.",
         severity: "error",
       });
       return;
     }
-
-    if (!password || !confirmPassword) {
-      setStatus("error");
-      setNotify({
-        open: true,
-        message: "Preencha a nova senha e a confirmação.",
-        severity: "error",
-      });
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setStatus("error");
-      setNotify({
-        open: true,
-        message: "As senhas não conferem.",
-        severity: "error",
-      });
-      return;
-    }
-
-    if (password.length < 6) {
-      setStatus("error");
-      setNotify({
-        open: true,
-        message: "A senha deve ter pelo menos 6 caracteres.",
-        severity: "error",
-      });
-      return;
-    }
+    setLoading(true);
 
     try {
-      setStatus("loading");
+      
 
-      const response = await AuthService.resetPassword({ token, password });
-
-      setStatus("success");
+      // Chamada REAL para a sua API!
+      await AuthService.forgotPassword({ email });
+      setLoading(false);
+      
       setNotify({
         open: true,
-        message: response?.message || "Senha redefinida com sucesso! Você será redirecionado para o login.",
+        message: "Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha em instantes.",
         severity: "success",
       });
 
-      setTimeout(() => navigate("/login"), 1200);
+      setTimeout(() => {
+      navigate("/login");
+       }, 3500);
     } catch (err) {
-      setStatus("error");
+      
+      setLoading(false);
       setNotify({
         open: true,
-        message: err?.message || "Não foi possível redefinir a senha. Tente novamente.",
+        message: err?.message || "Não foi possível solicitar a redefinição no momento. Tente novamente mais tarde.",
         severity: "error",
       });
     }
@@ -189,40 +151,34 @@ const ResetPasswordPage = () => {
             flexDirection: "column",
           }}
         >
+          {/* LOGO */}
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <img src={LogoFatec} alt="CPS FATEC" style={{ height: "45px" }} />
           </Box>
 
+          {/* TITULO */}
           <Typography variant="h4" sx={{ mt: 2, fontWeight: "bold" }}>
-            Nova senha
+            Esqueci a senha
           </Typography>
 
           <Typography sx={{ mt: 1, color: "text.secondary" }}>
-            Defina sua nova senha e confirme para finalizar.
+            Informe seu e-mail institucional para receber o link de redefinição.
           </Typography>
 
+          {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
             
-            <Typography variant="inputLabel" sx={{ mt: 2, mb: 1, display: 'block' }}>
-              NOVA SENHA
+            <Typography variant="inputLabel" sx={{ mt: 2, mb: 1, display: "block" }}>
+              E-MAIL INSTITUCIONAL
             </Typography>
-            <TextField
-              fullWidth
-              placeholder="(nova senha)"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
 
-            <Typography variant="inputLabel" sx={{ mt: 3, mb: 1, display: 'block' }}>
-              CONFIRMAR SENHA
-            </Typography>
             <TextField
               fullWidth
-              placeholder="(confirme a senha)"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="nome@fatec.sp.gov.br"
+              name="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
 
             <Button
@@ -230,10 +186,10 @@ const ResetPasswordPage = () => {
               fullWidth
               variant="contained"
               color="primary"
-              disabled={status === "loading" || !token}
+              disabled={status === "loading"}
               sx={{ mt: 4 }}
             >
-              {status === "loading" ? "SALVANDO..." : "REDEFINIR SENHA"}
+              {status === "loading" ? "SOLICITANDO..." : "Solicitar link"}
             </Button>
 
             <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
@@ -263,14 +219,16 @@ const ResetPasswordPage = () => {
         </Box>
       </Paper>
 
+      {/* TOAST */}
       <Toast
         open={notify.open}
         handleClose={handleCloseToast}
         message={notify.message}
         severity={notify.severity}
       />
+      <LoadingOverlay open={loading} message="Enviando solicitação..." />
     </Box>
   );
 };
 
-export default ResetPasswordPage;
+export default ForgotPasswordPage;

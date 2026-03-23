@@ -1,14 +1,15 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-import LoginPage from '../pages/LoginPage';
-import RegisterPage from '../pages/RegisterPage';
+import LoginPage from '../pages/Auth/LoginPage';
+import RegisterPage from '../pages/Auth/RegisterPage';
 import DashboardPage from '../pages/DashboardPage';
-import VerifyEmailPage from '../pages/VerifyEmailPage';
-import ResetPasswordPage from '../pages/ResetPasswordPage';
-import ForgotPasswordPage from '../pages/ForgotPasswordPage';
+import VerifyEmailPage from '../pages/Auth/VerifyEmailPage';
+import ResetPasswordPage from '../pages/Auth/ResetPasswordPage';
+import ForgotPasswordPage from '../pages/Auth/ForgotPasswordPage';
 import LaboratoriesPage from '../pages/LaboratoriesPage';
 import BaseLayout from '../layout/BaseLayout';
+import MinhasReservasPage from '../pages/MinhasReservasPage';
 
 // Componente para proteger rotas privadas
 const PrivateRoute = ({ children }) => {
@@ -48,7 +49,7 @@ const AppRoutes = () => {
         <Route path="/dashboard" element={<DashboardPage />} />
         {/* Já podemos deixar as rotas futuras preparadas/comentadas aqui: */}
         <Route path="/laboratories" element={<LaboratoriesPage />} /> 
-          {/* <Route path="/reservas" element={<MinhasReservasPage />} /> */}
+        <Route path="/reservas" element={<MinhasReservasPage />} />
       </Route>
     </Routes>
   );
