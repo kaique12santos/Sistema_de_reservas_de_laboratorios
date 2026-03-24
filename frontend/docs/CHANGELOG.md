@@ -201,3 +201,11 @@
 - **Descrição:** Estruturação inicial do `user.service.js` utilizando classes (Orientação a Objetos) e exportação em padrão Singleton. 
   - Criação dos métodos `getPending`, `approve` e `reject` com simulações assíncronas (Mocks) para permitir a validação e testes de UI/UX da equipe de front-end de forma isolada, enquanto a API (F2-BE-01) está em desenvolvimento.
 - **Autor:** Kaique Caitano 
+
+### 4. Gestão de Laboratórios (CRUD) [Task F2-FE-02]
+- **Descrição:** Implementação da tela administrativa exclusiva para coordenadores gerenciarem os laboratórios físicos da instituição (`ManageLaboratoriesPage`).
+  - **Arquitetura de Rotas:** Separação clara entre a tela de "Visualização de Laboratórios" (Professor/Admin) e a tela de "Gestão de Laboratórios" (Exclusiva Admin), evitando conflitos de imports e melhorando a escalabilidade.
+  - **Interface (UI):** Tabela nativa do MUI otimizada com `StaggerItem` para entrada em cascata. Filtros dinâmicos por Tipo de sala e toggle para "Mostrar Inativos".
+  - **Formulários e Validação:** Criação do componente isolado `LaboratoryFormModal` para inserção e edição, com validação de campos obrigatórios e tipagem (ex: capacidade > 0).
+  - **Tratamento de Regras de Negócio (Front-end):** Interceptação de erros específicos simulados no `laboratory.service.js` (ex: bloqueio de deleção de laboratórios com reservas ativas e verificação de nome duplicado), exibindo feedback claro via `Toast`.
+- **Autor:** Kaique Caitano

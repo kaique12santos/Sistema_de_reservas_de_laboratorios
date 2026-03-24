@@ -12,6 +12,7 @@ import BaseLayout from '../layout/BaseLayout';
 import MinhasReservasPage from '../pages/MinhasReservasPage';
 import RoleRoute from '../components/RoleRouter';
 import PendingUsersPage from '../pages/Coordenador/PendingUsersPage';
+import ManageLaboratoriesPage from '../pages/Coordenador/ManageLaboratoriesPage';
 
 // Componente para proteger rotas privadas
 const PrivateRoute = ({ children }) => {
@@ -65,7 +66,7 @@ const AppRoutes = () => {
         <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
           {/* A tela da nossa Task F2-FE-01 */}
           <Route path="/gestao-cadastros" element={<PendingUsersPage />} />
-          
+          <Route path="/gestao-laboratorios" element={<ManageLaboratoriesPage />} />
           {/* Futura tela de aprovação de reservas */}
           {/* <Route path="/gestao-reservas" element={<AprovarReservasPage />} /> */}
         </Route>
