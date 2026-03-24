@@ -10,6 +10,8 @@ import ForgotPasswordPage from '../pages/Auth/ForgotPasswordPage';
 import LaboratoriesPage from '../pages/LaboratoriesPage';
 import BaseLayout from '../layout/BaseLayout';
 import MinhasReservasPage from '../pages/MinhasReservasPage';
+import RoleRoute from '../components/RoleRouter';
+import PendingUsersPage from '../pages/Coordenador/PendingUsersPage';
 
 // Componente para proteger rotas privadas
 const PrivateRoute = ({ children }) => {
@@ -38,7 +40,7 @@ const AppRoutes = () => {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       
-      {/* Rota Privada */}
+      {/* Área Privada (Exige estar logado) */}
       <Route 
         element={
           <PrivateRoute>
@@ -46,10 +48,34 @@ const AppRoutes = () => {
           </PrivateRoute>
         } 
       >
+        {/* Rotas Universais (Todos os logados acessam) */}
         <Route path="/dashboard" element={<DashboardPage />} />
-        {/* Já podemos deixar as rotas futuras preparadas/comentadas aqui: */}
-        <Route path="/laboratories" element={<LaboratoriesPage />} /> 
-        <Route path="/reservas" element={<MinhasReservasPage />} />
+        
+        {/* Rotas Compartilhadas (Professor e Admin) */}
+        <Route element={<RoleRoute allowedRoles={['PROFESSOR', 'ADMIN']} />}>
+          <Route path="/laboratories" element={<LaboratoriesPage />} />
+        </Route>
+
+        {/* Rotas Exclusivas do Professor */}
+        <Route element={<RoleRoute allowedRoles={['PROFESSOR']} />}>
+          <Route path="/reservas" element={<MinhasReservasPage />} />
+        </Route>
+
+        {/* 🔒 Rotas Exclusivas do Administrador (Coordenador) */}
+        <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
+          {/* A tela da nossa Task F2-FE-01 */}
+          <Route path="/gestao-cadastros" element={<PendingUsersPage />} />
+          
+          {/* Futura tela de aprovação de reservas */}
+          {/* <Route path="/gestao-reservas" element={<AprovarReservasPage />} /> */}
+        </Route>
+
+        {/* 🛠️ Rotas Exclusivas do Suporte */}
+        <Route element={<RoleRoute allowedRoles={['SUPORT', 'ADMIN']} />}>
+          {/* Futura tela de gestão de equipamentos */}
+          {/* <Route path="/equipamentos" element={<EquipamentosPage />} /> */}
+        </Route>
+
       </Route>
     </Routes>
   );

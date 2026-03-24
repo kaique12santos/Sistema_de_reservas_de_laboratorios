@@ -82,48 +82,54 @@ const RegisterPage = () => {
     setNotify({ ...notify, open: false });
   };
   
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
-      if (!formData.name){
-                setNotify({
-              open: true,
-              message:"Por favor, informe um nome.",
-              severity: "error",
-            });
-            return;
-          }
 
-              if (!formData.email){
-          setNotify({
+    // --- VALIDAÇÕES DO FRONT-END (Paridade com o Zod) ---
+    if (!formData.name || formData.name.length < 3) {
+      setNotify({
         open: true,
-        message:"Por favor, informe um email válido.",
+        message: "Por favor, informe um nome válido (mín. 3 caracteres).",
         severity: "error",
       });
       return;
     }
 
-     if (!formData.department_id) {
-          setNotify({
+    if (!formData.email) {
+      setNotify({
+        open: true,
+        message: "Por favor, informe um email válido.",
+        severity: "error",
+      });
+      return;
+    }
+
+    if (!formData.department_id) {
+      setNotify({
         open: true,
         message: "Por favor, selecione um curso.",
         severity: "error",
       });
       return;
     }
-    
 
-    if (!formData.password){
-    setNotify({
+    // A MUDANÇA AQUI: Checando o tamanho da senha no front!
+    if (!formData.password || formData.password.length < 6) {
+      setNotify({
         open: true,
-        message: "Por favor, informe uma senha.",
+        message: "A senha deve ter no mínimo 6 caracteres.",
         severity: "error",
       });
       return;
     }
+
+    // --- FIM DAS VALIDAÇÕES ---
+
     setLoading(true);
 
     try {
       await register(formData);
+      
       setLoading(false);
       setNotify({
         open: true,
@@ -132,18 +138,28 @@ const RegisterPage = () => {
       });
 
       setTimeout(() => {
-      navigate("/");
-       }, 3500);
+        navigate("/");
+      }, 3500);
+
     } catch (err) {
       setLoading(false);
+      
+      // --- A MÁGICA DA LEITURA DO ZOD ---
+      // 1. Tenta pegar a primeira mensagem do array 'details' do Zod
+      // 2. Se não tiver, tenta pegar o 'error' genérico
+      // 3. Se o back-end caiu de vez, mostra a mensagem padrão
+      const errorMessage = 
+        err.response?.data?.details?.[0] || 
+        err.response?.data?.error || 
+        "Erro ao cadastrar.";
+
       // --- DISPARANDO O TOAST NO ERRO ---
       setNotify({
         open: true,
-        message: err.response?.data?.error || "Erro ao cadastrar.",
+        message: errorMessage,
         severity: "error",
       });
     }
-    
   };
 
   return (

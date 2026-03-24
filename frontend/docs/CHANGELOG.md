@@ -173,7 +173,6 @@
 
 ### 2. Microinterações e Utilitários Globais de UX
 - **Descrição:** Desenvolvimento de componentes utilitários universais para elevar a experiência do usuário sem dependências pesadas: 
-  - `PageTransition`: Fade-in suave na navegação entre telas.
   - `StaggerItem`: Efeito visual de entrada em cascata (Staggered Animation) adaptável a cards e listas (Data Grids).
   - `LoadingOverlay`: Backdrop de carregamento global para bloqueio de interações durante chamadas de API.
 - **Autor:** Kaique Caitano
@@ -181,3 +180,24 @@
 ### 3. Refatoração do BaseLayout (App Shell)
 - **Descrição:** Evolução da navegação principal para o padrão "Mini Sidebar" (colapsável) no Desktop, otimizando o espaço de tela com suporte a tooltips em ícones. Inclusão de modal de confirmação customizado para a ação de Logout, prevenindo cliques acidentais e perda de contexto.
 - **Autor:** Kaique Caitano
+
+
+## [24/03/2026]
+### 1. RBAC (Role-Based Access Control) e Proteção de Rotas
+- **Descrição:** Implementação de controle de acesso baseado em papéis (Cargos: `PROFESSOR`, `ADMIN`, `SUPORT`) no front-end para isolamento de funcionalidades da Fase 2.
+  - Criação do componente utilitário `RoleRoute` para atuar como guardião de rotas, redirecionando acessos não autorizados para o Dashboard.
+  - Refatoração do `AppRoutes` para blindar as rotas privadas (ex: `/gestao-cadastros` exclusiva para `ADMIN`).
+- **Autor:** Kaique Caitano 
+
+### 2. Tela de Aprovação de Cadastros [Task F2-FE-01]
+- **Descrição:** Desenvolvimento da interface de gestão de usuários pendentes (`PendingUsersPage`) para os coordenadores (Administradores do departamento).
+  - Listagem em Tabela com animações de entrada em cascata (`StaggerItem`).
+  - Implementação de filtros dinâmicos por Nome, E-mail e Departamento.
+  - Modais interativos de confirmação: Aprovação simples e Rejeição com obrigatoriedade de preenchimento de motivo (validação de formulário).
+  - Integração padronizada de feedback visual utilizando o componente global `Toast`.
+- **Autor:** Kaique Caitano
+
+### 3. Camada de Serviços (Padrão Singleton/OO)
+- **Descrição:** Estruturação inicial do `user.service.js` utilizando classes (Orientação a Objetos) e exportação em padrão Singleton. 
+  - Criação dos métodos `getPending`, `approve` e `reject` com simulações assíncronas (Mocks) para permitir a validação e testes de UI/UX da equipe de front-end de forma isolada, enquanto a API (F2-BE-01) está em desenvolvimento.
+- **Autor:** Kaique Caitano 
