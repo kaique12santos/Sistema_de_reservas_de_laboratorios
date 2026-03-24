@@ -92,3 +92,18 @@ O endpoint agora bloqueia acessos de contas com status `PENDING` e `REJECTED` an
 - **UX do Front-End:** Inclusão de mensagens acionáveis nos retornos de erro do Back-End e ajuste no CSS (`maxWidth` e `wordBreak`) do componente `Toast` no React para evitar quebra de layout com mensagens longas.
 - **Validação do Axios:** Teste e homologação do Interceptor do Front-End (Injeção de Header Authorization e redirecionamento de Logout no 401) usando a rota dummy `/teste-seguranca`.
 
+## [24/03/2026]
+### 1. Refatoração da Camada de Validação (SOLID - SRP)
+- **Descrição:** Substituição da validação manual nos DTOs por um padrão de validação robusto utilizando a biblioteca `zod`. 
+  - Criação de schemas estáticos no `CreateUserDTO` para definir os contratos de dados (tipagem, obrigatoriedade, tamanho mínimo e formato de e-mail institucional).
+- **Autor:** Kaique Caitano dos Santos
+
+### 2. Implementação de Middleware Interceptador
+- **Descrição:** Criação do middleware genérico `validateRequest` para atuar como "segurança de borda". 
+  - Ele intercepta a requisição, valida o `req.body` contra o schema do Zod, sanitiza os dados (trim, toLowerCase) e aplica o conceito de *Fail Fast*.
+  - Se os dados forem inválidos, bloqueia a chamada ao Controller e retorna um HTTP 400 padronizado com o array de erros (campo `details`) para ser consumido pelos Toasts do Front-end.
+- **Autor:** Kaique Caitano dos Santos
+
+### 3. Limpeza dos Controllers
+- **Descrição:** Com a validação transferida para os Middlewares, os Controllers (ex: `UserController.register`) foram enxugados para focar apenas na orquestração do fluxo de sucesso (chamar o Service e retornar HTTP 201), melhorando drasticamente a legibilidade e rastreabilidade do código.
+- **Autor:** Kaique Caitano dos Santos

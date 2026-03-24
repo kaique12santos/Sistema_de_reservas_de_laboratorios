@@ -1,40 +1,31 @@
+import { z } from 'zod';
+
 /**
- * DTO para criação de usuário.
- * Valida os dados de entrada e prepara o objeto para uso no serviço de autenticação.
+ * DTO para criação de usuário no Sistema de Reservas.
+ * Encapsula as regras de validação usando Zod.
  */
 class CreateUserDTO {
-  constructor(data) {
-    this.name = data.name?.trim();
-    this.email = data.email?.trim().toLowerCase();
-    this.password = data.password;
-    this.department_id = data.department_id;
-    this.role = data.role || 'PROFESSOR';
-  }
-  /**
-   * Valida os dados de entrada e retorna uma lista de erros, se houver.
-   * @returns {Array} - Lista de mensagens de erro, ou vazia se os dados forem válidos.
-   */
-  validate() {
-    const errors = [];
-    if (!this.name || this.name.length < 3) {
-      errors.push('O nome deve ter pelo menos 3 caracteres.');
-    }
+  // Propriedade estática contendo o contrato de dados
+  static schema = z.object({
+    name: z.string({ required_error: 'O nome é obrigatório.' })
+      .trim()
+      .min(3, 'O nome deve ter pelo menos 3 caracteres.'),
+      
+    email: z.string({ required_error: 'O e-mail é obrigatório.' })
+      .trim()
+      .toLowerCase()
+      .email('É obrigatório usar um e-mail válido.'),
+      // Se quiser forçar o e-mail da Fatec no futuro, basta descomentar a linha abaixo:
+      // .endsWith('@fatec.sp.gov.br', 'Utilize o e-mail institucional.'),
+      
+    password: z.string({ required_error: 'A senha é obrigatória.' })
+      .min(6, 'A senha deve ter no mínimo 6 caracteres.'),
+      
+    department_id: z.any({ required_error: 'O departamento/curso é obrigatório.' }),
     
-    if (!this.email ) {
-      errors.push('É obrigatório usar um e-mail institucional válido.');
-    }
-
-    if (!this.password || this.password.length < 6) {
-      errors.push('A senha deve ter no mínimo 6 caracteres.');
-    }
-
-    if (!this.department_id) {
-      errors.push('O departamento/curso é obrigatório.');
-    }
-
-    return errors;
-  }
-
+    role: z.enum(['PROFESSOR', 'COORDENADOR', 'SUPORTE'])
+      .default('PROFESSOR'),
+  });
 }
 
 export default CreateUserDTO;
