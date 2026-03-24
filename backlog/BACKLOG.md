@@ -649,17 +649,17 @@ export const userService = {
 ```
 
 **Critérios de Aceite:**
-- [ ] DataGrid carrega usuários pendentes ao montar
-- [ ] Loading visual durante carregamento
-- [ ] Aprovar usuário → remove da lista + toast de sucesso
-- [ ] Rejeitar sem motivo → erro de validação
-- [ ] Rejeitar com motivo → remove da lista + toast
-- [ ] Se lista vazia → mensagem apropriada
-- [ ] Apenas ADMIN acessa (verificar no router)
-- [ ] Responsivo (mobile e desktop)
+- [x] DataGrid carrega usuários pendentes ao montar
+- [x] Loading visual durante carregamento
+- [x] Aprovar usuário → remove da lista + toast de sucesso
+- [x] Rejeitar sem motivo → erro de validação
+- [x] Rejeitar com motivo → remove da lista + toast
+- [x] Se lista vazia → mensagem apropriada
+- [x] Apenas ADMIN acessa (verificar no router)
+- [x] Responsivo (mobile e desktop)
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** ✅ CONCLUÍDO 
+**Responsável:** Kaique  
 **Depende de:** F2-BE-01, F1-FE-01
 
 ---
@@ -794,19 +794,19 @@ export const laboratoryService = {
 ```
 
 **Critérios de Aceite:**
-- [ ] Lista carrega todos laboratórios ativos
-- [ ] Criar novo lab → aparece na lista
-- [ ] Não pode criar com nome duplicado (erro)
-- [ ] Não pode criar com capacity 0 (validação frontend + backend)
-- [ ] Editar lab → atualiza na lista
-- [ ] Deletar lab sem reservas → inativa com sucesso
-- [ ] Deletar lab com reservas → erro claro
-- [ ] Modal fecha após ação bem-sucedida
-- [ ] Apenas ADMIN acessa (router protect)
-- [ ] Responsivo
+- [x] Lista carrega todos laboratórios ativos
+- [x] Criar novo lab → aparece na lista
+- [x] Não pode criar com nome duplicado (erro)
+- [x] Não pode criar com capacity 0 (validação frontend + backend)
+- [x] Editar lab → atualiza na lista
+- [x] Deletar lab sem reservas → inativa com sucesso
+- [x] Deletar lab com reservas → erro claro
+- [x] Modal fecha após ação bem-sucedida
+- [x] Apenas ADMIN acessa (router protect)
+- [x] Responsivo
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** ✅ CONCLUÍDO
+**Responsável:** kaique  
 **Depende de:** F2-BE-02, F1-FE-01
 
 ---

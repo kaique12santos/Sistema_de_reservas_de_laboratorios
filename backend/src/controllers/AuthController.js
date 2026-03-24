@@ -15,26 +15,19 @@ class AuthController {
     * @param {Object} res - Objeto de resposta do Express para enviar a resposta ao cliente
     * @returns {Object} - Retorna o usuário criado (sem senha) e status PENDING ou um erro 
     */
-  async register(req, res) {
+ async register(req, res) {
     try {
-      const userDTO = new CreateUserDTO(req.body);
-      const validationErrors = userDTO.validate();
-      if (validationErrors.length > 0) {
-        return res.status(400).json({ 
-          error: 'Falha na validação dos dados', 
-          details: validationErrors 
-        });
-      }
 
-      const result = await AuthService.register(userDTO);
+      const result = await AuthService.register(req.body);
 
       return res.status(201).json(result);
+      
     } catch (error) {
+      // 4. Aqui só caem erros de Regra de Negócio (ex: Banco de Dados)
       const statusCode = error.message.includes('já está cadastrado') ? 400 : 500;
       return res.status(statusCode).json({ error: error.message });
     }
   }
-
   /**
    * 
    * @param {Object} req - Objeto de requisição do Express contendo os dados do usuário que deseja logar

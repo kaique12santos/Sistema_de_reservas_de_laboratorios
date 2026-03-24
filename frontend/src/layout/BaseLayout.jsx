@@ -17,6 +17,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import BuildIcon from '@mui/icons-material/Build';
 import RuleIcon from '@mui/icons-material/Rule';
 import LayersIcon from '@mui/icons-material/Layers';
+import EditIcon from '@mui/icons-material/Edit';
 // Ícones de Transição (Seta)
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -64,11 +65,13 @@ const BaseLayout = () => {
 
   // CONFIGURAÇÃO CENTRALIZADA DO MENU
   const menuConfig = [
-    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard', roles: ['PROFESSOR', 'COORDENADOR', 'SUPORTE'] },
-    { text: 'Laboratórios', icon: <ScienceIcon />, path: '/laboratories', roles: ['PROFESSOR', 'COORDENADOR'] },
+    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard', roles: ['PROFESSOR', 'ADMIN', 'SUPORT'] },
+    { text: 'Laboratórios', icon: <ScienceIcon />, path: '/laboratories', roles: ['PROFESSOR', 'ADMIN'] },
+    { text: 'Gestão de Labs', icon: <EditIcon />, path: '/gestao-laboratorios', roles: ['ADMIN'] },
     { text: 'Minhas reservas', icon: <EventNoteIcon />, path: '/reservas', roles: ['PROFESSOR'] },
-    { text: 'Aprovar Reservas', icon: <RuleIcon />, path: '/gestao-reservas', roles: ['COORDENADOR'] },
-    { text: 'Equipamentos', icon: <BuildIcon />, path: '/equipamentos', roles: ['SUPORTE'] },
+    { text: 'Aprovar Cadastros', icon: <RuleIcon />, path: '/gestao-cadastros', roles: ['ADMIN'] }, // A tela nova
+    { text: 'Aprovar Reservas', icon: <RuleIcon />, path: '/gestao-reservas', roles: ['ADMIN'] },
+    { text: 'Equipamentos', icon: <BuildIcon />, path: '/equipamentos', roles: ['SUPORT', 'ADMIN'] },
   ];
 
   const userRole = user?.role?.toUpperCase() || 'PROFESSOR';
@@ -83,8 +86,8 @@ const BaseLayout = () => {
   const getAvatarByRole = (role) => {
     switch (role?.toUpperCase()) {
       case 'PROFESSOR': return IconProfessor;
-      case 'COORDENADOR': return IconCoordenador;
-      case 'SUPORTE': return IconSuporte;
+      case 'ADMIN': return IconCoordenador;
+      case 'SUPORT': return IconSuporte;
       default: return null; 
     }
   };
