@@ -28,8 +28,15 @@ const LaboratoryFormModal = ({ open, onClose, onSave, initialData }) => {
   const validateForm = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = 'Nome é obrigatório';
-    if (!formData.capacity || Number(formData.capacity) <= 0) newErrors.capacity = 'Capacidade deve ser maior que zero';
     if (!formData.type) newErrors.type = 'Tipo é obrigatório';
+    const cap = Number(formData.capacity);
+    if (!formData.capacity || cap <= 0) {
+      newErrors.capacity = 'Capacidade deve ser maior que zero';
+    } else if (formData.type === 'AUDITORIO' && cap > 200) {
+      newErrors.capacity = 'Máximo de 200 para Auditório';
+    } else if (formData.type && formData.type !== 'AUDITORIO' && cap > 60) {
+      newErrors.capacity = 'Máximo de 60 para este tipo de sala';
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -74,9 +81,9 @@ const LaboratoryFormModal = ({ open, onClose, onSave, initialData }) => {
             value={formData.type} onChange={(e) => setFormData({...formData, type: e.target.value})}
             error={!!errors.type} helperText={errors.type}
           >
-            <MenuItem value="Laboratório">Laboratório</MenuItem>
-            <MenuItem value="Sala de Aula">Sala de Aula</MenuItem>
-            <MenuItem value="Auditório">Auditório</MenuItem>
+            <MenuItem value="LABORATORIO">Laboratório</MenuItem>
+            <MenuItem value="SALA DE AULA">Sala de Aula</MenuItem>
+            <MenuItem value="AUDITORIO">Auditório</MenuItem>
           </TextField>
 
           <TextField

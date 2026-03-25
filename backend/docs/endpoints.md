@@ -321,3 +321,172 @@
 *(Ex: "Token inválido ou expirado. Solicite um novo link de recuperação.", "A senha deve ter no mínimo 6 caracteres.", "Token não fornecido.", "Nova senha não fornecida.")*
 
 ---
+Aqui está a documentação atualizada para o `endpoints.md`, seguindo o modelo que você enviou e incorporando todas as regras de negócio, validações e permissões que implementamos hoje na task do CRUD de Laboratórios. 
+
+
+## Laboratórios
+
+### GET /api/laboratories
+
+**Descrição:** Retorna a lista de laboratórios cadastrados no sistema. Professores visualizam apenas laboratórios ativos. Administradores podem visualizar todos.
+
+**Parâmetros de Consulta (Opcional):**
+- `includeInactive=true` - Inclui na listagem os laboratórios inativos (Requer permissão ADMIN).
+
+**Resposta de Sucesso:** `200 OK`
+
+**Exemplo de Retorno:**
+```json
+[
+  {
+    "id": 1,
+    "name": "Laboratório de Redes",
+    "location": "Bloco B - 1º Andar",
+    "capacity": 40,
+    "description_lab": "Equipado com roteadores Cisco e switches",
+    "type": "LABORATORIO",
+    "is_active": true
+  },
+  {
+    "id": 2,
+    "name": "Auditório Principal",
+    "location": "Térreo",
+    "capacity": 120,
+    "description_lab": "Projetor 4k e sistema de som surround",
+    "type": "AUDITORIO",
+    "is_active": true
+  }
+]
+```
+
+**Respostas de Erro:** `401 Unauthorized` (Token ausente ou inválido)
+
+---
+
+### GET /api/laboratories/:id
+
+**Descrição:** Retorna os dados de um laboratório específico pelo seu ID.
+
+**Parâmetro de URL:**
+- `id` - ID do laboratório no banco de dados
+
+**Resposta de Sucesso:** `200 OK`
+
+**Exemplo de Retorno:**
+```json
+{
+  "id": 1,
+  "name": "Laboratório de Redes",
+  "location": "Bloco B - 1º Andar",
+  "capacity": 40,
+  "description_lab": "Equipado com roteadores Cisco e switches",
+  "type": "LABORATORIO",
+  "is_active": true
+}
+```
+
+**Respostas de Erro:** - `404 Not Found` (Laboratório não encontrado)
+- `401 Unauthorized`
+
+---
+
+### POST /api/laboratories
+
+**Descrição:** Cria um novo laboratório no sistema.
+
+**Corpo da Requisição (JSON):**
+```json
+{
+  "name": "Sala 305",
+  "location": "Bloco A - 3º Andar",
+  "capacity": 35,
+  "description_lab": "Sala com lousa digital",
+  "type": "SALA DE AULA"
+}
+```
+
+**Resposta de Sucesso:** `201 Created`
+
+**Exemplo de Retorno:**
+```json
+{
+  "id": 3,
+  "name": "Sala 305",
+  "location": "Bloco A - 3º Andar",
+  "capacity": 35,
+  "description_lab": "Sala com lousa digital",
+  "type": "SALA DE AULA",
+  "is_active": true
+}
+```
+
+**Respostas de Erro:** - `400 Bad Request` (Nome duplicado, capacidade igual a 0 ou tipo inválido)
+- `403 Forbidden` (Usuário não tem permissão de ADMIN)
+- `401 Unauthorized`
+
+**Observação:** Requer nível de acesso Administrador (`ADMIN`). Os tipos permitidos são: `LABORATORIO`, `SALA DE AULA`, `AUDITORIO`.
+
+---
+
+### PUT /api/laboratories/:id
+
+**Descrição:** Atualiza os dados de um laboratório específico.
+
+**Parâmetro de URL:**
+- `id` - ID do laboratório no banco de dados
+
+**Corpo da Requisição (JSON):**
+```json
+{
+  "name": "Sala 305 - Modificada",
+  "capacity": 40,
+  "description_lab": "Sala com lousa digital e novos projetores",
+  "type": "SALA DE AULA"
+}
+```
+
+**Resposta de Sucesso:** `200 OK`
+
+**Exemplo de Retorno:**
+```json
+{
+  "id": 3,
+  "name": "Sala 305 - Modificada",
+  "location": "Bloco A - 3º Andar",
+  "capacity": 40,
+  "description_lab": "Sala com lousa digital e novos projetores",
+  "type": "SALA DE AULA",
+  "is_active": true
+}
+```
+
+**Respostas de Erro:** - `400 Bad Request` (Nome duplicado ou dados inválidos)
+- `404 Not Found` (Laboratório não encontrado)
+- `403 Forbidden` (Apenas ADMIN)
+
+**Observação:** Requer nível de acesso Administrador (`ADMIN`).
+
+---
+
+### DELETE /api/laboratories/:id
+
+**Descrição:** Inativa (soft-delete) um laboratório no sistema, colocando-o em manutenção ou bloqueando novas reservas.
+
+**Parâmetro de URL:**
+- `id` - ID do laboratório no banco de dados
+
+**Resposta de Sucesso:** `200 OK`
+
+**Exemplo de Retorno:**
+```json
+{
+  "message": "Laboratório inativado com sucesso",
+  "is_active": false
+}
+```
+
+**Respostas de Erro:** - `400 Bad Request` (Existem reservas futuras ativas para este laboratório. Não é possível inativar.)
+- `404 Not Found` (Laboratório não encontrado)
+- `403 Forbidden` (Acesso negado)
+
+```

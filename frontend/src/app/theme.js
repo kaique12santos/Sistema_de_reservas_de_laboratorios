@@ -29,6 +29,25 @@ const theme = createTheme({
     }
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        '*::-webkit-scrollbar': {
+          width: '8px',
+          height: '8px',
+        },
+        '*::-webkit-scrollbar-track': {
+          backgroundColor: 'transparent', // Fundo transparente para não pesar no layout
+        },
+        '*::-webkit-scrollbar-thumb': {
+          backgroundColor: 'rgba(158, 27, 31, 0.4)', // Seu vermelho Fatec com transparência
+          borderRadius: '8px',
+        },
+        '*::-webkit-scrollbar-thumb:hover': {
+          backgroundColor: '#9e1b1f', // Acende para a cor principal ao passar o mouse
+        },
+      },
+    },
+    
     // Sobrescrevemos o botão para sempre ser gordinho e com a fonte em negrito
     MuiButton: {
       styleOverrides: {
@@ -38,6 +57,7 @@ const theme = createTheme({
         },
       },
     },
+    
     // Sobrescrevemos os TextFields para sempre terem fundo branco
     MuiOutlinedInput: {
       styleOverrides: {
