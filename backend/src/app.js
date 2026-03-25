@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/auth.routes.js';
 import departmentRoutes from './routes/department.routes.js';
+import laboratoryRoutes from './routes/laboratory.routes.js';
 
 class App {
   constructor() {
@@ -31,6 +32,7 @@ class App {
 
     this.server.use('/api/auth', authRoutes);
     this.server.use('/api', departmentRoutes);
+    this.server.use('/api/laboratories', laboratoryRoutes);
   }
 }
 

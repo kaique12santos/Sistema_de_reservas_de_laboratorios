@@ -107,3 +107,12 @@ O endpoint agora bloqueia acessos de contas com status `PENDING` e `REJECTED` an
 ### 3. Limpeza dos Controllers
 - **Descrição:** Com a validação transferida para os Middlewares, os Controllers (ex: `UserController.register`) foram enxugados para focar apenas na orquestração do fluxo de sucesso (chamar o Service e retornar HTTP 201), melhorando drasticamente a legibilidade e rastreabilidade do código.
 - **Autor:** Kaique Caitano dos Santos
+
+## [25/03/2026]
+### 1. [F2-BE-02] CRUD de Laboratórios
+**Descrição:** Implementação do gerenciamento completo de laboratórios no backend.
+- Foram criadas as funções de listagem (com filtro de inativos para admins), criação com validações (nome único, capacidade maior que zero e tipo válido), edição e inativação (soft-delete).
+- A inativação conta com uma regra de negócio crítica que impede a exclusão lógica caso existam reservas ativas futuras para o ambiente.
+**Impacto:** Criação da estrutura completa nos arquivos `LaboratoryRepository.js` `LaboratoryService.js`, `LaboratoryController.js` e `routes/laboratory.routes.js`. 
+-Implementação das rotas `GET`, `POST`, `PUT` e `PATCH` em `/api/laboratories` com verificação de token e controle de acesso (middlewares `authorize` para roles `ADMIN` e `PROFESSOR`).
+- **Autor:** Kaique Caitano

@@ -9,6 +9,8 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import WarningIcon from '@mui/icons-material/Warning';
+import BlockIcon from '@mui/icons-material/Block'; 
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'; 
 
 import StaggerItem from '../../utils/StaggerItem';
 import LoadingOverlay from '../../components/LoadingOverlay';
@@ -28,9 +30,11 @@ const ManageLaboratoriesPage = () => {
 
   // Controle de Modais
   const [formModalOpen, setFormModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedLab, setSelectedLab] = useState(null);
-
+  // Estados do Modal de Manutenção/Toggle
+  const [toggleModalOpen, setToggleModalOpen] = useState(false);
+  const [labToToggle, setLabToToggle] = useState(null);
+ 
   // Toast Global
   const [notify, setNotify] = useState({ open: false, message: '', severity: 'success' });
   const showToast = (message, severity = 'success') => setNotify({ open: true, message, severity });
@@ -50,7 +54,7 @@ const ManageLaboratoriesPage = () => {
 
   useEffect(() => {
     loadLabs();
-  }, [showInactive]); // Recarrega se alterar o checkbox de inativos
+  }, [showInactive]);
 
   const filteredLabs = useMemo(() => {
     if (typeFilter === 'Todos') return labs;
@@ -66,18 +70,24 @@ const ManageLaboratoriesPage = () => {
   const handleSaveLab = async (formData) => {
     setActionLoading(true);
     try {
-      if (selectedLab) { // Edit
-        const updatedLab = await laboratoryService.update(selectedLab.id, formData);
-        setLabs(labs.map(l => l.id === selectedLab.id ? updatedLab : l));
-        showToast('Laboratório atualizado com sucesso!');
-      } else { // Create
+      if (formData.id) { 
+        const updatedLab = await laboratoryService.update(formData.id, formData);
+        
+        setLabs(labs.map(lab => 
+          lab.id === updatedLab.id ? { ...lab, ...updatedLab } : lab
+        ));
+        
+        showToast('Laboratório atualizado com sucesso!', 'success');
+      } else { 
         const newLab = await laboratoryService.create(formData);
+        
         setLabs([...labs, newLab]);
-        showToast('Laboratório criado com sucesso!');
+        showToast('Laboratório criado com sucesso!', 'success');
       }
-      setFormModalOpen(false);
+      
+      setFormModalOpen(false); // Fecha o modal após o sucesso
     } catch (error) {
-      // Tratamento específico de erro do backend (ex: Nome duplicado)
+      // Tratamento específico de erro do backend (ex: Nome duplicado, Zod)
       if (error.response?.status === 400) {
         showToast(error.response.data.error || 'Dados inválidos.', 'error');
       } else {
@@ -88,34 +98,34 @@ const ManageLaboratoriesPage = () => {
     }
   };
 
-  // AÇÕES: DELETE (Inativar)
-  const handleOpenDelete = (lab) => {
-    setSelectedLab(lab);
-    setDeleteModalOpen(true);
+ const handleOpenToggle = (lab) => {
+    setLabToToggle(lab);
+    setToggleModalOpen(true);
   };
 
-  const handleDelete = async () => {
+  const handleToggleStatus = async () => {
     setActionLoading(true);
     try {
-      await laboratoryService.delete(selectedLab.id);
+      const result = await laboratoryService.toggleStatus(labToToggle.id);
       
-      // Atualiza a lista na tela (remover ou mudar status, dependendo do backend)
-      // Aqui, vamos apenas removê-lo da view de ativos para UX imediata
-      setLabs(labs.filter(l => l.id !== selectedLab.id));
-      showToast('Laboratório inativado com sucesso.');
-      setDeleteModalOpen(false);
-    } catch (error) {
-      // A Mágica do Erro de Reserva Futura da Task:
-      const errorMsg = error.response?.data?.error;
-      if (errorMsg && errorMsg.includes('reservas futuras')) {
-        showToast('Laboratório possui reservas futuras. Cancele-as primeiro.', 'error');
+      if (!showInactive && !result.is_active) {
+        setLabs(labs.filter(lab => lab.id !== labToToggle.id));
       } else {
-        showToast('Erro ao inativar laboratório.', 'error');
+        setLabs(labs.map(lab => 
+          lab.id === labToToggle.id ? { ...lab, is_active: result.is_active } : lab
+        ));
       }
-      setDeleteModalOpen(false); // Fecha o modal mesmo se der erro, pra mostrar o toast
+      
+      showToast(result.message, 'success');
+      setToggleModalOpen(false);
+    } catch (error) {
+      if (error.response?.status === 400) {
+        showToast(error.response.data.error, 'error');
+      } else {
+        showToast('Erro ao alterar status do laboratório.', 'error');
+      }
     } finally {
       setActionLoading(false);
-      setSelectedLab(null);
     }
   };
 
@@ -132,15 +142,15 @@ const ManageLaboratoriesPage = () => {
             <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' }, alignItems: { sm: 'center' } }}>
               <FormControlLabel 
                 control={<Checkbox checked={showInactive} onChange={(e) => setShowInactive(e.target.checked)} color="primary" />} 
-                label="Mostrar Inativos" sx={{ color: 'text.secondary' }}
+                label="Mostrar Desativados" sx={{ color: 'text.secondary' }}
               />
               <TextField
                 select size="small" label="Filtrar por Tipo" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} sx={{ bgcolor: '#fff', borderRadius: 1, minWidth: 150 }}
               >
                 <MenuItem value="Todos">Todos</MenuItem>
-                <MenuItem value="Laboratório">Laboratório</MenuItem>
-                <MenuItem value="Sala de Aula">Sala de Aula</MenuItem>
-                <MenuItem value="Auditório">Auditório</MenuItem>
+                <MenuItem value="LABORATORIO">Laboratório</MenuItem>
+                <MenuItem value="SALA DE AULA">Sala de Aula</MenuItem>
+                <MenuItem value="AUDITORIO">Auditório</MenuItem>
               </TextField>
               <Button variant="contained" color="primary" startIcon={<AddIcon />} disableElevation onClick={() => handleOpenForm(null)} sx={{ fontWeight: 'bold' }}>
                 Novo Laboratório
@@ -176,11 +186,29 @@ const ManageLaboratoriesPage = () => {
                       <TableCell align="center">{lab.capacity}</TableCell>
                       <TableCell>{lab.type}</TableCell>
                       <TableCell>
-                        <Chip label={lab.status} color={lab.status === 'Ativo' ? 'success' : 'default'} size="small" sx={{ fontWeight: 'bold', borderRadius: 1 }} />
+                        <Chip 
+                          label={lab.is_active ? 'Ativo' : 'Inativo'} 
+                          color={lab.is_active ? 'success' : 'default'} 
+                          size="small" 
+                          sx={{ fontWeight: 'bold', borderRadius: 1 }} 
+                        />
                       </TableCell>
                       <TableCell align="center">
-                        <IconButton color="primary" onClick={() => handleOpenForm(lab)} size="small"><EditIcon /></IconButton>
-                        <IconButton color="error" onClick={() => handleOpenDelete(lab)} size="small" disabled={lab.status === 'Inativo'}><DeleteIcon /></IconButton>
+                        <TableCell align="center">
+                        <IconButton color="primary" onClick={() => handleOpenForm(lab)} size="small" title="Editar">
+                          <EditIcon />
+                        </IconButton>
+                        
+                        {/* Botão Dinâmico: Vermelho para Inativar, Verde para Reativar */}
+                        <IconButton 
+                          color={lab.is_active ? "error" : "success"} 
+                          onClick={() => handleOpenToggle(lab)} 
+                          size="small"
+                          title={lab.is_active ? "Colocar em Manutenção (Desativar)" : "Reativar Sala"}
+                        >
+                          {lab.is_active ? <BlockIcon /> : <CheckCircleIcon />}
+                        </IconButton>
+                      </TableCell>
                       </TableCell>
                     </StaggerItem>
                   ))
@@ -193,21 +221,32 @@ const ManageLaboratoriesPage = () => {
         {/* MODAL DE FORMULÁRIO (Componente Isolado) */}
         <LaboratoryFormModal open={formModalOpen} onClose={() => setFormModalOpen(false)} onSave={handleSaveLab} initialData={selectedLab} />
 
-        {/* MODAL DE CONFIRMAÇÃO DE INATIVAÇÃO */}
-        <Dialog open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} PaperProps={{ sx: { borderRadius: 3, p: 1 } }}>
-          <DialogTitle sx={{ color: 'error.main', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
-            <WarningIcon /> Inativar Laboratório
-          </DialogTitle>
-          <DialogContent>
-            <Typography>Tem certeza que deseja inativar <strong>{selectedLab?.name}</strong>?</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>Laboratórios inativos não aparecem nas opções de nova reserva para os professores.</Typography>
-          </DialogContent>
-          <DialogActions sx={{ p: 2 }}>
-            <Button onClick={() => setDeleteModalOpen(false)} color="inherit" sx={{ fontWeight: 'bold' }}>Cancelar</Button>
-            <Button onClick={handleDelete} variant="contained" color="error" disableElevation sx={{ fontWeight: 'bold' }}>Sim, Inativar</Button>
-          </DialogActions>
-        </Dialog>
-
+        {/* Modal de Confirmação de Status (Ativar/Inativar) */}
+      <Dialog open={toggleModalOpen} onClose={() => setToggleModalOpen(false)}>
+        <DialogTitle>
+          {labToToggle?.is_active ? 'Desativar Laboratório' : 'Reativar Laboratório'}
+        </DialogTitle>
+        <DialogContent>
+          <Typography>
+            {labToToggle?.is_active 
+              ? `Tem certeza que deseja desativar o laboratório "${labToToggle?.name}"? Ele ficará indisponível para novas reservas (ideal para manutenções).` 
+              : `Deseja reativar o laboratório "${labToToggle?.name}"? Ele voltará a aparecer no sistema de reservas para os professores.`}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setToggleModalOpen(false)} color="inherit" disabled={actionLoading}>
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleToggleStatus} 
+            color={labToToggle?.is_active ? "error" : "success"} 
+            variant="contained" 
+            disabled={actionLoading}
+          >
+            {actionLoading ? 'Processando...' : 'Confirmar'}
+          </Button>
+        </DialogActions>
+      </Dialog>
       </Box>
   );
 };

@@ -426,18 +426,18 @@ router.delete('/:id', verifyToken, authorize(['ADMIN']), LaboratoryController.de
 | DELETE /laboratories/:id | ✓ | ✗ (403) | ✗ |
 
 **Critérios de Aceite:**
-- [ ] GET /api/laboratories retorna lista de labs ativos
-- [ ] POST cria lab com validações corretas
-- [ ] Não pode criar lab com nome duplicado
-- [ ] Não pode criar lab com capacity = 0
-- [ ] PUT atualiza campos permitidos
-- [ ] DELETE inativa lab (soft-delete)
-- [ ] Não pode inativar lab com reservas futuras (erro claro)
-- [ ] PROFESSOR não consegue criar/editar/deletar (403)
-- [ ] Testado no Postman todos os endpoints
+- [x] GET /api/laboratories retorna lista de labs ativos
+- [x] POST cria lab com validações corretas
+- [x] Não pode criar lab com nome duplicado
+- [x] Não pode criar lab com capacity = 0
+- [x] PUT atualiza campos permitidos
+- [x] DELETE inativa lab (soft-delete)
+- [x] Não pode inativar lab com reservas futuras (erro claro)
+- [x] PROFESSOR não consegue criar/editar/deletar (403)
+- [x] Testado no Postman todos os endpoints
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** ✅ Concluído  
+**Responsável:** Kaique
 **Depende de:** F1-BE-04, F1-BE-05
 
 ---
