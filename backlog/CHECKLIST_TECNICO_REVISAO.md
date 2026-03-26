@@ -371,23 +371,23 @@ NODE_ENV=development
 #### ✓ CRUD de Time Slots (Horários)
 
 **TimeSlotRepository.js:**
-- [ ] `findAll()` → SELECT * WHERE is_active = true ORDER BY start_time
-- [ ] `create(data)` → INSERT (name, start_time, end_time)
-- [ ] `update(id, data)` → UPDATE ...
-- [ ] `softDelete(id)` → UPDATE is_active = false
+- [x] `findAll()` → SELECT * WHERE is_active = true ORDER BY start_time
+- [x] `create(data)` → INSERT (name, start_time, end_time)
+- [x] `update(id, data)` → UPDATE ...
+- [x] `softDelete(id)` → UPDATE is_active = false
 
 **TimeSlotService.js:**
-- [ ] `listTimeSlots()` → repo.findAll()
-- [ ] `createTimeSlot(dto)` → valida, cria
+- [x] `listTimeSlots()` → repo.findAll()
+- [x] `createTimeSlot(dto)` → valida, cria
   - [ ] Validações:
     - [ ] name obrigatório (ex: "M1")
     - [ ] start_time < end_time
     - [ ] Formato TIME válido (HH:MM:SS)
 
 **TimeSlotController.js + routes:**
-- [ ] Mesmo padrão de laboratories
-- [ ] CRUD completo
-- [ ] Apenas ADMIN pode criar/editar/deletar
+- [x] Mesmo padrão de laboratories
+- [x] CRUD completo
+- [x] Apenas ADMIN pode criar/editar/deletar
 
 #### ✓ Aprovação de Cadastros de Usuários (RF02, RF03)
 
