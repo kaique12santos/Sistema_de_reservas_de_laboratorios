@@ -886,17 +886,17 @@ export const timeSlotService = {
 ```
 
 **Critérios de Aceite:**
-- [ ] Lista ordenada por horário
-- [ ] Criar novo horário → aparece na lista
-- [ ] Não pode criar com início >= fim (erro)
-- [ ] Editar horário → atualiza na lista
-- [ ] Deletar sem reservas → inativa
+- [x] Lista ordenada por horário
+- [x] Criar novo horário → aparece na lista
+- [x] Não pode criar com início >= fim (erro)
+- [x] Editar horário → atualiza na lista
+- [x] Deletar sem reservas → inativa
 - [ ] Deletar com reservas → erro
-- [ ] Apenas ADMIN acessa
-- [ ] Responsivo
+- [x] Apenas ADMIN acessa
+- [x] Responsivo
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** ✅ Concluído  
+**Responsável:** Luiz Carlos
 **Depende de:** F2-BE-03, F1-FE-01
 
 ---
