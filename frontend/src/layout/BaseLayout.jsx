@@ -18,6 +18,7 @@ import BuildIcon from '@mui/icons-material/Build';
 import RuleIcon from '@mui/icons-material/Rule';
 import LayersIcon from '@mui/icons-material/Layers';
 import EditIcon from '@mui/icons-material/Edit';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 // Ícones de Transição (Seta)
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -72,6 +73,7 @@ const BaseLayout = () => {
     { text: 'Aprovar Cadastros', icon: <RuleIcon />, path: '/gestao-cadastros', roles: ['ADMIN'] }, // A tela nova
     { text: 'Aprovar Reservas', icon: <RuleIcon />, path: '/gestao-reservas', roles: ['ADMIN'] },
     { text: 'Equipamentos', icon: <BuildIcon />, path: '/equipamentos', roles: ['SUPORT', 'ADMIN'] },
+    { text: 'Gestão de horários', icon: <AccessTimeIcon />, path: '/gestao-horarios', roles: [ 'ADMIN'] },
   ];
 
   const userRole = user?.role?.toUpperCase() || 'PROFESSOR';
