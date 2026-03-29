@@ -450,15 +450,15 @@ Configurar períodos de aula padrão (M1, M2, N1, etc).
 **Entregáveis:**
 
 **1. TimeSlotRepository.js:**
-- [ ] `findAll(includeInactive = false)` → SELECT * WHERE is_active = true (ou todos) ORDER BY start_time
-- [ ] `findById(id)` → SELECT * WHERE id = ?
-- [ ] `create(data)` → INSERT (name, start_time, end_time)
-- [ ] `update(id, data)` → UPDATE SET ... WHERE id = ?
-- [ ] `softDelete(id)` → UPDATE is_active = false WHERE id = ?
+- [x] `findAll(includeInactive = false)` → SELECT * WHERE is_active = true (ou todos) ORDER BY start_time
+- [x] `findById(id)` → SELECT * WHERE id = ?
+- [x] `create(data)` → INSERT (name, start_time, end_time)
+- [x] `update(id, data)` → UPDATE SET ... WHERE id = ?
+- [x] `softDelete(id)` → UPDATE is_active = false WHERE id = ?
 
 **2. TimeSlotService.js:**
-- [ ] `listTimeSlots()` → lista horários ativos
-- [ ] `createTimeSlot(dto)` → cria horário
+- [x] `listTimeSlots()` → lista horários ativos
+- [x] `createTimeSlot(dto)` → cria horário
   **Validações:**
   1. [ ] name obrigatório (ex: "M1", "Vespertino 1")
   2. [ ] start_time obrigatório, formato TIME válido (HH:MM:SS)
@@ -468,20 +468,20 @@ Configurar períodos de aula padrão (M1, M2, N1, etc).
   5. [ ] Criar com is_active = true
   6. [ ] Retornar time slot criado
 
-- [ ] `updateTimeSlot(id, dto)` → atualiza horário
+- [x] `updateTimeSlot(id, dto)` → atualiza horário
   **Validações:**
   1. [ ] Time slot existe
   2. [ ] Se atualizar horários: validar start < end
   3. [ ] Atualizar campos fornecidos
 
-- [ ] `deleteTimeSlot(id)` → inativa horário
+- [x] `deleteTimeSlot(id)` → inativa horário
   **Regra de Negócio:**
   - Verificar se há reservation_items com este time_slot_id e date >= HOJE
   - Se houver: erro "Horário possui reservas futuras. Não pode ser inativado."
 
 **3. TimeSlotController.js:**
-- [ ] `index(req, res)` → GET /api/time-slots
-- [ ] `create(req, res)` → POST /api/time-slots
+- [x] `index(req, res)` → GET /api/time-slots
+- [x] `create(req, res)` → POST /api/time-slots
   **Body esperado:**
   ```json
   {
@@ -490,20 +490,20 @@ Configurar períodos de aula padrão (M1, M2, N1, etc).
     "end_time": "11:50:00"
   }
   ```
-- [ ] `update(req, res)` → PUT /api/time-slots/:id
-- [ ] `destroy(req, res)` → DELETE /api/time-slots/:id
+- [x] `update(req, res)` → PUT /api/time-slots/:id
+- [x] `destroy(req, res)` → DELETE /api/time-slots/:id
 
 **4. routes/timeSlot.routes.js:**
 ```javascript
 const { verifyToken, authorize } = require('../middlewares/auth.middleware');
 
 // Público (autenticado)
-router.get('/', verifyToken, TimeSlotController.index);
+routes.get('/', verifyToken, TimeSlotController.index);
 
 // ADMIN only
-router.post('/', verifyToken, authorize(['ADMIN']), TimeSlotController.create);
-router.put('/:id', verifyToken, authorize(['ADMIN']), TimeSlotController.update);
-router.delete('/:id', verifyToken, authorize(['ADMIN']), TimeSlotController.destroy);
+routes.post('/', verifyToken, authorize(['ADMIN']), TimeSlotController.create);
+routes.put('/:id', verifyToken, authorize(['ADMIN']), TimeSlotController.update);
+routes.delete('/:id', verifyToken, authorize(['ADMIN']), TimeSlotController.destroy);
 ```
 
 **Critérios de Aceite:**
@@ -515,8 +515,8 @@ router.delete('/:id', verifyToken, authorize(['ADMIN']), TimeSlotController.dest
 - [ ] PROFESSOR só pode listar (403 em create/update/delete)
 - [ ] Testado no Postman
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** 🔴 EM VALIDAÇÃO PESSOAL  
+**Responsável:** Nicole  
 **Depende de:** F1-BE-04, F1-BE-05
 
 ---

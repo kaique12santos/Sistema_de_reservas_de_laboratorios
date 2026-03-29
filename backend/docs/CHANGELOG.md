@@ -116,3 +116,15 @@ O endpoint agora bloqueia acessos de contas com status `PENDING` e `REJECTED` an
 **Impacto:** Criação da estrutura completa nos arquivos `LaboratoryRepository.js` `LaboratoryService.js`, `LaboratoryController.js` e `routes/laboratory.routes.js`. 
 -Implementação das rotas `GET`, `POST`, `PUT` e `PATCH` em `/api/laboratories` com verificação de token e controle de acesso (middlewares `authorize` para roles `ADMIN` e `PROFESSOR`).
 - **Autor:** Kaique Caitano
+
+## [26/03/2026]
+### 1. [F2-BE-03] CRUD de Horários
+**Descrição:** Implementação do gerenciamento completo de horários no backend.
+- Implementadas funcionalidades de listagem de horários ativos ordenados por start_time, criação, atualização e inativação (soft delete).
+- A inativação inclui regra de negócio que impede desativar horários que possuem reservas futuras vinculadas.
+- Proteção de rotas com autenticação (verifyToken) e autorização por perfil (ADMIN e PROFESSOR), garantindo que apenas administradores possam criar, editar ou remover horários.
+- Controllers organizados para responder corretamente aos endpoints REST (GET, POST, PUT, DELETE).
+- **Observação**: Validações de entrada (como obrigatoriedade de campos e consistência de horários) ainda estão pendentes de implementação/teste.
+- **Autor:** Nicole Lisboa
+**Impacto:** Criação da estrutura completa nos arquivos `TimeSlotRepository.js` `TimeSlotService.js`, `TimeSlotController.js` e `routes/timeSlot.routes.js`. 
+-Implementação das rotas `GET`, `POST`, `PUT` e `DELETE` em `/api/time-slots` com integração com middleware de autencação e autorização (verifyToken, authorize).
