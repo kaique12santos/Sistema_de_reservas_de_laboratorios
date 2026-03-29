@@ -125,6 +125,53 @@ class UserRepository {
       [ newPasswordHash,userId ]
     );
   }
+/**
+   * Busca todos os usuários com status 'PENDING'.
+   * @returns {Promise<Array>} - Lista de usuários pendentes.
+   */
+  async findPending() {
+    const [rows] = await db.connection.query(
+      'SELECT id, name, email, created_at FROM users WHERE status = ? ORDER BY created_at ASC',
+      ['PENDING']
+    );
+    return rows;
+  }
+
+  /**
+   * Atualiza o status de um usuário (Aprova ou Rejeita).
+   * @param {number} id - ID do usuário.
+   * @param {string} status - Novo status ('APPROVED' ou 'REJECTED').
+   * @returns {Promise<void>}
+   */
+  async updateStatus(id, status) {
+    await db.connection.query(
+      'UPDATE users SET status = ? WHERE id = ?',
+      [status, id]
+    );
+  }
+
+  /**
+   * Conta usuários por status.
+   * @param {string} status 
+   * @returns {Promise<number>}
+   */
+  async countByStatus(status) {
+    const [rows] = await db.connection.query(
+      'SELECT COUNT(*) as total FROM users WHERE status = ?',
+      [status]
+    );
+    return rows[0].total;
+  }
+
+  /**
+   * Busca um usuário pelo ID para validações de regra de negócio.
+   * @param {number} id 
+   * @returns {Object|null}
+   */
+  async findById(id) {
+    const [rows] = await db.connection.query('SELECT * FROM users WHERE id = ?', [id]);
+    return rows[0];
+  }
 
 
 }
