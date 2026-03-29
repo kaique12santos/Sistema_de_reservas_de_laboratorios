@@ -28,6 +28,10 @@ export const authMiddleware = (req, res, next) => {
     req.userId = decoded.id;
     req.userRole = decoded.role;
 
+    req.userDepartmentId = decoded.departmentId || decoded.department_id; 
+    
+    req.user = decoded;
+
     return next();
   } catch (err) {
     return res.status(401).json({ error: 'Token inválido ou expirado.' });

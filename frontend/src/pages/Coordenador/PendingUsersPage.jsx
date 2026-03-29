@@ -11,7 +11,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 
-// Utilitários de UX (ajuste os caminhos conforme seu projeto)
+// Utilitários de UX
 import StaggerItem from '../../utils/StaggerItem';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import Toast from '../../utils/Toast';
@@ -23,7 +23,7 @@ const PendingUsersPage = () => {
   // --- ESTADOS EXIGIDOS NA TASK ---
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false); // Para o LoadingOverlay
+  const [actionLoading, setActionLoading] = useState(false); 
   
   const [selectedUser, setSelectedUser] = useState(null);
   
@@ -31,18 +31,17 @@ const PendingUsersPage = () => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
 
-  // --- ESTADOS DE FILTRO (Recomendado na task) ---
+  // --- ESTADOS DE FILTRO ---
   const [searchTerm, setSearchTerm] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('Todos');
 
-// --- ESTADO DO TOAST REAL ---
+  // --- ESTADO DO TOAST REAL ---
   const [notify, setNotify] = useState({
     open: false,
     message: '',
-    severity: 'success' // success, error, warning, info
+    severity: 'success' 
   });
 
-  // Função para fechar o Toast suavemente
   const handleCloseNotify = (event, reason) => {
     if (reason === 'clickaway') return;
     setNotify({ ...notify, open: false });
@@ -55,7 +54,9 @@ const PendingUsersPage = () => {
         const data = await userService.getPending();
         setUsers(data);
       } catch (error) {
-        setNotify({ open: true, message: 'Erro ao carregar usuários pendentes', severity: 'error' });
+        // AJUSTE: Pegando o erro real do backend
+        const errMsg = error.response?.data?.error || 'Erro ao carregar usuários pendentes';
+        setNotify({ open: true, message: errMsg, severity: 'error' });
       } finally {
         setLoading(false);
       }
@@ -68,7 +69,10 @@ const PendingUsersPage = () => {
     return users.filter(u => {
       const matchSearch = u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           u.email.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      // ALERTA: Garanta que o backend devolve 'department' como string, ou ajuste para u.department.name
       const matchDept = departmentFilter === 'Todos' || u.department === departmentFilter;
+      
       return matchSearch && matchDept;
     });
   }, [users, searchTerm, departmentFilter]);
@@ -84,10 +88,12 @@ const PendingUsersPage = () => {
     try {
       await userService.approve(selectedUser.id);
       setNotify({ open: true, message: 'Usuário aprovado com sucesso!', severity: 'success' });
-      setUsers(users.filter(u => u.id !== selectedUser.id));
+      setUsers(prevUsers => prevUsers.filter(u => u.id !== selectedUser.id));
       setShowApproveModal(false);
     } catch (error) {
-      setNotify({ open: true, message: error.message || 'Erro ao aprovar', severity: 'error' });
+      // AJUSTE: Capturando a mensagem do Service (ex: "Usuário já foi processado")
+      const errMsg = error.response?.data?.error || 'Erro ao aprovar usuário';
+      setNotify({ open: true, message: errMsg, severity: 'error' });
     } finally {
       setActionLoading(false);
       setSelectedUser(null);
@@ -97,24 +103,30 @@ const PendingUsersPage = () => {
   // --- AÇÕES: REJEITAR ---
   const handleOpenReject = (user) => {
     setSelectedUser(user);
-    setRejectionReason(''); // Limpa o motivo anterior
+    setRejectionReason(''); 
     setShowRejectModal(true);
   };
 
   const handleReject = async () => {
-    if (!rejectionReason.trim()) {
-      setNotify({ open: true, message: 'O motivo da rejeição é obrigatório.', severity: 'error' });
+    // AJUSTE: Espelhando a regra do Zod (mínimo de 5 caracteres)
+    if (rejectionReason.trim().length < 5) {
+      setNotify({ open: true, message: 'O motivo da rejeição deve ter pelo menos 5 caracteres.', severity: 'warning' });
       return;
     }
 
     setActionLoading(true);
     try {
-      await userService.reject(selectedUser.id, rejectionReason);
+      await userService.reject(selectedUser.id, rejectionReason.trim());
       setNotify({ open: true, message: 'Usuário rejeitado com sucesso.', severity: 'success' });
-      setUsers(users.filter(u => u.id !== selectedUser.id));
+      setUsers(prevUsers => prevUsers.filter(u => u.id !== selectedUser.id));
       setShowRejectModal(false);
     } catch (error) {
-      setNotify({ open: true, message: error.message || 'Erro ao rejeitar', severity: 'error' });
+      // AJUSTE: Capturando erros do Zod ou do Service
+      const zodError = error.response?.data?.errors?.reason?.[0]; // Pega o primeiro erro do campo reason do Zod
+      const serviceError = error.response?.data?.error;
+      const errMsg = zodError || serviceError || 'Erro ao rejeitar usuário';
+      
+      setNotify({ open: true, message: errMsg, severity: 'error' });
     } finally {
       setActionLoading(false);
       setSelectedUser(null);
@@ -188,8 +200,12 @@ const PendingUsersPage = () => {
                         <Typography variant="body1" sx={{ fontWeight: 'bold' }}>{user.name}</Typography>
                         <Typography variant="body2" color="text.secondary">{user.email}</Typography>
                       </TableCell>
-                      <TableCell>{user.department}</TableCell>
-                      <TableCell>{new Date(user.createdAt).toLocaleDateString('pt-BR')}</TableCell>
+                      <TableCell>{user.department_code || 'N/A'}</TableCell>
+                      <TableCell>
+                        {user.created_at 
+                          ? new Date(user.created_at).toLocaleDateString('pt-BR') 
+                          : 'Data indisponível'}
+                      </TableCell>
                       <TableCell align="center">
                         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
                           <Button 

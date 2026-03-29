@@ -1,4 +1,5 @@
 import db from '../config/Database.js';
+import { withDepartmentScope } from '../utils/queryScope.js';
 
 /**
  * Repositório de Usuários.
@@ -12,8 +13,6 @@ class UserRepository {
    * @param {string} email - E-mail do usuário a ser encontrado
    * @returns {Object|null} - Retorna o usuário encontrado ou null se não existir
   */
-
-
   async findByEmail(email) {
     const [rows] = await db.connection.query(
       'SELECT * FROM users WHERE email = ?',
@@ -126,14 +125,21 @@ class UserRepository {
     );
   }
 /**
-   * Busca todos os usuários com status 'PENDING'.
-   * @returns {Promise<Array>} - Lista de usuários pendentes.
+   * Busca usuários pendentes, filtrando pelo departamento do Admin logado.
+   * @param {number} adminDepartmentId 
+   * @returns {Promise<Array>}
    */
-  async findPending() {
-    const [rows] = await db.connection.query(
-      'SELECT id, name, email, created_at FROM users WHERE status = ? ORDER BY created_at ASC',
-      ['PENDING']
-    );
+  async findPending(adminDepartmentId) {
+    const baseQuery = `
+      SELECT u.id, u.name, u.email, u.role, u.department_id, u.created_at, d.name AS department_name, d.code AS department_code 
+      FROM users u
+      LEFT JOIN departments d ON u.department_id = d.id
+      WHERE u.status = 'PENDING'
+    `;
+    
+    const { query, params } = withDepartmentScope(baseQuery, [], adminDepartmentId, 'u');
+    
+    const [rows] = await db.connection.query(query, params);
     return rows;
   }
 
@@ -141,39 +147,48 @@ class UserRepository {
    * Atualiza o status de um usuário (Aprova ou Rejeita).
    * @param {number} id - ID do usuário.
    * @param {string} status - Novo status ('APPROVED' ou 'REJECTED').
+   * @param {string|null} rejectionReason - Motivo da rejeição, se houver.
    * @returns {Promise<void>}
    */
-  async updateStatus(id, status) {
+  async updateStatus(id, status, rejectionReason = null) {
     await db.connection.query(
-      'UPDATE users SET status = ? WHERE id = ?',
-      [status, id]
+      'UPDATE users SET status = ?, rejection_reason = ? WHERE id = ?',
+      [status, rejectionReason, id]
     );
   }
 
   /**
-   * Conta usuários por status.
+   * Conta usuários por status, respeitando o departamento do Admin.
    * @param {string} status 
+   * @param {number} adminDepartmentId
    * @returns {Promise<number>}
    */
-  async countByStatus(status) {
-    const [rows] = await db.connection.query(
-      'SELECT COUNT(*) as total FROM users WHERE status = ?',
-      [status]
-    );
+  async countByStatus(status, adminDepartmentId) {
+    const baseQuery = 'SELECT COUNT(*) as total FROM users WHERE status = ?';
+    
+    // Injeta o escopo na contagem também
+    const { query, params } = withDepartmentScope(baseQuery, [status], adminDepartmentId);
+    
+    const [rows] = await db.connection.query(query, params);
     return rows[0].total;
   }
 
   /**
-   * Busca um usuário pelo ID para validações de regra de negócio.
+   * Busca um usuário pelo ID, garantindo que ele pertence ao departamento do Admin.
+   * Isso previne a falha de segurança IDOR (Insecure Direct Object Reference).
    * @param {number} id 
+   * @param {number} adminDepartmentId
    * @returns {Object|null}
    */
-  async findById(id) {
-    const [rows] = await db.connection.query('SELECT * FROM users WHERE id = ?', [id]);
+  async findById(id, adminDepartmentId) {
+    const baseQuery = 'SELECT * FROM users WHERE id = ?';
+    
+    // O Utils adiciona "AND department_id = ?"
+    const { query, params } = withDepartmentScope(baseQuery, [id], adminDepartmentId);
+    
+    const [rows] = await db.connection.query(query, params);
     return rows[0];
   }
-
-
 }
 
 export default new UserRepository();
