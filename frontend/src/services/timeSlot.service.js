@@ -1,28 +1,60 @@
-// Mock temporário — apaga quando o backend estiver pronto
-const mockData = [
-  { id: 1, name: 'M1', startTime: '07:30', endTime: '08:20', active: true },
-  { id: 2, name: 'M2', startTime: '08:20', endTime: '09:10', active: true },
-  { id: 3, name: 'T1', startTime: '13:00', endTime: '13:50', active: true },
-  { id: 4, name: 'N1', startTime: '19:00', endTime: '19:50', active: false },
-];
+import api from './api'; 
 
-let db = [...mockData];
-
-export const timeSlotService = {
+class TimeSlotService {
+  /**
+   * Lista todos os horários (time slots).
+   * @returns {Promise<Array>}
+   */
   async getAll() {
-    return [...db];
-  },
-  async create(data) {
-    const novo = { ...data, id: Date.now(), active: true };
-    db.push(novo);
-    return novo;
-  },
-  async update(id, data) {
-    db = db.map(s => s.id === id ? { ...s, ...data } : s);
-    return db.find(s => s.id === id);
-  },
-  async delete(id) {
-    db = db.map(s => s.id === id ? { ...s, active: false } : s);
-    return { ok: true };
+    const response = await api.get('/time-slots');
+    return response.data;
   }
-};
+
+  /**
+   * Cria um novo horário.
+   * @param {Object} data - Dados do horário.
+   * @returns {Promise<Object>}
+   */
+  async create(data) {
+    // Garantindo que o payload vá no formato exato que o backend exige
+    const payload = {
+      name: data.name,
+      // Se o formulário do React enviar camelCase, nós traduzimos aqui:
+      start_time: data.start_time || data.startTime, 
+      end_time: data.end_time || data.endTime
+    };
+
+    const response = await api.post('/time-slots', payload);
+    return response.data;
+  }
+
+  /**
+   * Atualiza um horário existente.
+   * @param {number|string} id - ID do horário.
+   * @param {Object} data - Dados a serem atualizados.
+   * @returns {Promise<Object>}
+   */
+  async update(id, data) {
+    const payload = {
+      name: data.name,
+      start_time: data.start_time || data.startTime,
+      end_time: data.end_time || data.endTime,
+      is_active: data.is_active !== undefined ? data.is_active : data.active
+    };
+
+    const response = await api.put(`/time-slots/${id}`, payload);
+    return response.data;
+  }
+
+  /**
+   * Inativa um horário (Soft Delete).
+   * @param {number|string} id - ID do horário.
+   * @returns {Promise<Object>}
+   */
+  async delete(id) {
+    const response = await api.delete(`/time-slots/${id}`);
+    return response.data;
+  }
+}
+
+export const timeSlotService = new TimeSlotService();

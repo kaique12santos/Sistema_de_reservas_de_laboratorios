@@ -3,6 +3,8 @@ import cors from 'cors';
 import authRoutes from './routes/auth.routes.js';
 import departmentRoutes from './routes/department.routes.js';
 import laboratoryRoutes from './routes/laboratory.routes.js';
+import userRoutes from './routes/user.routes.js';
+import timeSlotRoutes from './routes/timeSlot.routes.js';
 
 class App {
   constructor() {
@@ -33,6 +35,9 @@ class App {
     this.server.use('/api/auth', authRoutes);
     this.server.use('/api', departmentRoutes);
     this.server.use('/api/laboratories', laboratoryRoutes);
+    this.server.use('/api/users', userRoutes);
+    this.server.use('/api/time-slots', timeSlotRoutes);
+
   }
 }
 

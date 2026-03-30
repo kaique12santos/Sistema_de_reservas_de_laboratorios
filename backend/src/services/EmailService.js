@@ -82,6 +82,68 @@ class EmailService {
             return false;
         }
     }
+
+    async sendApprovalNotification(toEmail, userName) {
+        try {
+            const info = await this.transporter.sendMail({
+                from: `"Reservas Fatec ZL" <${process.env.EMAIL_FROM}>`,
+                to: toEmail,
+                subject: "✅ Conta Aprovada - Sistema de Reservas",
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 8px;">
+                        <h2 style="color: #2e7d32; text-align: center;">Bem-vindo ao Sistema de Reservas</h2>
+                        <p style="color: #333; font-size: 16px;">Olá, <strong>${userName}</strong>!</p>
+                        <p style="color: #333; font-size: 16px;">Excelente notícia: o seu cadastro no Sistema de Reservas da Fatec ZL foi <strong>aprovado</strong> pela coordenação.</p>
+                        <p style="color: #333; font-size: 16px;">Você já pode acessar o sistema para consultar a disponibilidade dos laboratórios e solicitar as suas reservas.</p>
+                        
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="${process.env.FRONTEND_URL}/login" style="background-color: #B30000; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 16px; display: inline-block;">Acessar o Sistema</a>
+                        </div>
+                        
+                        <hr style="border: none; border-top: 1px solid #eaeaea; margin: 20px 0;">
+                        <p style="color: #999; font-size: 12px; text-align: center;">Este é um e-mail automático. Por favor, não responda.</p>
+                    </div>
+                `,
+            });
+            console.log(`📧 E-mail de Aprovação enviado para ${toEmail}`);
+            return true;
+        } catch (error) {
+            console.error('❌ Erro ao enviar e-mail de aprovação:', error);
+            return false;
+        }
+    }
+
+    async sendRejectionNotification(toEmail, userName, reason) {
+        try {
+            const info = await this.transporter.sendMail({
+                from: `"Reservas Fatec ZL" <${process.env.EMAIL_FROM}>`,
+                to: toEmail,
+                subject: "❌ Atualização de Cadastro - Sistema de Reservas",
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 8px;">
+                        <h2 style="color: #d32f2f; text-align: center;">Aviso sobre seu Cadastro</h2>
+                        <p style="color: #333; font-size: 16px;">Olá, <strong>${userName}</strong>.</p>
+                        <p style="color: #333; font-size: 16px;">A coordenação avaliou a sua solicitação de acesso ao Sistema de Reservas da Fatec ZL. Infelizmente, no momento, o seu cadastro <strong>não pôde ser aprovado</strong>.</p>
+                        
+                        <div style="background-color: #f5f5f5; border-left: 4px solid #B30000; padding: 15px; margin: 20px 0;">
+                            <p style="color: #333; font-size: 14px; margin: 0;"><strong>Motivo informado pela coordenação:</strong></p>
+                            <p style="color: #555; font-size: 14px; font-style: italic; margin-top: 5px;">"${reason}"</p>
+                        </div>
+
+                        <p style="color: #333; font-size: 14px;">Se você acredita que houve um engano ou se precisar corrigir alguma informação, entre em contato diretamente com a coordenação do seu departamento.</p>
+                        
+                        <hr style="border: none; border-top: 1px solid #eaeaea; margin: 20px 0;">
+                        <p style="color: #999; font-size: 12px; text-align: center;">Este é um e-mail automático. Por favor, não responda.</p>
+                    </div>
+                `,
+            });
+            console.log(`📧 E-mail de Rejeição enviado para ${toEmail}`);
+            return true;
+        } catch (error) {
+            console.error('❌ Erro ao enviar e-mail de rejeição:', error);
+            return false;
+        }
+    }
 }
 
 export default new EmailService();

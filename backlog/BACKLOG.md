@@ -307,8 +307,8 @@ function isValidUserStatusTransition(from, to) {
   - [ ] Tentar aprovar novamente (deve falhar)
   - [ ] Rejeitar outro usuário com motivo
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** ✅ Concluído  
+**Responsável:**  Vinicius
 **Depende de:** F1-BE-04, F1-BE-05
 
 ---
@@ -515,7 +515,7 @@ routes.delete('/:id', verifyToken, authorize(['ADMIN']), TimeSlotController.dest
 - [ ] PROFESSOR só pode listar (403 em create/update/delete)
 - [ ] Testado no Postman
 
-**Status:** 🔴 EM VALIDAÇÃO PESSOAL  
+**Status:** ✅ Concluído 
 **Responsável:** Nicole  
 **Depende de:** F1-BE-04, F1-BE-05
 
@@ -891,7 +891,7 @@ export const timeSlotService = {
 - [x] Não pode criar com início >= fim (erro)
 - [x] Editar horário → atualiza na lista
 - [x] Deletar sem reservas → inativa
-- [ ] Deletar com reservas → erro
+- [x] Deletar com reservas → erro
 - [x] Apenas ADMIN acessa
 - [x] Responsivo
 
@@ -911,46 +911,46 @@ Validar que todos os CRUDs funcionam end-to-end.
 **Checklist de Testes:**
 
 **Cenário 1: Aprovação de Cadastro**
-- [ ] 1. Cadastrar novo usuário via /register
-- [ ] 2. Verificar que aparece em /admin/pending-users
-- [ ] 3. ADMIN aprova usuário
-- [ ] 4. Usuário some da lista de pendentes
-- [ ] 5. Professor consegue fazer login com sucesso
-- [ ] 6. Cadastrar outro usuário
-- [ ] 7. ADMIN rejeita sem motivo → erro
-- [ ] 8. ADMIN rejeita com motivo → sucesso
-- [ ] 9. Professor rejeitado tenta login → mensagem "Conta rejeitada"
+- [x] 1. Cadastrar novo usuário via /register
+- [x] 2. Verificar que aparece em /admin/pending-users
+- [x] 3. ADMIN aprova usuário
+- [x] 4. Usuário some da lista de pendentes
+- [x] 5. Professor consegue fazer login com sucesso
+- [x] 6. Cadastrar outro usuário
+- [x] 7. ADMIN rejeita sem motivo → erro
+- [x] 8. ADMIN rejeita com motivo → sucesso
+- [x] 9. Professor rejeitado tenta login → mensagem "Conta rejeitada"
 
 **Cenário 2: Gestão de Laboratórios**
-- [ ] 1. ADMIN cria "Lab 10" com capacidade 30
-- [ ] 2. Lab aparece na lista
-- [ ] 3. Tentar criar outro "Lab 10" → erro "Nome já existe"
-- [ ] 4. Editar Lab 10 para capacidade 40 → atualiza
-- [ ] 5. Tentar editar capacidade para 0 → erro
-- [ ] 6. Deletar Lab 10 (sem reservas) → inativa
-- [ ] 7. Lab 10 não aparece mais na lista ativa
-- [ ] 8. PROFESSOR tenta criar lab → 403 bloqueado
+- [x] 1. ADMIN cria "Lab 10" com capacidade 30
+- [x] 2. Lab aparece na lista
+- [x] 3. Tentar criar outro "Lab 10" → erro "Nome já existe"
+- [x] 4. Editar Lab 10 para capacidade 40 → atualiza
+- [x] 5. Tentar editar capacidade para 0 → erro
+- [x] 6. Deletar Lab 10 (sem reservas) → inativa
+- [x] 7. Lab 10 não aparece mais na lista ativa
+- [x] 8. PROFESSOR tenta criar lab → 403 bloqueado
 
 **Cenário 3: Gestão de Horários**
-- [ ] 1. ADMIN cria horário "M5" (11:00-11:50)
-- [ ] 2. Horário aparece na lista
-- [ ] 3. Tentar criar horário com início 12:00 e fim 11:00 → erro
-- [ ] 4. Editar M5 para 11:10-12:00 → atualiza
-- [ ] 5. Deletar M5 (sem reservas) → inativa
-- [ ] 6. PROFESSOR tenta criar horário → 403
+- [x] 1. ADMIN cria horário "M5" (11:00-11:50)
+- [x] 2. Horário aparece na lista
+- [x] 3. Tentar criar horário com início 12:00 e fim 11:00 → erro
+- [x] 4. Editar M5 para 11:10-12:00 → atualiza
+- [x] 5. Deletar M5 (sem reservas) → inativa
+- [x] 6. PROFESSOR tenta criar horário → 403
 
 **Cenário 4: Proteção de Rotas**
-- [ ] 1. Tentar acessar /admin/pending-users sem login → 401
-- [ ] 2. Login como PROFESSOR e acessar /admin/laboratories → 403
-- [ ] 3. Login como ADMIN → todas rotas permitidas
+- [x] 1. Tentar acessar /admin/pending-users sem login → 401
+- [x] 2. Login como PROFESSOR e acessar /admin/laboratories → 403
+- [x] 3. Login como ADMIN → todas rotas permitidas
 
 **Critérios de Aceite:**
-- [ ] Todos os 4 cenários passam sem bugs
-- [ ] Nenhum console.error no frontend
-- [ ] Nenhum erro 500 no backend
-- [ ] Pronto para avançar para FASE 3
+- [x] Todos os 4 cenários passam sem bugs
+- [x] Nenhum console.error no frontend
+- [x] Nenhum erro 500 no backend
+- [x] Pronto para avançar para FASE 3
 
-**Status:** 🔴 PENDENTE  
+**Status:** ✅ Concluído 
 **Responsável:** Kaique  
 **Depende de:** Todas as tasks F2-* concluídas
 
@@ -3528,184 +3528,2723 @@ Validar sobrescrita transacional, exclusão múltipla e rastreabilidade completa
 
 ---
 
-## 🔴 FASE 7 – Notificações e Comunicação
+# 🔴 FASE 7 – Notificações e Comunicação
+
 **Requisitos:** RF16, RF17  
-**Status Geral:** 🔴 PENDENTE
-
-### 🔹 Backend
-
-#### [F7-BE-01] Sistema de eventos (EventBus)
-- **Descrição:** Implementar padrão Observer para desacoplamento
-- **Entregáveis:**
-  - `events/EventBus.js` (EventEmitter)
-  - `events/reservation.events.js` (listeners)
-  - Eventos:
-    - `reservation:created` → notificar ADMIN (RF16)
-    - `reservation:overwritten` → notificar professor (RF17)
-    - `reservation:approved` → notificar professor
-    - `reservation:rejected` → notificar professor
-- **Requisitos:** **RF16, RF17** - Notificações
-- **Status:** 🔴 PENDENTE
-- **Responsável:** -
-- **Depende de:** F5-BE-01, F6-BE-01
-
-#### [F7-BE-02] Serviço de email (Nodemailer)
-- **Descrição:** Enviar emails assíncronos
-- **Entregáveis:**
-  - `services/EmailService.js`
-  - Templates:
-    - Nova solicitação (para ADMIN)
-    - Reserva sobrescrita (para professor)
-    - Reserva aprovada (para professor)
-    - Reserva rejeitada (para professor)
-  - Configuração SMTP (Gmail ou institucional)
-- **Requisitos:** **RF16, RF17** - Notificações
-- **Status:** 🔴 PENDENTE
-- **Responsável:** -
-- **Depende de:** F7-BE-01
+**Status Geral:** 🔴 PENDENTE  
+**Meta:** Admins recebem alerta de novas solicitações; professores recebem confirmações de aprovação, rejeição e sobrescrita
 
 ---
 
-### 🔹 Frontend
+## 🔹 Backend
 
-#### [F7-FE-01] Sistema de notificações toast
-- **Descrição:** Feedback visual para usuário
-- **Entregáveis:**
-  - `NotificationContext.jsx`
-  - Toast/Snackbar para:
-    - Sucesso: "Reserva criada com sucesso"
-    - Alerta: "Reserva pendente de aprovação"
-    - Erro: "Conflito detectado"
-- **Requisitos:** Feedback de ações (complementar RF16/RF17)
-- **Status:** 🔴 PENDENTE
-- **Responsável:** -
-- **Depende de:** F4-FE-01
+### [F7-BE-01] Sistema de Eventos (EventBus)
+
+**Descrição:**  
+Implementar padrão Observer com Node.js EventEmitter para desacoplar os serviços de negócio das notificações. Nenhum service de reserva deve importar diretamente o EmailService.
+
+**Entregáveis:**
+
+**1. events/EventBus.js:**
+```javascript
+const { EventEmitter } = require('events');
+
+// Singleton — mesma instância em toda a aplicação
+const EventBus = new EventEmitter();
+
+// Aumentar limite para evitar warning em produção
+EventBus.setMaxListeners(20);
+
+module.exports = EventBus;
+```
+
+**2. events/reservation.events.js (listeners):**
+- [ ] Definir e registrar todos os listeners de reserva
+  ```javascript
+  const EventBus = require('./EventBus');
+  const EmailService = require('../services/EmailService');
+  
+  // RF16 — Nova solicitação de reserva recorrente → notificar ADMINs
+  EventBus.on('reservation:created:pending', async ({ reservation, professor }) => {
+    try {
+      await EmailService.notifyAdminsNewRequest({ reservation, professor });
+    } catch (err) {
+      console.error('[Event reservation:created:pending] Falha no email:', err.message);
+    }
+  });
+  
+  // RF17 — Reserva sobrescrita → notificar professor afetado
+  EventBus.on('reservation:overwritten', async ({ affectedProfessor, newReservation, cancelledItems }) => {
+    try {
+      await EmailService.notifyProfessorOverwritten({ affectedProfessor, newReservation, cancelledItems });
+    } catch (err) {
+      console.error('[Event reservation:overwritten] Falha no email:', err.message);
+    }
+  });
+  
+  // Reserva aprovada → notificar professor
+  EventBus.on('reservation:approved', async ({ reservation, professor }) => {
+    try {
+      await EmailService.notifyProfessorApproved({ reservation, professor });
+    } catch (err) {
+      console.error('[Event reservation:approved] Falha no email:', err.message);
+    }
+  });
+  
+  // Reserva rejeitada → notificar professor
+  EventBus.on('reservation:rejected', async ({ reservation, professor, reason }) => {
+    try {
+      await EmailService.notifyProfessorRejected({ reservation, professor, reason });
+    } catch (err) {
+      console.error('[Event reservation:rejected] Falha no email:', err.message);
+    }
+  });
+  
+  console.log('[EventBus] Listeners de reserva registrados');
+  ```
+
+**3. Emitir eventos nos Services existentes:**
+
+- [ ] **ReservationService.createRecurringReservation** — emitir após criar com status PENDING:
+  ```javascript
+  // Ao final do método, após commit:
+  if (status === 'PENDING') {
+    const professor = await UserRepository.findById(requestingUser.id);
+    EventBus.emit('reservation:created:pending', { reservation, professor });
+  }
+  ```
+
+- [ ] **ReservationService.approveReservation** — emitir após aprovar:
+  ```javascript
+  const professor = await UserRepository.findById(reservation.professor_id);
+  EventBus.emit('reservation:approved', { reservation, professor });
+  ```
+
+- [ ] **ReservationService.rejectReservation** — emitir após rejeitar:
+  ```javascript
+  const professor = await UserRepository.findById(reservation.professor_id);
+  EventBus.emit('reservation:rejected', { reservation, professor, reason });
+  ```
+
+- [ ] **OverwriteService.overwriteReservation** — emitir para cada professor afetado:
+  ```javascript
+  // Para cada reserva única afetada pela sobrescrita:
+  for (const affectedId of overwritten_reservation_ids) {
+    const affectedReservation = await ReservationRepository.findById(affectedId);
+    const affectedProfessor = await UserRepository.findById(affectedReservation.professor_id);
+    EventBus.emit('reservation:overwritten', {
+      affectedProfessor,
+      newReservation: reservation,
+      cancelledItems: conflicts.filter(c => c.reservation_id === affectedId)
+    });
+  }
+  ```
+
+**4. Registrar listeners na inicialização do servidor (app.js ou server.js):**
+```javascript
+// Importar uma vez para registrar todos os listeners
+require('./events/reservation.events');
+```
+
+**Critérios de Aceite:**
+- [ ] EventBus é singleton (mesmo require retorna mesma instância)
+- [ ] Falha em listener nunca propaga erro para o service emissor
+- [ ] `reservation:created:pending` dispara apenas quando status = PENDING (recorrente de professor)
+- [ ] `reservation:overwritten` dispara para cada professor com reserva cancelada
+- [ ] `reservation:approved` e `reservation:rejected` disparam após ações do ADMIN
+- [ ] Listeners registrados ao iniciar o servidor (log de confirmação no console)
+- [ ] Testado localmente (pode ser com `console.log` temporário nos listeners antes de integrar email)
+
+**Status:** 🔴 PENDENTE  
+**Responsável:** -  
+**Depende de:** F5-BE-01, F6-BE-01
+
+---
+
+### [F7-BE-02] Serviço de Email (Nodemailer)
+
+**Descrição:**  
+Enviar emails assíncronos via SMTP com templates HTML para cada tipo de notificação.
+
+**Entregáveis:**
+
+**Instalação:**
+```bash
+npm install nodemailer
+```
+
+**1. Variáveis de ambiente (.env):**
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=sislab.fatec@gmail.com
+SMTP_PASS=sua_app_password_aqui
+EMAIL_FROM="SisLab Fatec ZL <sislab.fatec@gmail.com>"
+```
+> Para Gmail: usar App Password (não a senha da conta). Ativar autenticação de 2 fatores → Configurações → Senhas de app.
+
+**2. services/EmailService.js:**
+```javascript
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT),
+  secure: process.env.SMTP_SECURE === 'true',
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
+  }
+});
+
+// Verificar conexão ao iniciar (não bloqueia startup)
+transporter.verify().then(() => {
+  console.log('[EmailService] SMTP conectado e pronto');
+}).catch(err => {
+  console.error('[EmailService] Falha na conexão SMTP:', err.message);
+});
+
+const EmailService = {
+
+  async send({ to, subject, html }) {
+    return await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to,
+      subject,
+      html
+    });
+  },
+
+  // RF16 — Nova solicitação pendente: notificar todos os ADMINs
+  async notifyAdminsNewRequest({ reservation, professor }) {
+    const admins = await UserRepository.findByRole('ADMIN');
+    const adminEmails = admins.map(a => a.email).join(',');
+    
+    const html = templates.newRequest({ reservation, professor });
+    await this.send({
+      to: adminEmails,
+      subject: `[SisLab] Nova solicitação de reserva — ${professor.name}`,
+      html
+    });
+  },
+
+  // RF17 — Reserva sobrescrita: notificar professor afetado
+  async notifyProfessorOverwritten({ affectedProfessor, newReservation, cancelledItems }) {
+    const html = templates.overwritten({ affectedProfessor, cancelledItems });
+    await this.send({
+      to: affectedProfessor.email,
+      subject: '[SisLab] Sua reserva foi sobrescrita por um administrador',
+      html
+    });
+  },
+
+  // Reserva aprovada
+  async notifyProfessorApproved({ reservation, professor }) {
+    const html = templates.approved({ reservation, professor });
+    await this.send({
+      to: professor.email,
+      subject: '[SisLab] ✅ Sua reserva foi aprovada!',
+      html
+    });
+  },
+
+  // Reserva rejeitada
+  async notifyProfessorRejected({ reservation, professor, reason }) {
+    const html = templates.rejected({ reservation, professor, reason });
+    await this.send({
+      to: professor.email,
+      subject: '[SisLab] ❌ Sua reserva foi rejeitada',
+      html
+    });
+  }
+};
+
+module.exports = EmailService;
+```
+
+**3. emails/templates.js (templates HTML):**
+```javascript
+const BASE_STYLE = `
+  font-family: Arial, sans-serif;
+  color: #333;
+  max-width: 600px;
+  margin: 0 auto;
+`;
+
+const HEADER = `
+  <div style="background: #c0392b; padding: 20px; text-align: center;">
+    <h1 style="color: white; margin: 0; font-size: 22px;">SisLab — Fatec Zona Leste</h1>
+  </div>
+`;
+
+const FOOTER = `
+  <div style="background: #f5f5f5; padding: 12px; text-align: center; font-size: 12px; color: #888; margin-top: 24px;">
+    Esta mensagem foi gerada automaticamente pelo SisLab. Não responda este email.
+  </div>
+`;
+
+const templates = {
+
+  newRequest: ({ reservation, professor }) => `
+    <div style="${BASE_STYLE}">
+      ${HEADER}
+      <div style="padding: 24px;">
+        <h2>Nova solicitação de reserva recorrente</h2>
+        <p>O professor <strong>${professor.name}</strong> solicitou uma reserva recorrente.</p>
+        <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Professor</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${professor.name} (${professor.email})</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Laboratório</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${reservation.lab_name || 'Ver sistema'}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Período</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${reservation.recurrence_start} a ${reservation.recurrence_end}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Ocorrências</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${reservation.total_occurrences || '—'}</td></tr>
+        </table>
+        <p>Acesse o painel de aprovações para analisar esta solicitação.</p>
+      </div>
+      ${FOOTER}
+    </div>
+  `,
+
+  overwritten: ({ affectedProfessor, cancelledItems }) => `
+    <div style="${BASE_STYLE}">
+      ${HEADER}
+      <div style="padding: 24px;">
+        <h2 style="color: #c0392b;">⚠️ Sua reserva foi sobrescrita</h2>
+        <p>Olá, <strong>${affectedProfessor.name}</strong>.</p>
+        <p>Um administrador sobrescreveu sua(s) reserva(s) nos seguintes horários:</p>
+        <ul>
+          ${cancelledItems.map(i =>
+            `<li>${i.date} — Horário: ${i.time_slot_id}</li>`
+          ).join('')}
+        </ul>
+        <p>Entre em contato com a coordenação se tiver dúvidas.</p>
+      </div>
+      ${FOOTER}
+    </div>
+  `,
+
+  approved: ({ reservation, professor }) => `
+    <div style="${BASE_STYLE}">
+      ${HEADER}
+      <div style="padding: 24px;">
+        <h2 style="color: #27ae60;">✅ Reserva aprovada!</h2>
+        <p>Olá, <strong>${professor.name}</strong>.</p>
+        <p>Sua solicitação de reserva foi <strong>aprovada</strong>.</p>
+        <p>Acesse o SisLab para ver os detalhes completos.</p>
+      </div>
+      ${FOOTER}
+    </div>
+  `,
+
+  rejected: ({ reservation, professor, reason }) => `
+    <div style="${BASE_STYLE}">
+      ${HEADER}
+      <div style="padding: 24px;">
+        <h2 style="color: #c0392b;">❌ Reserva não aprovada</h2>
+        <p>Olá, <strong>${professor.name}</strong>.</p>
+        <p>Sua solicitação de reserva foi <strong>rejeitada</strong>.</p>
+        <p><strong>Motivo:</strong> ${reason}</p>
+        <p>Se tiver dúvidas, entre em contato com a coordenação.</p>
+      </div>
+      ${FOOTER}
+    </div>
+  `
+};
+
+module.exports = templates;
+```
+
+**Critérios de Aceite:**
+- [ ] `.env` configurado com credenciais SMTP (não commitar senha — usar `.env.example`)
+- [ ] `transporter.verify()` loga sucesso na inicialização
+- [ ] Email de nova solicitação chega para ADMIN ao criar reserva recorrente (professor)
+- [ ] Email de aprovação chega para professor ao ADMIN aprovar
+- [ ] Email de rejeição chega para professor com motivo visível
+- [ ] Email de sobrescrita chega para professor afetado com datas canceladas listadas
+- [ ] Falha de envio (SMTP fora) não derruba a operação (erro isolado no EventBus listener)
+- [ ] Templates respeitam identidade visual CPS (vermelho, branco, preto)
+- [ ] Testado com Mailtrap ou Gmail sandbox:
+  - [ ] Criar reserva recorrente → email para ADMIN
+  - [ ] ADMIN aprova → email para professor
+  - [ ] ADMIN rejeita → email para professor com motivo
+  - [ ] Sobrescrever reserva → email para professor afetado
+
+**Status:** 🔴 PENDENTE  
+**Responsável:** -  
+**Depende de:** F7-BE-01
 
 ---
 
-## 🟡 FASE 8 – Visualização e Calendário
-**Requisitos:** RF20 (complemento visual)  
-**Status Geral:** 🔴 PENDENTE
+## 🔹 Frontend
 
-### 🔹 Frontend
+### [F7-FE-01] Sistema de Notificações Toast
 
-#### [F8-FE-01] Calendário visual de reservas
-- **Descrição:** Visualizar ocupação dos labs em calendário
-- **Entregáveis:** `CalendarPage.jsx` com:
-  - FullCalendar ou biblioteca similar
-  - Filtro por laboratório
-  - Código de cores:
-    - Verde: disponível
-    - Vermelho: ocupado
-    - Amarelo: pendente
-  - Click no dia: abrir modal de criação
-- **Requisitos:** **RF20** - Interface do professor (visualização clara)
-- **Status:** 🔴 PENDENTE
-- **Responsável:** -
-- **Depende de:** F4-BE-02
+**Descrição:**  
+Contexto global de notificações toast usando MUI Snackbar + Alert. Todas as páginas e componentes da aplicação usam este contexto para exibir feedback ao usuário.
 
-#### [F8-FE-02] Dashboard com métricas
-- **Descrição:** Visão geral do sistema
-- **Entregáveis:** `DashboardPage.jsx` com cards:
-  - Total de reservas ativas
-  - Reservas pendentes (se ADMIN)
-  - Laboratórios cadastrados
-  - Próximas reservas do usuário
-- **Requisitos:** **RF20** - Interface organizada
-- **Status:** 🔴 PENDENTE
-- **Responsável:** -
-- **Depende de:** F4-BE-02
+**Entregáveis:**
+- [ ] `src/contexts/NotificationContext.jsx`
+- [ ] Integrar ao `App.jsx` (ou provider raiz)
+- [ ] Substituir qualquer `alert()` ou toast avulso existente pelo contexto
+
+**Componentes:**
+
+**1. NotificationContext.jsx:**
+```javascript
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import { Snackbar, Alert } from '@mui/material';
+
+const NotificationContext = createContext(null);
+
+export function NotificationProvider({ children }) {
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success', // 'success' | 'error' | 'warning' | 'info'
+    duration: 4000
+  });
+
+  const show = useCallback((message, severity = 'success', duration = 4000) => {
+    setNotification({ open: true, message, severity, duration });
+  }, []);
+
+  // Atalhos semânticos
+  const showSuccess = useCallback((msg) => show(msg, 'success'), [show]);
+  const showError   = useCallback((msg) => show(msg, 'error', 6000), [show]); // erros ficam mais tempo
+  const showWarning = useCallback((msg) => show(msg, 'warning'), [show]);
+  const showInfo    = useCallback((msg) => show(msg, 'info'), [show]);
+
+  const handleClose = (_, reason) => {
+    if (reason === 'clickaway') return;
+    setNotification(prev => ({ ...prev, open: false }));
+  };
+
+  return (
+    <NotificationContext.Provider value={{ showSuccess, showError, showWarning, showInfo }}>
+      {children}
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={notification.duration}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleClose}
+          severity={notification.severity}
+          variant="filled"
+          sx={{ width: '100%', minWidth: 300 }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
+    </NotificationContext.Provider>
+  );
+}
+
+// Hook de uso
+export function useNotification() {
+  const context = useContext(NotificationContext);
+  if (!context) {
+    throw new Error('useNotification deve ser usado dentro de NotificationProvider');
+  }
+  return context;
+}
+```
+
+**2. Integrar ao App.jsx:**
+```javascript
+import { NotificationProvider } from './contexts/NotificationContext';
+
+function App() {
+  return (
+    <NotificationProvider>
+      {/* ... demais providers e rotas ... */}
+    </NotificationProvider>
+  );
+}
+```
+
+**3. Uso nos componentes existentes:**
+```javascript
+// Em qualquer componente/página:
+import { useNotification } from '../../contexts/NotificationContext';
+
+function MinhaPage() {
+  const { showSuccess, showError, showWarning, showInfo } = useNotification();
+
+  async function handleAction() {
+    try {
+      await algumService.fazerAlgo();
+      showSuccess('Operação realizada com sucesso!');
+    } catch (error) {
+      showError(error.response?.data?.error || 'Erro inesperado');
+    }
+  }
+}
+```
+
+**4. Mapeamento de mensagens padronizadas:**
+
+| Ação | Tipo | Mensagem |
+|------|------|----------|
+| Reserva simples criada | success | "Reserva criada com sucesso!" |
+| Reserva recorrente criada | info | "Solicitação enviada com X ocorrências. Aguardando aprovação." |
+| Reserva aprovada | success | "Reserva aprovada!" |
+| Reserva rejeitada | warning | "Reserva rejeitada" |
+| Conflito detectado | error | "Conflito detectado nos horários: M1, M2" |
+| Período exclusivo ADMIN | warning | "Reservas abertas para professores após DD/MM" |
+| Sobrescrita realizada | success | "Sobrescrita realizada! X reserva(s) cancelada(s)." |
+| Bulk cancel realizado | success | "X reserva(s) cancelada(s)" |
+
+**Critérios de Aceite:**
+- [ ] Toast aparece no canto inferior direito
+- [ ] Erros ficam visíveis por 6s; demais por 4s
+- [ ] Click fora ou no X fecha o toast
+- [ ] Apenas um toast visível por vez (novo substitui anterior)
+- [ ] `showError`, `showSuccess`, `showWarning`, `showInfo` funcionam em todos os componentes
+- [ ] Nenhum `alert()` nativo permanece na aplicação
+- [ ] `useNotification()` fora do provider lança erro descritivo
+
+**Status:** 🔴 PENDENTE  
+**Responsável:** -  
+**Depende de:** F4-FE-01
 
 ---
 
-## 🎯 FASE 9 – Refinamentos e Extras
-**Status Geral:** 🔴 PENDENTE
+## 🔹 Teste Final de Fase
 
-### 🔹 Backend
+### [F7-INT-01] Teste de Integração da FASE 7
 
-#### [F9-BE-01] Relatórios e exportação
-- **Descrição:** (Opcional) Exportar lista de reservas em CSV/PDF
-- **Entregáveis:** GET `/reservations/export` com query params
-- **Requisitos:** Extra (não obrigatório)
-- **Status:** 🔴 PENDENTE
-- **Responsável:** -
+**Descrição:**  
+Validar o fluxo completo de notificações: eventos emitidos, emails enviados e toasts exibidos corretamente em cada cenário.
 
----
+**Checklist de Testes:**
 
-### 🔹 Frontend
+**Cenário 1: Notificação de Nova Solicitação (RF16)**
+- [ ] 1. Configurar Mailtrap (ou equivalente) como SMTP de testes
+- [ ] 2. Professor cria reserva recorrente → status PENDING
+- [ ] 3. ADMIN recebe email com assunto "[SisLab] Nova solicitação de reserva — [Nome]"
+- [ ] 4. Email contém nome do professor, laboratório, período e total de ocorrências
+- [ ] 5. ADMIN não recebe email quando reserva simples é criada (status APPROVED direto)
+- [ ] 6. Professor vê toast info: "Solicitação enviada com X ocorrências. Aguardando aprovação."
 
-#### [F9-FE-01] Responsividade mobile
-- **Descrição:** Adaptar interfaces para celular/tablet
-- **Entregáveis:** Breakpoints MUI configurados, menu hambúrguer
-- **Requisitos:** **RNF02** - Usabilidade
-- **Status:** 🔴 PENDENTE
-- **Responsável:** -
+**Cenário 2: Notificação de Aprovação**
+- [ ] 1. ADMIN aprova reserva pendente
+- [ ] 2. Professor recebe email "[SisLab] ✅ Sua reserva foi aprovada!"
+- [ ] 3. ADMIN vê toast success: "Reserva aprovada!"
+- [ ] 4. Professor recarrega "Minhas Reservas" → status APPROVED visível
 
-#### [F9-FE-02] Tela de perfil do usuário
-- **Descrição:** Editar dados pessoais e trocar senha
-- **Entregáveis:** `ProfilePage.jsx`
-- **Requisitos:** **RF20** - Configuração de conta
-- **Status:** 🔴 PENDENTE
-- **Responsável:** -
+**Cenário 3: Notificação de Rejeição**
+- [ ] 1. ADMIN rejeita reserva com motivo "Lab em reforma"
+- [ ] 2. Professor recebe email "[SisLab] ❌ Sua reserva foi rejeitada"
+- [ ] 3. Email contém o motivo "Lab em reforma"
+- [ ] 4. ADMIN vê toast success: "Reserva rejeitada"
 
----
+**Cenário 4: Notificação de Sobrescrita (RF17)**
+- [ ] 1. Professor A tem reserva APPROVED em Lab 01, 10/03, M1
+- [ ] 2. ADMIN sobrescreve o mesmo horário
+- [ ] 3. Professor A recebe email "⚠️ Sua reserva foi sobrescrita" com a data afetada listada
+- [ ] 4. ADMIN vê toast success: "Sobrescrita realizada! 1 reserva(s) cancelada(s)."
 
-## 🚀 FASE 10 – Testes e Deploy
-**Status Geral:** 🔴 PENDENTE
+**Cenário 5: Resiliência de Email**
+- [ ] 1. Desconectar SMTP (credencial inválida)
+- [ ] 2. ADMIN aprova reserva
+- [ ] 3. Aprovação é salva no banco normalmente
+- [ ] 4. Nenhum erro 500 na API
+- [ ] 5. Console exibe "[Event reservation:approved] Falha no email: ..."
+- [ ] 6. Toast de sucesso aparece normalmente no frontend
 
-### 🔹 Backend
+**Cenário 6: Toast Global**
+- [ ] 1. Todas as ações CRUD exibem toast adequado (success/error/warning/info)
+- [ ] 2. Nenhum `alert()` nativo aparece em nenhum fluxo
+- [ ] 3. Toast de erro permanece 6s, demais 4s
+- [ ] 4. Múltiplas ações rápidas: apenas o último toast é exibido
 
-#### [F10-BE-01] Testes unitários
-- **Descrição:** Testar Services e Repositories
-- **Entregáveis:** Jest configurado, cobertura mínima 70%
-- **Requisitos:** Qualidade de código
-- **Status:** 🔴 PENDENTE
-- **Responsável:** -
+**Critérios de Aceite:**
+- [ ] Todos os 6 cenários passam sem bugs
+- [ ] Falha de SMTP nunca derruba operação principal (verificado no Cenário 5)
+- [ ] Templates HTML renderizam corretamente nos clientes de email testados
+- [ ] Nenhum console.error não tratado no backend
+- [ ] Pronto para avançar para FASE 8
 
-#### [F10-BE-02] Testes de integração
-- **Descrição:** Testar rotas da API
-- **Entregáveis:** Supertest configurado, testes de fluxos principais
-- **Requisitos:** **RNF04, RNF05** - Integridade e performance
-- **Status:** 🔴 PENDENTE
-- **Responsável:** -
-
----
-
-### 🔹 Frontend
-
-#### [F10-FE-01] Testes de componentes
-- **Descrição:** Testar componentes React
-- **Entregáveis:** React Testing Library configurado
-- **Requisitos:** Qualidade de código
-- **Status:** 🔴 PENDENTE
-- **Responsável:** -
+**Status:** 🔴 PENDENTE  
+**Responsável:** Kaique  
+**Depende de:** Todas as tasks F7-* concluídas
 
 ---
 
-### 🔹 Geral
+---
 
-#### [F10-GE-01] Deploy backend
-- **Descrição:** Subir API em servidor (Heroku/Railway/AWS)
-- **Entregáveis:** URL pública da API, SSL configurado
-- **Requisitos:** Apresentação final
-- **Status:** 🔴 PENDENTE
-- **Responsável:** -
+# 🟡 FASE 8 – Visualização e Calendário
 
-#### [F10-GE-02] Deploy frontend
-- **Descrição:** Subir aplicação React (Vercel/Netlify)
-- **Entregáveis:** URL pública da aplicação
-- **Requisitos:** Apresentação final
-- **Status:** 🔴 PENDENTE
-- **Responsável:** -
-
-#### [F10-GE-03] Documentação final
-- **Descrição:** README completo, guia de instalação, API docs
-- **Entregáveis:** README.md, Swagger/Postman collection
-- **Requisitos:** Apresentação final
-- **Status:** 🔴 PENDENTE
-- **Responsável:** -
+**Requisitos:** RF20  
+**Status Geral:** 🔴 PENDENTE  
+**Meta:** Professores e ADMINs têm visão clara da ocupação dos laboratórios via calendário e métricas no dashboard
 
 ---
+
+## 🔹 Backend
+
+### [F8-BE-01] Endpoints de Agregação para Dashboard e Calendário
+
+**Descrição:**  
+Criar endpoints otimizados que retornam dados agregados para o calendário e para os cards do dashboard. Evitar N+1 queries no frontend.
+
+**Entregáveis:**
+
+**1. ReservationRepository.js (adicionar):**
+- [ ] `findByLabAndMonth(labId, year, month)` → reservas de um lab em um mês
+  ```javascript
+  async findByLabAndMonth(labId, year, month) {
+    const query = `
+      SELECT ri.date, ri.time_slot_id, ri.status,
+             r.professor_id, r.status as reservation_status, r.type,
+             u.name as professor_name,
+             ts.name as time_slot_name, ts.start_time, ts.end_time
+      FROM reservation_items ri
+      INNER JOIN reservations r ON r.id = ri.reservation_id
+      INNER JOIN users u ON u.id = r.professor_id
+      INNER JOIN time_slots ts ON ts.id = ri.time_slot_id
+      WHERE ri.lab_id = ?
+        AND YEAR(ri.date) = ?
+        AND MONTH(ri.date) = ?
+        AND ri.status = 'ACTIVE'
+        AND r.status IN ('APPROVED', 'PENDING')
+      ORDER BY ri.date ASC, ts.start_time ASC
+    `;
+    return await db.query(query, [labId, year, month]);
+  }
+  ```
+
+- [ ] `getStats(cycleId)` → agregações para o dashboard
+  ```javascript
+  async getStats(cycleId) {
+    const [activeCount] = await db.query(
+      `SELECT COUNT(DISTINCT r.id) as count
+       FROM reservations r WHERE r.academic_cycle_id = ? AND r.status = 'APPROVED'`,
+      [cycleId]
+    );
+    const [pendingCount] = await db.query(
+      `SELECT COUNT(DISTINCT r.id) as count
+       FROM reservations r WHERE r.academic_cycle_id = ? AND r.status = 'PENDING'`,
+      [cycleId]
+    );
+    const [labCount] = await db.query(
+      `SELECT COUNT(*) as count FROM laboratories WHERE is_active = true`
+    );
+    return {
+      active_reservations: activeCount.count,
+      pending_reservations: pendingCount.count,
+      active_labs: labCount.count
+    };
+  }
+  ```
+
+**2. ReservationController.js (adicionar):**
+- [ ] `calendarData(req, res)` → GET /api/reservations/calendar
+  - Query params: `?lab_id=1&year=2026&month=3`
+  ```javascript
+  async calendarData(req, res) {
+    try {
+      const { lab_id, year, month } = req.query;
+      if (!lab_id || !year || !month) {
+        return res.status(400).json({ error: 'lab_id, year e month são obrigatórios' });
+      }
+      const items = await ReservationRepository.findByLabAndMonth(
+        lab_id, year, month
+      );
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+  ```
+
+- [ ] `stats(req, res)` → GET /api/reservations/stats
+  ```javascript
+  async stats(req, res) {
+    try {
+      const activeCycle = await AcademicCycleRepository.findActive();
+      if (!activeCycle) return res.json({ active_reservations: 0, pending_reservations: 0, active_labs: 0 });
+      const data = await ReservationRepository.getStats(activeCycle.id);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+  ```
+
+**3. routes/reservation.routes.js (adicionar):**
+```javascript
+// Autenticado — qualquer role
+router.get('/calendar', verifyToken, ReservationController.calendarData);
+router.get('/stats', verifyToken, ReservationController.stats);
+```
+
+**Critérios de Aceite:**
+- [ ] GET /calendar retorna items agrupáveis por data para o frontend
+- [ ] GET /stats retorna contagens corretas para o ciclo ativo
+- [ ] Ambos retornam 200 com dados vazios (não 404) quando não há reservas
+- [ ] PROFESSOR e ADMIN acessam ambos os endpoints
+
+**Status:** 🔴 PENDENTE  
+**Responsável:** -  
+**Depende de:** F4-BE-02
+
+---
+
+## 🔹 Frontend
+
+### [F8-FE-01] Calendário Visual de Reservas
+
+**Descrição:**  
+Visualização mensal da ocupação dos laboratórios com código de cores, filtro por lab e ação de criar reserva ao clicar em data disponível.
+
+**Entregáveis:**
+- [ ] `src/pages/CalendarPage.jsx`
+- [ ] Instalar dependência: `npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/interaction`
+
+**Componentes:**
+
+**1. Estado do Componente:**
+```javascript
+const [selectedLab, setSelectedLab] = useState('');
+const [labs, setLabs] = useState([]);
+const [events, setEvents] = useState([]);
+const [holidays, setHolidays] = useState([]);
+const [currentMonth, setCurrentMonth] = useState({
+  year: new Date().getFullYear(),
+  month: new Date().getMonth() + 1
+});
+const [loading, setLoading] = useState(false);
+```
+
+**2. Carregar Dados do Calendário:**
+```javascript
+useEffect(() => {
+  if (!selectedLab) return;
+  
+  async function loadCalendar() {
+    setLoading(true);
+    try {
+      const items = await reservationService.getCalendarData({
+        lab_id: selectedLab,
+        year: currentMonth.year,
+        month: currentMonth.month
+      });
+      
+      // Converter para formato FullCalendar
+      const calEvents = items.map(item => ({
+        id: `${item.date}-${item.time_slot_id}`,
+        title: `${item.time_slot_name} — ${item.professor_name}`,
+        date: item.date,
+        color: item.reservation_status === 'PENDING' ? '#f39c12' : '#e74c3c',
+        extendedProps: { ...item }
+      }));
+      
+      // Adicionar feriados como eventos bloqueados
+      const holidayEvents = holidays.map(h => ({
+        id: `holiday-${h.date}`,
+        title: h.description || 'Feriado',
+        date: h.date,
+        color: '#95a5a6',
+        display: 'background'
+      }));
+      
+      setEvents([...calEvents, ...holidayEvents]);
+    } finally {
+      setLoading(false);
+    }
+  }
+  loadCalendar();
+}, [selectedLab, currentMonth]);
+```
+
+**3. Renderizar FullCalendar:**
+```javascript
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+
+<FullCalendar
+  plugins={[dayGridPlugin, interactionPlugin]}
+  initialView="dayGridMonth"
+  locale="pt-br"
+  events={events}
+  dateClick={handleDateClick}  // Abrir modal de criação
+  eventClick={handleEventClick} // Ver detalhes da reserva
+  datesSet={({ view }) => {
+    // Atualiza mês ao navegar
+    setCurrentMonth({
+      year: view.currentStart.getFullYear(),
+      month: view.currentStart.getMonth() + 1
+    });
+  }}
+  headerToolbar={{
+    left: 'prev,next today',
+    center: 'title',
+    right: ''
+  }}
+  height="auto"
+/>
+```
+
+**4. Legenda de Cores:**
+```javascript
+<Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+  <Chip sx={{ bgcolor: '#e74c3c', color: 'white' }} label="Ocupado (Aprovado)" size="small" />
+  <Chip sx={{ bgcolor: '#f39c12', color: 'white' }} label="Pendente" size="small" />
+  <Chip sx={{ bgcolor: '#95a5a6', color: 'white' }} label="Feriado" size="small" />
+  <Chip sx={{ bgcolor: '#27ae60', color: 'white' }} label="Disponível" size="small" />
+</Box>
+```
+
+**5. Click em Data Disponível:**
+```javascript
+function handleDateClick({ dateStr }) {
+  // Verificar se é feriado ou data passada
+  if (holidays.some(h => h.date === dateStr)) {
+    showWarning('Esta data é feriado e não pode ser reservada');
+    return;
+  }
+  if (new Date(dateStr) < new Date()) {
+    showWarning('Não é possível reservar datas passadas');
+    return;
+  }
+  // Navegar para criação com data pré-preenchida
+  navigate(`/create-reservation?date=${dateStr}&lab=${selectedLab}`);
+}
+```
+
+**6. Click em Evento Existente:**
+- [ ] Abrir popover/tooltip com:
+  - Professor
+  - Horários
+  - Status
+  - Tipo (SIMPLES/RECORRENTE)
+
+**7. Select de Laboratório:**
+- [ ] Select no topo da página — obrigatório para carregar o calendário
+- [ ] Placeholder: "Selecione um laboratório para visualizar"
+
+**Atualizar src/services/reservation.service.js:**
+```javascript
+async getCalendarData({ lab_id, year, month }) {
+  const response = await api.get(
+    `/reservations/calendar?lab_id=${lab_id}&year=${year}&month=${month}`
+  );
+  return response.data;
+}
+```
+
+**Critérios de Aceite:**
+- [ ] Calendário exibe reservas APPROVED em vermelho e PENDING em amarelo
+- [ ] Feriados aparecem como fundo cinza no dia
+- [ ] Navegar para mês anterior/seguinte recarrega os dados
+- [ ] Click em data disponível → navega para criação com data e lab pré-preenchidos
+- [ ] Click em evento → exibe detalhes (professor, horários, status)
+- [ ] Sem lab selecionado: calendário não carrega (placeholder visível)
+- [ ] Loading visual enquanto busca dados do mês
+- [ ] Responsivo (mobile: calendário em lista)
+
+**Status:** 🔴 PENDENTE  
+**Responsável:** -  
+**Depende de:** F8-BE-01, F4-FE-01
+
+---
+
+### [F8-FE-02] Dashboard com Métricas
+
+**Descrição:**  
+Página inicial pós-login com cards de métricas contextuais por role e lista de próximas reservas do usuário.
+
+**Entregáveis:**
+- [ ] `src/pages/DashboardPage.jsx`
+- [ ] `src/components/dashboard/StatCard.jsx`
+- [ ] `src/components/dashboard/UpcomingReservations.jsx`
+
+**Componentes:**
+
+**1. StatCard.jsx (componente reutilizável):**
+```javascript
+function StatCard({ title, value, icon, color, subtitle }) {
+  return (
+    <Card sx={{ height: '100%' }}>
+      <CardContent>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <Box>
+            <Typography variant="body2" color="text.secondary">{title}</Typography>
+            <Typography variant="h3" sx={{ fontWeight: 'bold', color }}>{value}</Typography>
+            {subtitle && (
+              <Typography variant="caption" color="text.secondary">{subtitle}</Typography>
+            )}
+          </Box>
+          <Avatar sx={{ bgcolor: `${color}20`, color }}>
+            {icon}
+          </Avatar>
+        </Box>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+**2. Estado do Dashboard:**
+```javascript
+const [stats, setStats] = useState(null);
+const [myUpcoming, setMyUpcoming] = useState([]);
+const [activeCycle, setActiveCycle] = useState(null);
+const [loading, setLoading] = useState(true);
+const { user } = useAuth(); // role: ADMIN | PROFESSOR
+```
+
+**3. Cards por Role:**
+
+**Para PROFESSOR:**
+```javascript
+// Cards: Minhas reservas ativas | Reservas pendentes minhas | Próximas reservas
+<Grid container spacing={3}>
+  <Grid item xs={12} sm={4}>
+    <StatCard
+      title="Minhas Reservas Ativas"
+      value={myStats.active}
+      icon={<EventAvailableIcon />}
+      color="#27ae60"
+    />
+  </Grid>
+  <Grid item xs={12} sm={4}>
+    <StatCard
+      title="Aguardando Aprovação"
+      value={myStats.pending}
+      icon={<HourglassEmptyIcon />}
+      color="#f39c12"
+      subtitle="Reservas recorrentes pendentes"
+    />
+  </Grid>
+  <Grid item xs={12} sm={4}>
+    <StatCard
+      title="Labs Disponíveis"
+      value={stats?.active_labs || 0}
+      icon={<ComputerIcon />}
+      color="#2980b9"
+    />
+  </Grid>
+</Grid>
+```
+
+**Para ADMIN:**
+```javascript
+// Cards: Total reservas ativas | Pendentes de aprovação | Labs ativos | Ciclo ativo
+<Grid container spacing={3}>
+  <Grid item xs={12} sm={3}>
+    <StatCard title="Reservas Ativas" value={stats?.active_reservations} icon={<EventIcon />} color="#27ae60" />
+  </Grid>
+  <Grid item xs={12} sm={3}>
+    <StatCard
+      title="Pendentes de Aprovação"
+      value={stats?.pending_reservations}
+      icon={<PendingIcon />}
+      color="#f39c12"
+      subtitle={stats?.pending_reservations > 0 ? 'Requer atenção' : undefined}
+    />
+  </Grid>
+  <Grid item xs={12} sm={3}>
+    <StatCard title="Labs Ativos" value={stats?.active_labs} icon={<ComputerIcon />} color="#2980b9" />
+  </Grid>
+  <Grid item xs={12} sm={3}>
+    <StatCard
+      title="Ciclo Ativo"
+      value={activeCycle?.name || '—'}
+      icon={<SchoolIcon />}
+      color="#8e44ad"
+      subtitle={activeCycle ? `até ${activeCycle.end_date}` : 'Nenhum ciclo ativo'}
+    />
+  </Grid>
+</Grid>
+```
+
+**4. UpcomingReservations.jsx:**
+- [ ] Lista das próximas 5 reservas do usuário logado (data >= hoje, status APPROVED)
+- [ ] Cada linha: Lab, Data, Horários, Tipo
+- [ ] Botão "Ver todas" → navega para /my-reservations
+- [ ] Se vazio: "Nenhuma reserva próxima. [+ Criar reserva]"
+
+**5. Atalhos Rápidos (botões no dashboard):**
+- [ ] PROFESSOR: "+ Nova Reserva" | "📅 Ver Calendário"
+- [ ] ADMIN: "⏳ Aprovar Pendentes (N)" | "📅 Ver Calendário" | "⚙️ Gestão"
+
+**Critérios de Aceite:**
+- [ ] Cards exibem valores corretos do endpoint /stats
+- [ ] ADMIN vê card de "Pendentes de Aprovação" com badge de alerta se > 0
+- [ ] PROFESSOR não vê métricas gerais do sistema
+- [ ] Próximas reservas listam apenas do usuário logado, ordenadas por data
+- [ ] Atalhos rápidos funcionam (navegação correta)
+- [ ] Responsivo: cards empilham em mobile (xs=12)
+- [ ] Loading skeleton enquanto carrega os dados
+
+**Status:** 🔴 PENDENTE  
+**Responsável:** -  
+**Depende de:** F8-BE-01, F7-FE-01
+
+---
+
+## 🔹 Teste Final de Fase
+
+### [F8-INT-01] Teste de Integração da FASE 8
+
+**Descrição:**  
+Validar que o calendário reflete a realidade do banco e o dashboard exibe métricas corretas por role.
+
+**Checklist de Testes:**
+
+**Cenário 1: Calendário de Ocupação**
+- [ ] 1. Garantir que Lab 01 tem reservas APPROVED e PENDING no mês atual
+- [ ] 2. Acessar CalendarPage, selecionar Lab 01
+- [ ] 3. Reservas APPROVED aparecem em vermelho nas datas corretas
+- [ ] 4. Reservas PENDING aparecem em amarelo
+- [ ] 5. Feriados aparecem como fundo cinza
+- [ ] 6. Navegar para próximo mês → calendar recarrega dados do novo mês
+- [ ] 7. Click em data disponível (não feriado, não passada) → navega com data pré-preenchida
+- [ ] 8. Click em evento → popover exibe professor, horário e status
+
+**Cenário 2: Calendário sem Lab Selecionado**
+- [ ] 1. Acessar CalendarPage sem selecionar lab
+- [ ] 2. Placeholder visível, calendário não carrega dados
+- [ ] 3. Selecionar lab → calendário popula corretamente
+
+**Cenário 3: Dashboard — Visão ADMIN**
+- [ ] 1. ADMIN loga → redireciona para DashboardPage
+- [ ] 2. 4 cards visíveis: Reservas Ativas, Pendentes, Labs Ativos, Ciclo Ativo
+- [ ] 3. Card "Pendentes" exibe N corretamente (criar/aprovar reservas e verificar)
+- [ ] 4. Card "Ciclo Ativo" exibe nome e data de fim do ciclo ativo
+- [ ] 5. Próximas reservas listam apenas as do admin logado
+- [ ] 6. Botão "Aprovar Pendentes" navega para o painel de pendentes
+
+**Cenário 4: Dashboard — Visão PROFESSOR**
+- [ ] 1. Professor loga → DashboardPage
+- [ ] 2. Cards de sistema geral NÃO aparecem (pendentes totais, labs ativos globais)
+- [ ] 3. Cards pessoais: Minhas Reservas Ativas, Aguardando Aprovação, Labs Disponíveis
+- [ ] 4. "Aguardando Aprovação" mostra reservas recorrentes pendentes do professor
+- [ ] 5. Próximas reservas pessoais listadas
+- [ ] 6. Botão "+ Nova Reserva" navega para criação
+
+**Cenário 5: Consistência de Dados**
+- [ ] 1. Criar reserva → verificar que aparece no calendário E no dashboard
+- [ ] 2. Cancelar reserva → verificar que some do calendário E stats diminuem
+- [ ] 3. GET /api/reservations/stats retorna 200 quando não há ciclo ativo (objeto zerado)
+
+**Critérios de Aceite:**
+- [ ] Todos os 5 cenários passam sem bugs
+- [ ] Calendário e dashboard são consistentes com o estado do banco
+- [ ] Nenhum console.error no frontend
+- [ ] Nenhum erro 500 no backend
+- [ ] Pronto para avançar para FASE 9
+
+**Status:** 🔴 PENDENTE  
+**Responsável:** Kaique  
+**Depende de:** Todas as tasks F8-* concluídas
+
+---
+
+---
+
+# 🎯 FASE 9 – Refinamentos e Extras
+
+**Status Geral:** 🔴 PENDENTE  
+**Meta:** Polir a experiência do usuário, garantir responsividade total e entregar funcionalidades complementares de qualidade
+
+---
+
+## 🔹 Backend
+
+### [F9-BE-01] Relatórios e Exportação
+
+**Descrição:**  
+Exportar listagem de reservas do ciclo ativo em CSV, permitindo que ADMINs gerem relatórios para controle institucional.
+
+**Entregáveis:**
+
+**Instalação:**
+```bash
+npm install json2csv
+```
+
+**1. ReservationRepository.js (adicionar):**
+- [ ] `findForExport(filters)` → SELECT completo com JOINs para exportação
+  ```javascript
+  async findForExport(filters = {}) {
+    let where = ['1=1'];
+    const params = [];
+    
+    if (filters.cycle_id) {
+      where.push('r.academic_cycle_id = ?');
+      params.push(filters.cycle_id);
+    }
+    if (filters.status) {
+      where.push('r.status = ?');
+      params.push(filters.status);
+    }
+    if (filters.lab_id) {
+      where.push('ri.lab_id = ?');
+      params.push(filters.lab_id);
+    }
+    if (filters.start_date) {
+      where.push('ri.date >= ?');
+      params.push(filters.start_date);
+    }
+    if (filters.end_date) {
+      where.push('ri.date <= ?');
+      params.push(filters.end_date);
+    }
+    
+    const query = `
+      SELECT
+        r.id as reserva_id,
+        u.name as professor,
+        u.email as email_professor,
+        l.name as laboratorio,
+        ri.date as data,
+        ts.name as horario,
+        ts.start_time as inicio,
+        ts.end_time as fim,
+        r.type as tipo,
+        r.status as status,
+        r.notes as observacoes,
+        r.created_at as data_solicitacao
+      FROM reservations r
+      INNER JOIN users u ON u.id = r.professor_id
+      INNER JOIN reservation_items ri ON ri.reservation_id = r.id
+      INNER JOIN laboratories l ON l.id = ri.lab_id
+      INNER JOIN time_slots ts ON ts.id = ri.time_slot_id
+      WHERE ${where.join(' AND ')}
+      ORDER BY ri.date ASC, ts.start_time ASC
+    `;
+    return await db.query(query, params);
+  }
+  ```
+
+**2. ReservationController.js (adicionar):**
+- [ ] `exportCsv(req, res)` → GET /api/reservations/export
+  ```javascript
+  async exportCsv(req, res) {
+    try {
+      const { Parser } = require('json2csv');
+      const activeCycle = await AcademicCycleRepository.findActive();
+      
+      const data = await ReservationRepository.findForExport({
+        cycle_id: req.query.cycle_id || activeCycle?.id,
+        status: req.query.status,
+        lab_id: req.query.lab_id,
+        start_date: req.query.start_date,
+        end_date: req.query.end_date
+      });
+      
+      if (data.length === 0) {
+        return res.status(404).json({ error: 'Nenhum dado encontrado para exportação' });
+      }
+      
+      const parser = new Parser({ withBOM: true }); // BOM para encoding PT-BR no Excel
+      const csv = parser.parse(data);
+      
+      const filename = `sislab_reservas_${new Date().toISOString().split('T')[0]}.csv`;
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(csv);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+  ```
+
+**3. routes/reservation.routes.js (adicionar):**
+```javascript
+// ADMIN only
+router.get('/export', verifyToken, authorize(['ADMIN']), ReservationController.exportCsv);
+```
+
+**Query params suportados:**
+- `cycle_id` → filtrar por ciclo (default: ciclo ativo)
+- `status` → APPROVED | PENDING | CANCELLED | REJECTED
+- `lab_id` → filtrar por lab
+- `start_date` / `end_date` → intervalo de datas
+
+**Critérios de Aceite:**
+- [ ] GET /export retorna arquivo .csv com headers corretos
+- [ ] BOM UTF-8 incluído (colunas com acentos abrem corretamente no Excel)
+- [ ] Filtros funcionam combinados ou separados
+- [ ] Sem dados: retorna 404 com mensagem (não arquivo vazio)
+- [ ] PROFESSOR não consegue acessar (403)
+- [ ] Testado no Postman: download do CSV abre corretamente no Excel/Google Sheets
+
+**Status:** 🔴 PENDENTE  
+**Responsável:** -  
+**Depende de:** F4-BE-02
+
+---
+
+## 🔹 Frontend
+
+### [F9-FE-01] Responsividade Mobile
+
+**Descrição:**  
+Garantir que todas as páginas da aplicação funcionam em dispositivos móveis e tablets. Menu hambúrguer no mobile, DataGrids adaptados e formulários legíveis em tela pequena.
+
+**Entregáveis:**
+- [ ] `src/components/layout/AppLayout.jsx` (layout base com sidebar/drawer)
+- [ ] Revisar todas as páginas com breakpoints MUI
+
+**Componentes:**
+
+**1. Layout Responsivo (AppLayout.jsx):**
+```javascript
+const DRAWER_WIDTH = 240;
+
+function AppLayout({ children }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const isMobile = useMediaQuery(theme => theme.breakpoints.down('md'));
+
+  return (
+    <Box sx={{ display: 'flex' }}>
+      {/* AppBar com hambúrguer no mobile */}
+      <AppBar position="fixed" sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}>
+        <Toolbar>
+          {isMobile && (
+            <IconButton color="inherit" onClick={() => setMobileOpen(!mobileOpen)} sx={{ mr: 2 }}>
+              <MenuIcon />
+            </IconButton>
+          )}
+          <Typography variant="h6">SisLab</Typography>
+        </Toolbar>
+      </AppBar>
+
+      {/* Drawer: permanente no desktop, temporário no mobile */}
+      <Drawer
+        variant={isMobile ? 'temporary' : 'permanent'}
+        open={isMobile ? mobileOpen : true}
+        onClose={() => setMobileOpen(false)}
+        sx={{ width: DRAWER_WIDTH, '& .MuiDrawer-paper': { width: DRAWER_WIDTH } }}
+      >
+        <SidebarMenu />
+      </Drawer>
+
+      {/* Conteúdo principal */}
+      <Box component="main" sx={{
+        flexGrow: 1,
+        p: { xs: 2, md: 3 },
+        mt: '64px',
+        ml: isMobile ? 0 : `${DRAWER_WIDTH}px`
+      }}>
+        {children}
+      </Box>
+    </Box>
+  );
+}
+```
+
+**2. Checklist de Responsividade por Página:**
+
+- [ ] **DashboardPage** — cards em `xs=12 sm=6 md=3`, sem overflow horizontal
+- [ ] **CalendarPage** — FullCalendar em `listWeek` no mobile (`initialView` condicional)
+- [ ] **CreateReservationPage** — formulário full-width em mobile, checkboxes de time_slots em grid `xs=6`
+- [ ] **MyReservationsPage** — DataGrid com `autoHeight`, scroll horizontal habilitado em mobile
+- [ ] **AcademicCyclesPage** — DataGrid com colunas essenciais visíveis, demais ocultadas em mobile
+- [ ] **HolidaysPage** — formulário inline empilhado verticalmente em mobile
+- [ ] **PendingReservationsPage** — colunas reduzidas em mobile, ações em menu dropdown
+
+**3. DataGrid Responsivo (padrão para todas as páginas):**
+```javascript
+// Ocultar colunas em mobile com `hideable`
+const columns = [
+  { field: 'professor_name', headerName: 'Professor', flex: 1, minWidth: 150 },
+  { field: 'lab_name', headerName: 'Laboratório', flex: 1, minWidth: 120,
+    hideable: true }, // Ocultar em xs
+  { field: 'date', headerName: 'Data', width: 110 },
+  { field: 'status', headerName: 'Status', width: 120,
+    renderCell: (params) => <StatusChip status={params.value} /> },
+  { field: 'actions', headerName: 'Ações', width: 120,
+    renderCell: (params) => <ActionButtons row={params.row} /> }
+];
+
+<DataGrid
+  rows={rows}
+  columns={columns}
+  autoHeight
+  pageSizeOptions={[10, 25, 50]}
+  initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+  sx={{ '& .MuiDataGrid-root': { border: 'none' } }}
+/>
+```
+
+**Critérios de Aceite:**
+- [ ] Testado em 375px (iPhone SE), 768px (tablet), 1280px (desktop)
+- [ ] Menu hambúrguer abre e fecha corretamente
+- [ ] Sem overflow horizontal em nenhuma página
+- [ ] Formulários utilizáveis com teclado virtual (campos com `inputMode` adequado)
+- [ ] Calendário exibe modo lista no mobile (legível)
+- [ ] DataGrids têm scroll horizontal quando necessário (não cortam dados)
+
+**Status:** 🔴 PENDENTE  
+**Responsável:** -  
+**Depende de:** F4-FE-01, F8-FE-01
+
+---
+
+### [F9-FE-02] Tela de Perfil do Usuário
+
+**Descrição:**  
+Página para o usuário visualizar e editar seus dados pessoais e alterar a senha.
+
+**Entregáveis:**
+- [ ] `src/pages/ProfilePage.jsx`
+- [ ] Atualizar `src/services/user.service.js` (adicionar métodos de perfil)
+- [ ] Adicionar endpoints no backend: PUT /api/users/me e PUT /api/users/me/password
+
+**1. Backend (adicionar antes de prosseguir para o frontend):**
+
+- [ ] **UserService.js (adicionar):**
+  - `updateProfile(userId, dto)` → atualiza name, department
+    - Não permite alterar email (campo exibido mas desabilitado)
+    - Retorna usuário atualizado
+  - `changePassword(userId, currentPassword, newPassword)` → troca senha
+    - Validar currentPassword com bcrypt.compare
+    - Se inválida: erro "Senha atual incorreta"
+    - newPassword mínimo 6 caracteres
+    - Hash com bcrypt e atualizar
+
+- [ ] **UserController.js (adicionar):**
+  - `me(req, res)` → GET /api/users/me → retorna dados do usuário logado
+  - `updateMe(req, res)` → PUT /api/users/me
+  - `changePassword(req, res)` → PUT /api/users/me/password
+    - Body: `{ current_password, new_password }`
+
+- [ ] **routes/user.routes.js (adicionar):**
+  ```javascript
+  router.get('/me', verifyToken, UserController.me);
+  router.put('/me', verifyToken, UserController.updateMe);
+  router.put('/me/password', verifyToken, UserController.changePassword);
+  ```
+
+**2. Estado do Componente (frontend):**
+```javascript
+const [profileData, setProfileData] = useState({ name: '', email: '', department: '' });
+const [passwordData, setPasswordData] = useState({
+  current_password: '',
+  new_password: '',
+  confirm_password: ''
+});
+const [editingProfile, setEditingProfile] = useState(false);
+const [savingProfile, setSavingProfile] = useState(false);
+const [savingPassword, setSavingPassword] = useState(false);
+```
+
+**3. Seção: Dados Pessoais:**
+- [ ] Avatar com inicial do nome (MUI Avatar)
+- [ ] TextField: Nome — editável
+- [ ] TextField: Email — desabilitado (não editável)
+- [ ] TextField: Departamento — editável
+- [ ] Chip: Role (ADMIN / PROFESSOR) — somente leitura
+- [ ] Botão "Editar" → habilita campos
+- [ ] Botões "Cancelar" | "Salvar" aparecem no modo edição
+
+**4. Seção: Alterar Senha:**
+- [ ] TextField: Senha Atual (type=password)
+- [ ] TextField: Nova Senha (type=password, helperText: "Mínimo 6 caracteres")
+- [ ] TextField: Confirmar Nova Senha (type=password)
+- [ ] Validação: new_password === confirm_password antes de submeter
+  ```javascript
+  if (passwordData.new_password !== passwordData.confirm_password) {
+    return showError('Nova senha e confirmação não coincidem');
+  }
+  ```
+- [ ] Botão "Alterar Senha"
+
+**5. Submit de Senha:**
+```javascript
+async function handleChangePassword() {
+  if (passwordData.new_password.length < 6)
+    return showError('Nova senha deve ter ao menos 6 caracteres');
+  if (passwordData.new_password !== passwordData.confirm_password)
+    return showError('Nova senha e confirmação não coincidem');
+  
+  setSavingPassword(true);
+  try {
+    await userService.changePassword({
+      current_password: passwordData.current_password,
+      new_password: passwordData.new_password
+    });
+    showSuccess('Senha alterada com sucesso!');
+    setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
+  } catch (error) {
+    showError(error.response?.data?.error || 'Erro ao alterar senha');
+  } finally {
+    setSavingPassword(false);
+  }
+}
+```
+
+**Atualizar src/services/user.service.js:**
+```javascript
+async getMe() {
+  const response = await api.get('/users/me');
+  return response.data;
+},
+
+async updateMe(data) {
+  const response = await api.put('/users/me', data);
+  return response.data;
+},
+
+async changePassword(data) {
+  const response = await api.put('/users/me/password', data);
+  return response.data;
+}
+```
+
+**Critérios de Aceite:**
+- [ ] Dados do perfil carregam corretamente ao montar
+- [ ] Email não é editável (campo desabilitado)
+- [ ] Editar nome/departamento → salva e exibe toast de sucesso
+- [ ] Alterar senha com senha atual incorreta → erro claro
+- [ ] Alterar senha com confirmação diferente → validação frontend bloqueia
+- [ ] Alterar senha com sucesso → campos limpos
+- [ ] Responsivo
+- [ ] Qualquer role acessa /profile
+
+**Status:** 🔴 PENDENTE  
+**Responsável:** -  
+**Depende de:** F1-BE-04, F7-FE-01
+
+---
+
+## 🔹 Teste Final de Fase
+
+### [F9-INT-01] Teste de Integração da FASE 9
+
+**Descrição:**  
+Validar relatórios, responsividade e perfil do usuário, além de uma rodada final de smoke tests em todo o sistema.
+
+**Checklist de Testes:**
+
+**Cenário 1: Exportação de Relatório (CSV)**
+- [ ] 1. ADMIN acessa GET /api/reservations/export → download de arquivo .csv
+- [ ] 2. Abrir CSV no Excel → colunas sem caracteres corrompidos (acentos OK)
+- [ ] 3. Filtrar por status=APPROVED → CSV contém apenas aprovadas
+- [ ] 4. Filtrar por lab_id + start_date + end_date → dados filtrados corretamente
+- [ ] 5. Filtro sem resultados → retorna 404, não arquivo vazio
+- [ ] 6. PROFESSOR tenta acessar → 403
+
+**Cenário 2: Responsividade Mobile**
+- [ ] 1. Redimensionar browser para 375px (ou usar DevTools device mode)
+- [ ] 2. Todas as páginas sem overflow horizontal
+- [ ] 3. Menu hambúrguer abre sidebar
+- [ ] 4. Formulário de criação de reserva utilizável no mobile
+- [ ] 5. DataGrids com scroll horizontal (não cortam dados)
+- [ ] 6. Calendário exibe modo lista (listWeek)
+
+**Cenário 3: Perfil do Usuário**
+- [ ] 1. Professor loga e acessa /profile
+- [ ] 2. Dados carregam: nome, email (desabilitado), departamento, role chip
+- [ ] 3. Clicar "Editar" → campos habilitam
+- [ ] 4. Alterar nome → salvar → toast de sucesso → nome atualizado na sidebar
+- [ ] 5. Tentar alterar senha com senha atual errada → erro "Senha atual incorreta"
+- [ ] 6. Alterar senha corretamente → campos limpos + toast de sucesso
+- [ ] 7. Fazer logout e login com nova senha → funciona
+
+**Cenário 4: Smoke Tests Gerais (regressão)**
+- [ ] 1. Cadastro de usuário → aprovação → login → funcional
+- [ ] 2. Criar ciclo → ativar → criar feriado
+- [ ] 3. Professor cria reserva simples → APPROVED → aparece no calendário e dashboard
+- [ ] 4. Professor cria recorrente → PENDING → ADMIN aprova → professor recebe email
+- [ ] 5. ADMIN sobrescreve → professor afetado recebe email → audit_log registrado
+- [ ] 6. Professor cancela em lote (bulk) → reservas somem
+- [ ] 7. ADMIN exporta CSV → abre corretamente no Excel
+
+**Critérios de Aceite:**
+- [ ] Todos os 4 cenários passam sem bugs
+- [ ] Nenhum console.error no frontend em nenhum fluxo
+- [ ] Nenhum erro 500 no backend em nenhum endpoint
+- [ ] Smoke test geral (Cenário 4) valida o sistema como um todo
+- [ ] SisLab pronto para entrega / demonstração
+
+**Status:** 🔴 PENDENTE  
+**Responsável:** Kaique  
+**Depende de:** Todas as tasks F9-* concluídas
+
+
+---
+
+# 🚀 FASE 10 – Testes e Documentação
+
+**Status Geral:** 🔴 PENDENTE  
+**Meta:** Cobertura de testes automatizados ≥ 70% no backend, componentes React críticos cobertos, e documentação completa para entrega e manutenção
+
+---
+
+## 🔹 Backend
+
+### [F10-BE-01] Testes Unitários (Jest)
+
+**Descrição:**  
+Testar Services e Repositories de forma isolada com mocks. Foco nas regras de negócio críticas: conflito de reservas, validações de ciclo, aprovação/rejeição e geração de datas recorrentes.
+
+**Entregáveis:**
+
+**Instalação e Configuração:**
+```bash
+npm install --save-dev jest @jest/globals
+```
+
+**jest.config.js (raiz do backend):**
+```javascript
+module.exports = {
+  testEnvironment: 'node',
+  testMatch: ['**/__tests__/**/*.test.js'],
+  collectCoverageFrom: [
+    'src/services/**/*.js',
+    'src/repositories/**/*.js',
+    'src/utils/**/*.js',
+    '!src/**/*.routes.js'
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70
+    }
+  },
+  setupFilesAfterFramework: ['<rootDir>/__tests__/setup.js']
+};
+```
+
+**package.json (scripts):**
+```json
+{
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  }
+}
+```
+
+**__tests__/setup.js:**
+```javascript
+// Mock global do banco de dados
+jest.mock('../src/database/db', () => ({
+  query: jest.fn()
+}));
+
+// Limpar mocks entre testes
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+```
+
+---
+
+**1. __tests__/services/ReservationService.test.js:**
+- [ ] Suite: `createSimpleReservation`
+  ```javascript
+  describe('ReservationService.createSimpleReservation', () => {
+    
+    // Mock dos repositórios
+    const mockCycle = {
+      id: 1, name: '2026-1',
+      start_date: '2026-02-01', end_date: '2026-06-30',
+      exclusive_admin_end_date: '2026-01-25',
+      is_active: true
+    };
+    const mockLab = { id: 1, name: 'Lab 01', is_active: true };
+    const mockProfessor = { id: 10, role: 'PROFESSOR' };
+    const mockAdmin = { id: 1, role: 'ADMIN' };
+    
+    test('deve criar reserva simples sem conflito', async () => {
+      // Arrange
+      AcademicCycleRepository.findActive.mockResolvedValue(mockCycle);
+      HolidayRepository.findByDateAndCycle.mockResolvedValue(null); // não é feriado
+      LaboratoryRepository.findById.mockResolvedValue(mockLab);
+      ConflictService.checkConflict.mockResolvedValue({ hasConflict: false });
+      ReservationRepository.create.mockResolvedValue({ id: 99, status: 'APPROVED' });
+      ReservationRepository.createItem.mockResolvedValue({ id: 1 });
+      
+      // Act
+      const result = await ReservationService.createSimpleReservation(
+        { lab_id: 1, date: '2026-03-10', time_slot_ids: [1, 2] },
+        mockProfessor
+      );
+      
+      // Assert
+      expect(result.status).toBe('APPROVED');
+      expect(ReservationRepository.create).toHaveBeenCalledTimes(1);
+      expect(ReservationRepository.createItem).toHaveBeenCalledTimes(2); // 2 time slots
+    });
+    
+    test('deve lançar erro se data for feriado', async () => {
+      AcademicCycleRepository.findActive.mockResolvedValue(mockCycle);
+      HolidayRepository.findByDateAndCycle.mockResolvedValue({ id: 5, date: '2026-03-03' });
+      
+      await expect(
+        ReservationService.createSimpleReservation(
+          { lab_id: 1, date: '2026-03-03', time_slot_ids: [1] },
+          mockProfessor
+        )
+      ).rejects.toThrow('Não é possível reservar em feriados');
+    });
+    
+    test('deve lançar erro se data estiver fora do ciclo', async () => {
+      AcademicCycleRepository.findActive.mockResolvedValue(mockCycle);
+      HolidayRepository.findByDateAndCycle.mockResolvedValue(null);
+      
+      await expect(
+        ReservationService.createSimpleReservation(
+          { lab_id: 1, date: '2026-07-15', time_slot_ids: [1] }, // fora do ciclo
+          mockProfessor
+        )
+      ).rejects.toThrow('A data não pertence ao ciclo acadêmico ativo');
+    });
+    
+    test('deve lançar erro se professor reservar no período exclusivo ADMIN', async () => {
+      const cycleWithActiveExclusive = {
+        ...mockCycle,
+        exclusive_admin_end_date: '2026-12-31' // ainda no período exclusivo
+      };
+      AcademicCycleRepository.findActive.mockResolvedValue(cycleWithActiveExclusive);
+      HolidayRepository.findByDateAndCycle.mockResolvedValue(null);
+      
+      await expect(
+        ReservationService.createSimpleReservation(
+          { lab_id: 1, date: '2026-03-10', time_slot_ids: [1] },
+          mockProfessor
+        )
+      ).rejects.toThrow(/Reservas abertas para professores apenas após/);
+    });
+    
+    test('ADMIN deve criar reserva mesmo com conflito', async () => {
+      AcademicCycleRepository.findActive.mockResolvedValue(mockCycle);
+      HolidayRepository.findByDateAndCycle.mockResolvedValue(null);
+      LaboratoryRepository.findById.mockResolvedValue(mockLab);
+      ConflictService.checkConflict.mockResolvedValue({
+        hasConflict: true,
+        conflictingSlots: [1]
+      });
+      ReservationRepository.create.mockResolvedValue({ id: 100, status: 'APPROVED' });
+      ReservationRepository.createItem.mockResolvedValue({ id: 2 });
+      
+      const result = await ReservationService.createSimpleReservation(
+        { lab_id: 1, date: '2026-03-10', time_slot_ids: [1] },
+        mockAdmin
+      );
+      
+      expect(result.status).toBe('APPROVED'); // ADMIN não é bloqueado
+    });
+    
+    test('PROFESSOR deve receber erro de conflito', async () => {
+      AcademicCycleRepository.findActive.mockResolvedValue(mockCycle);
+      HolidayRepository.findByDateAndCycle.mockResolvedValue(null);
+      LaboratoryRepository.findById.mockResolvedValue(mockLab);
+      ConflictService.checkConflict.mockResolvedValue({
+        hasConflict: true,
+        conflictingSlots: [1]
+      });
+      
+      await expect(
+        ReservationService.createSimpleReservation(
+          { lab_id: 1, date: '2026-03-10', time_slot_ids: [1] },
+          mockProfessor
+        )
+      ).rejects.toThrow(/Conflito de horário/);
+    });
+    
+    test('deve lançar erro se nenhum ciclo estiver ativo', async () => {
+      AcademicCycleRepository.findActive.mockResolvedValue(null);
+      
+      await expect(
+        ReservationService.createSimpleReservation(
+          { lab_id: 1, date: '2026-03-10', time_slot_ids: [1] },
+          mockProfessor
+        )
+      ).rejects.toThrow('Nenhum ciclo acadêmico ativo');
+    });
+  });
+  ```
+
+- [ ] Suite: `approveReservation`
+  ```javascript
+  describe('ReservationService.approveReservation', () => {
+    
+    test('deve aprovar reserva PENDING', async () => {
+      ReservationRepository.findById.mockResolvedValue({ id: 1, status: 'PENDING', professor_id: 10 });
+      ConflictService.checkConflict.mockResolvedValue({ hasConflict: false });
+      ReservationRepository.updateStatus.mockResolvedValue({ id: 1, status: 'APPROVED' });
+      
+      const result = await ReservationService.approveReservation(1, 99);
+      
+      expect(result.status).toBe('APPROVED');
+      expect(ReservationRepository.updateStatus).toHaveBeenCalledWith(
+        1, 'APPROVED', expect.objectContaining({ approved_by: 99 })
+      );
+    });
+    
+    test('deve lançar erro ao aprovar reserva não-PENDING', async () => {
+      ReservationRepository.findById.mockResolvedValue({ id: 1, status: 'APPROVED' });
+      
+      await expect(
+        ReservationService.approveReservation(1, 99)
+      ).rejects.toThrow('Apenas reservas pendentes podem ser aprovadas');
+    });
+    
+    test('deve lançar erro ao rejeitar sem motivo', async () => {
+      await expect(
+        ReservationService.rejectReservation(1, 99, '')
+      ).rejects.toThrow('Motivo da rejeição é obrigatório');
+    });
+  });
+  ```
+
+---
+
+**2. __tests__/utils/RecurrenceHelper.test.js:**
+- [ ] Suite: `generateDates`
+  ```javascript
+  describe('RecurrenceHelper.generateDates', () => {
+    
+    const holidays = ['2026-03-03']; // Carnaval
+    const cycleStart = '2026-02-01';
+    const cycleEnd = '2026-06-30';
+    
+    test('deve gerar apenas segundas e quartas no período', () => {
+      const dates = generateDates(
+        '2026-03-01', '2026-03-31',
+        [1, 3], // seg=1, qua=3
+        holidays,
+        cycleStart, cycleEnd
+      );
+      
+      // Verificar que todas as datas são segunda ou quarta
+      dates.forEach(d => {
+        const day = new Date(d).getDay();
+        expect([1, 3]).toContain(day);
+      });
+    });
+    
+    test('deve excluir feriados da lista gerada', () => {
+      const dates = generateDates(
+        '2026-03-01', '2026-03-10',
+        [2], // terças
+        ['2026-03-03'],
+        cycleStart, cycleEnd
+      );
+      expect(dates).not.toContain('2026-03-03');
+    });
+    
+    test('deve retornar array vazio se nenhum dia válido no período', () => {
+      const dates = generateDates(
+        '2026-03-01', '2026-03-07',
+        [6], // apenas sábados
+        [],
+        cycleStart, cycleEnd
+      );
+      // Pode ser 1 sábado (07/03) dependendo do range — ajustar conforme calendário
+      dates.forEach(d => {
+        expect(new Date(d).getDay()).toBe(6);
+      });
+    });
+    
+    test('deve respeitar os limites do ciclo acadêmico', () => {
+      const dates = generateDates(
+        '2026-01-01', // antes do ciclo
+        '2026-07-31', // depois do ciclo
+        [1],
+        [],
+        cycleStart, cycleEnd
+      );
+      dates.forEach(d => {
+        expect(d >= cycleStart).toBe(true);
+        expect(d <= cycleEnd).toBe(true);
+      });
+    });
+  });
+  ```
+
+---
+
+**3. __tests__/services/AcademicCycleService.test.js:**
+- [ ] Suite: `createCycle` e `activateCycle`
+  ```javascript
+  describe('AcademicCycleService', () => {
+    
+    test('deve lançar erro se start_date >= end_date', async () => {
+      await expect(
+        AcademicCycleService.createCycle({
+          name: '2026-1',
+          start_date: '2026-06-30',
+          end_date: '2026-02-01', // invertido
+          exclusive_admin_end_date: '2026-01-25'
+        })
+      ).rejects.toThrow('Data de início deve ser anterior à data de fim');
+    });
+    
+    test('deve lançar erro se exclusive_admin_end_date > start_date', async () => {
+      await expect(
+        AcademicCycleService.createCycle({
+          name: '2026-1',
+          start_date: '2026-02-01',
+          end_date: '2026-06-30',
+          exclusive_admin_end_date: '2026-03-01' // depois do início
+        })
+      ).rejects.toThrow(/Período exclusivo/);
+    });
+    
+    test('activateCycle deve desativar todos e ativar o selecionado', async () => {
+      AcademicCycleRepository.findById.mockResolvedValue({ id: 2, is_active: false });
+      AcademicCycleRepository.deactivateAll.mockResolvedValue();
+      AcademicCycleRepository.activate.mockResolvedValue({ id: 2, is_active: true });
+      
+      await AcademicCycleService.activateCycle(2, 1);
+      
+      expect(AcademicCycleRepository.deactivateAll).toHaveBeenCalledTimes(1);
+      expect(AcademicCycleRepository.activate).toHaveBeenCalledWith(2);
+    });
+    
+    test('deve lançar erro ao ativar ciclo já ativo', async () => {
+      AcademicCycleRepository.findById.mockResolvedValue({ id: 2, is_active: true });
+      
+      await expect(
+        AcademicCycleService.activateCycle(2, 1)
+      ).rejects.toThrow('Este ciclo já está ativo');
+    });
+  });
+  ```
+
+---
+
+**4. __tests__/services/ConflictService.test.js:**
+- [ ] Suite: `checkConflict`
+  ```javascript
+  describe('ConflictService.checkConflict', () => {
+    
+    test('deve retornar hasConflict: false quando lab livre', async () => {
+      ReservationRepository.findConflicting.mockResolvedValue([]);
+      
+      const result = await ConflictService.checkConflict(1, '2026-03-10', [1, 2]);
+      
+      expect(result.hasConflict).toBe(false);
+      expect(result.conflicts).toHaveLength(0);
+    });
+    
+    test('deve retornar hasConflict: true e slots conflitantes', async () => {
+      ReservationRepository.findConflicting.mockResolvedValue([
+        { id: 5, time_slot_id: 1, date: '2026-03-10', reservation_id: 20 }
+      ]);
+      
+      const result = await ConflictService.checkConflict(1, '2026-03-10', [1, 2]);
+      
+      expect(result.hasConflict).toBe(true);
+      expect(result.conflictingSlots).toContain(1);
+      expect(result.conflictingSlots).not.toContain(2); // slot 2 está livre
+    });
+  });
+  ```
+
+**Critérios de Aceite:**
+- [ ] `npm test` executa todos os testes sem falhas
+- [ ] `npm run test:coverage` exibe ≥ 70% em statements, branches, functions e lines
+- [ ] Nenhum teste acessa banco real (tudo mockado)
+- [ ] Testes de erro validam tanto a mensagem quanto o tipo de exceção
+- [ ] Organização: 1 arquivo de teste por service/utility
+
+**Status:** 🔴 PENDENTE  
+**Responsável:** -  
+**Depende de:** F6-BE-03
+
+---
+
+### [F10-BE-02] Testes de Integração (Supertest)
+
+**Descrição:**  
+Testar os endpoints da API end-to-end usando um banco de dados de teste, validando status HTTP, corpo das respostas e comportamento de permissões.
+
+**Entregáveis:**
+
+**Instalação:**
+```bash
+npm install --save-dev supertest
+```
+
+**Configuração do banco de teste:**
+
+**.env.test:**
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASS=
+DB_NAME=sislab_test   # banco separado do desenvolvimento
+NODE_ENV=test
+JWT_SECRET=test_secret_sislab
+```
+
+**__tests__/integration/setup.integration.js:**
+```javascript
+const db = require('../../src/database/db');
+
+// Rodar antes de TODOS os testes de integração
+beforeAll(async () => {
+  // Aplicar migrations no banco de teste
+  await db.query('SET FOREIGN_KEY_CHECKS = 0');
+  await db.query('TRUNCATE TABLE reservation_items');
+  await db.query('TRUNCATE TABLE reservations');
+  await db.query('TRUNCATE TABLE holidays');
+  await db.query('TRUNCATE TABLE academic_cycles');
+  await db.query('TRUNCATE TABLE time_slots');
+  await db.query('TRUNCATE TABLE laboratories');
+  await db.query('TRUNCATE TABLE audit_logs');
+  await db.query('TRUNCATE TABLE users');
+  await db.query('SET FOREIGN_KEY_CHECKS = 1');
+});
+
+afterAll(async () => {
+  await db.end(); // fechar pool de conexões
+});
+```
+
+**Helpers de teste (__tests__/integration/helpers.js):**
+```javascript
+const request = require('supertest');
+const app = require('../../src/app');
+const bcrypt = require('bcrypt');
+const db = require('../../src/database/db');
+
+async function createUser(overrides = {}) {
+  const defaults = {
+    name: 'Usuário Teste',
+    email: `test_${Date.now()}@fatec.sp.gov.br`,
+    password: await bcrypt.hash('senha123', 10),
+    role: 'PROFESSOR',
+    status: 'APPROVED',
+    department: 'DSM'
+  };
+  const user = { ...defaults, ...overrides };
+  const [result] = await db.query('INSERT INTO users SET ?', [user]);
+  return { ...user, id: result.insertId };
+}
+
+async function loginAs(user) {
+  const res = await request(app)
+    .post('/api/auth/login')
+    .send({ email: user.email, password: 'senha123' });
+  return res.body.token;
+}
+
+async function createCycle(overrides = {}) {
+  const defaults = {
+    name: `Ciclo-${Date.now()}`,
+    start_date: '2026-01-01',
+    end_date: '2026-12-31',
+    exclusive_admin_end_date: '2025-12-31',
+    is_active: true
+  };
+  const cycle = { ...defaults, ...overrides };
+  const [result] = await db.query('INSERT INTO academic_cycles SET ?', [cycle]);
+  return { ...cycle, id: result.insertId };
+}
+
+async function createLab(overrides = {}) {
+  const defaults = {
+    name: `Lab-${Date.now()}`,
+    capacity: 40,
+    type: 'LABORATORIO',
+    is_active: true
+  };
+  const lab = { ...defaults, ...overrides };
+  const [result] = await db.query('INSERT INTO laboratories SET ?', [lab]);
+  return { ...lab, id: result.insertId };
+}
+
+module.exports = { createUser, loginAs, createCycle, createLab };
+```
+
+---
+
+**1. __tests__/integration/auth.integration.test.js:**
+- [ ] Suite: `POST /api/auth/register`
+  ```javascript
+  describe('POST /api/auth/register', () => {
+    test('deve registrar usuário com status PENDING', async () => {
+      const res = await request(app)
+        .post('/api/auth/register')
+        .send({
+          name: 'Prof Teste',
+          email: 'prof@fatec.sp.gov.br',
+          password: 'senha123',
+          department: 'DSM'
+        });
+      
+      expect(res.status).toBe(201);
+      expect(res.body).toHaveProperty('id');
+      expect(res.body.status).toBe('PENDING');
+      expect(res.body).not.toHaveProperty('password'); // nunca retornar hash
+    });
+    
+    test('deve retornar 400 para email duplicado', async () => {
+      await createUser({ email: 'dup@fatec.sp.gov.br' });
+      
+      const res = await request(app)
+        .post('/api/auth/register')
+        .send({ name: 'Outro', email: 'dup@fatec.sp.gov.br', password: '123456' });
+      
+      expect(res.status).toBe(400);
+      expect(res.body.error).toMatch(/já cadastrado/i);
+    });
+  });
+  
+  describe('POST /api/auth/login', () => {
+    test('deve retornar token para usuário APPROVED', async () => {
+      const user = await createUser({ email: 'login@fatec.sp.gov.br', status: 'APPROVED' });
+      
+      const res = await request(app)
+        .post('/api/auth/login')
+        .send({ email: 'login@fatec.sp.gov.br', password: 'senha123' });
+      
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('token');
+    });
+    
+    test('deve retornar 401 para usuário PENDING', async () => {
+      const user = await createUser({ email: 'pending@fatec.sp.gov.br', status: 'PENDING' });
+      
+      const res = await request(app)
+        .post('/api/auth/login')
+        .send({ email: 'pending@fatec.sp.gov.br', password: 'senha123' });
+      
+      expect(res.status).toBe(401);
+    });
+    
+    test('deve retornar 401 para senha errada', async () => {
+      const user = await createUser({ email: 'wrong@fatec.sp.gov.br' });
+      
+      const res = await request(app)
+        .post('/api/auth/login')
+        .send({ email: 'wrong@fatec.sp.gov.br', password: 'senhaerrada' });
+      
+      expect(res.status).toBe(401);
+    });
+  });
+  ```
+
+---
+
+**2. __tests__/integration/reservations.integration.test.js:**
+- [ ] Suite: Fluxo de reserva simples
+  ```javascript
+  describe('Reservas — fluxo completo', () => {
+    let professorToken, adminToken, lab, cycle, timeSlot;
+    
+    beforeAll(async () => {
+      const professor = await createUser({ role: 'PROFESSOR' });
+      const admin = await createUser({ role: 'ADMIN' });
+      professorToken = await loginAs(professor);
+      adminToken = await loginAs(admin);
+      lab = await createLab();
+      cycle = await createCycle();
+      const [ts] = await db.query(
+        'INSERT INTO time_slots SET ?',
+        [{ name: 'M1', start_time: '07:30:00', end_time: '08:20:00', is_active: true }]
+      );
+      timeSlot = { id: ts.insertId };
+    });
+    
+    test('professor cria reserva simples → status 201 APPROVED', async () => {
+      const res = await request(app)
+        .post('/api/reservations')
+        .set('Authorization', `Bearer ${professorToken}`)
+        .send({
+          type: 'SIMPLE',
+          lab_id: lab.id,
+          date: '2026-03-10',
+          time_slot_ids: [timeSlot.id]
+        });
+      
+      expect(res.status).toBe(201);
+      expect(res.body.status).toBe('APPROVED');
+      expect(res.body.items).toHaveLength(1);
+    });
+    
+    test('conflito detectado → professor recebe 400', async () => {
+      // Reserva já existe do teste anterior (2026-03-10, timeSlot.id)
+      const res = await request(app)
+        .post('/api/reservations')
+        .set('Authorization', `Bearer ${professorToken}`)
+        .send({
+          type: 'SIMPLE',
+          lab_id: lab.id,
+          date: '2026-03-10',
+          time_slot_ids: [timeSlot.id]
+        });
+      
+      expect(res.status).toBe(400);
+      expect(res.body.error).toMatch(/conflito/i);
+    });
+    
+    test('GET /reservations/check-conflict → retorna hasConflict correto', async () => {
+      const res = await request(app)
+        .get(`/api/reservations/check-conflict`)
+        .query({ lab_id: lab.id, date: '2026-03-10', time_slots: timeSlot.id })
+        .set('Authorization', `Bearer ${professorToken}`);
+      
+      expect(res.status).toBe(200);
+      expect(res.body.hasConflict).toBe(true);
+    });
+    
+    test('sem token → 401 em qualquer rota de reserva', async () => {
+      const res = await request(app).post('/api/reservations').send({});
+      expect(res.status).toBe(401);
+    });
+  });
+  ```
+
+- [ ] Suite: Permissões de ADMIN
+  ```javascript
+  describe('Proteção de rotas de ADMIN', () => {
+    let professorToken;
+    
+    beforeAll(async () => {
+      const professor = await createUser({ role: 'PROFESSOR' });
+      professorToken = await loginAs(professor);
+    });
+    
+    const adminRoutes = [
+      { method: 'get',    path: '/api/reservations/pending' },
+      { method: 'put',    path: '/api/reservations/1/approve' },
+      { method: 'put',    path: '/api/reservations/1/reject' },
+      { method: 'post',   path: '/api/reservations/overwrite' },
+      { method: 'post',   path: '/api/laboratories' },
+      { method: 'post',   path: '/api/academic-cycles' },
+      { method: 'post',   path: '/api/holidays' },
+      { method: 'get',    path: '/api/reservations/export' }
+    ];
+    
+    adminRoutes.forEach(({ method, path }) => {
+      test(`PROFESSOR em ${method.toUpperCase()} ${path} → 403`, async () => {
+        const res = await request(app)
+          [method](path)
+          .set('Authorization', `Bearer ${professorToken}`)
+          .send({});
+        expect(res.status).toBe(403);
+      });
+    });
+  });
+  ```
+
+- [ ] Suite: Performance de conflito (RNF05)
+  ```javascript
+  describe('Performance — detecção de conflito (RNF05)', () => {
+    test('check-conflict deve responder em menos de 500ms', async () => {
+      const start = Date.now();
+      
+      await request(app)
+        .get('/api/reservations/check-conflict')
+        .query({ lab_id: 1, date: '2026-03-10', time_slots: '1,2,3' })
+        .set('Authorization', `Bearer ${adminToken}`);
+      
+      const duration = Date.now() - start;
+      expect(duration).toBeLessThan(500);
+    });
+  });
+  ```
+
+**Critérios de Aceite:**
+- [ ] Testes de integração usam banco `sislab_test` — nunca o de desenvolvimento
+- [ ] `beforeAll` limpa tabelas antes de cada suite
+- [ ] Todos os códigos HTTP validados (201, 200, 400, 401, 403, 404)
+- [ ] Teste de permissões cobre todas as rotas ADMIN-only
+- [ ] Teste de performance do check-conflict passa consistentemente (RNF05)
+- [ ] `npm test` executa unitários e de integração com um só comando
+
+**Status:** 🔴 PENDENTE  
+**Responsável:** -  
+**Depende de:** F10-BE-01
+
+---
+
+## 🔹 Frontend
+
+### [F10-FE-01] Testes de Componentes (React Testing Library)
+
+**Descrição:**  
+Testar componentes React críticos: fluxo de login, formulário de reserva, exibição de conflito, e o NotificationContext. Foco em comportamento do usuário, não em implementação.
+
+**Entregáveis:**
+
+**Instalação:**
+```bash
+npm install --save-dev @testing-library/react @testing-library/user-event @testing-library/jest-dom
+```
+
+**src/setupTests.js:**
+```javascript
+import '@testing-library/jest-dom';
+
+// Mock do serviço de API (evitar chamadas reais)
+jest.mock('./services/api', () => ({
+  get: jest.fn(),
+  post: jest.fn(),
+  put: jest.fn(),
+  delete: jest.fn()
+}));
+```
+
+---
+
+**1. __tests__/components/LoginPage.test.jsx:**
+```javascript
+describe('LoginPage', () => {
+  
+  test('exibe campos de email e senha', () => {
+    render(<LoginPage />);
+    
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/senha/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /entrar/i })).toBeInTheDocument();
+  });
+  
+  test('exibe erro ao submeter com campos vazios', async () => {
+    render(<LoginPage />);
+    const user = userEvent.setup();
+    
+    await user.click(screen.getByRole('button', { name: /entrar/i }));
+    
+    expect(await screen.findByText(/email é obrigatório/i)).toBeInTheDocument();
+  });
+  
+  test('chama authService.login com dados corretos', async () => {
+    const mockLogin = jest.fn().mockResolvedValue({ token: 'abc', user: { role: 'PROFESSOR' } });
+    jest.spyOn(authService, 'login').mockImplementation(mockLogin);
+    
+    render(<LoginPage />);
+    const user = userEvent.setup();
+    
+    await user.type(screen.getByLabelText(/email/i), 'prof@fatec.sp.gov.br');
+    await user.type(screen.getByLabelText(/senha/i), 'senha123');
+    await user.click(screen.getByRole('button', { name: /entrar/i }));
+    
+    expect(mockLogin).toHaveBeenCalledWith({
+      email: 'prof@fatec.sp.gov.br',
+      password: 'senha123'
+    });
+  });
+  
+  test('exibe mensagem de erro da API', async () => {
+    jest.spyOn(authService, 'login').mockRejectedValue({
+      response: { data: { error: 'Credenciais inválidas' } }
+    });
+    
+    render(
+      <NotificationProvider>
+        <LoginPage />
+      </NotificationProvider>
+    );
+    const user = userEvent.setup();
+    
+    await user.type(screen.getByLabelText(/email/i), 'x@x.com');
+    await user.type(screen.getByLabelText(/senha/i), 'errado');
+    await user.click(screen.getByRole('button', { name: /entrar/i }));
+    
+    expect(await screen.findByText(/credenciais inválidas/i)).toBeInTheDocument();
+  });
+});
+```
+
+---
+
+**2. __tests__/components/CreateReservationPage.test.jsx:**
+```javascript
+describe('CreateReservationPage', () => {
+  
+  const mockLabs = [{ id: 1, name: 'Lab 01' }];
+  const mockSlots = [
+    { id: 1, name: 'M1', start_time: '07:30:00', end_time: '08:20:00' },
+    { id: 2, name: 'M2', start_time: '08:30:00', end_time: '09:20:00' }
+  ];
+  
+  beforeEach(() => {
+    laboratoryService.getAll.mockResolvedValue(mockLabs);
+    timeSlotService.getAll.mockResolvedValue(mockSlots);
+    academicCycleService.getActive.mockResolvedValue({
+      id: 1, name: '2026-1',
+      start_date: '2026-01-01', end_date: '2026-12-31'
+    });
+    holidayService.getByCycle.mockResolvedValue([]);
+  });
+  
+  test('renderiza select de laboratório e checkboxes de horários', async () => {
+    render(
+      <NotificationProvider>
+        <CreateReservationPage />
+      </NotificationProvider>
+    );
+    
+    expect(await screen.findByLabelText(/laboratório/i)).toBeInTheDocument();
+    expect(await screen.findByText('M1')).toBeInTheDocument();
+    expect(await screen.findByText('M2')).toBeInTheDocument();
+  });
+  
+  test('exibe banner de conflito quando checkConflict retorna hasConflict: true', async () => {
+    reservationService.checkConflict.mockResolvedValue({
+      hasConflict: true,
+      conflictingSlots: [1]
+    });
+    
+    render(
+      <NotificationProvider>
+        <CreateReservationPage />
+      </NotificationProvider>
+    );
+    
+    // Simular seleção de lab, data e horário
+    // ... (detalhes de interação dependem da implementação exata do formulário)
+    
+    expect(await screen.findByText(/conflito detectado/i)).toBeInTheDocument();
+  });
+  
+  test('botão "Criar Reserva" fica desabilitado quando há conflito', async () => {
+    reservationService.checkConflict.mockResolvedValue({
+      hasConflict: true, conflictingSlots: [1]
+    });
+    
+    // ... setup de interação
+    
+    const btn = screen.getByRole('button', { name: /criar reserva/i });
+    expect(btn).toBeDisabled();
+  });
+  
+  test('toggle de recorrente exibe campos de data range e dias da semana', async () => {
+    render(
+      <NotificationProvider>
+        <CreateReservationPage />
+      </NotificationProvider>
+    );
+    
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: /reserva recorrente/i }));
+    
+    expect(screen.getByLabelText(/data de início/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/data de fim/i)).toBeInTheDocument();
+    expect(screen.getByText(/seg/i)).toBeInTheDocument(); // dia da semana
+  });
+});
+```
+
+---
+
+**3. __tests__/contexts/NotificationContext.test.jsx:**
+```javascript
+describe('NotificationContext', () => {
+  
+  function TestComponent() {
+    const { showSuccess, showError, showWarning, showInfo } = useNotification();
+    return (
+      <div>
+        <button onClick={() => showSuccess('Sucesso!')}>success</button>
+        <button onClick={() => showError('Erro!')}>error</button>
+        <button onClick={() => showWarning('Aviso!')}>warning</button>
+        <button onClick={() => showInfo('Info!')}>info</button>
+      </div>
+    );
+  }
+  
+  test('exibe toast de sucesso ao chamar showSuccess', async () => {
+    render(
+      <NotificationProvider>
+        <TestComponent />
+      </NotificationProvider>
+    );
+    const user = userEvent.setup();
+    
+    await user.click(screen.getByText('success'));
+    
+    expect(await screen.findByText('Sucesso!')).toBeInTheDocument();
+  });
+  
+  test('exibe toast de erro ao chamar showError', async () => {
+    render(
+      <NotificationProvider>
+        <TestComponent />
+      </NotificationProvider>
+    );
+    const user = userEvent.setup();
+    
+    await user.click(screen.getByText('error'));
+    
+    expect(await screen.findByText('Erro!')).toBeInTheDocument();
+  });
+  
+  test('lança erro ao usar useNotification fora do provider', () => {
+    // Suprimir console.error do React para o teste
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    
+    expect(() => render(<TestComponent />)).toThrow(
+      'useNotification deve ser usado dentro de NotificationProvider'
+    );
+    
+    console.error.mockRestore();
+  });
+});
+```
+
+**Critérios de Aceite:**
+- [ ] `npm test` no frontend executa todos os testes sem falhas
+- [ ] Nenhum teste faz chamadas HTTP reais (tudo mockado via `jest.mock`)
+- [ ] LoginPage: 4 testes (render, validação vazia, chamada correta, erro de API)
+- [ ] CreateReservationPage: 4 testes (render, banner de conflito, botão desabilitado, toggle recorrente)
+- [ ] NotificationContext: 3 testes (success, error, fora do provider)
+- [ ] Testes escritos em termos de comportamento do usuário (sem testar implementação interna)
+
+**Status:** 🔴 PENDENTE  
+**Responsável:** -  
+**Depende de:** F7-FE-01
+
+---
+
+## 🔹 Geral
+
+### [F10-GE-01] Documentação Final
+
+**Descrição:**  
+README completo para onboarding de novos desenvolvedores, collection Postman exportável com todos os endpoints, e Swagger via swagger-autogen para documentação interativa da API.
+
+**Entregáveis:**
+
+**Instalação (Swagger):**
+```bash
+npm install swagger-autogen swagger-ui-express
+```
+
+---
+
+**1. README.md (raiz do repositório):**
+```markdown
+# SisLab — Sistema de Reserva de Laboratórios
+**Fatec Zona Leste | DSM — Desenvolvimento de Software Multiplataforma**
+
+## Visão Geral
+Sistema web para gerenciamento de reservas de laboratórios da Fatec ZL.
+Permite que professores solicitem reservas e administradores gerenciem aprovações.
+
+## Stack Tecnológico
+| Camada | Tecnologia |
+|--------|-----------|
+| Backend | Node.js 20 + Express 4 |
+| Frontend | React 18 + MUI 5 |
+| Banco de Dados | MySQL 8 |
+| Autenticação | JWT (jsonwebtoken) |
+| Validação | Zod |
+| Testes (BE) | Jest + Supertest |
+| Testes (FE) | React Testing Library |
+
+## Pré-requisitos
+- Node.js 20+
+- MySQL 8+
+- npm 9+
+
+## Instalação
+
+### 1. Clonar o repositório
+\`\`\`bash
+git clone https://github.com/seu-usuario/sislab.git
+cd sislab
+\`\`\`
+
+### 2. Backend
+\`\`\`bash
+cd backend
+npm install
+cp .env.example .env
+# Editar .env com suas credenciais de banco e SMTP
+npm run migrate     # Criar tabelas
+npm run seed        # Popular dados iniciais (admin padrão)
+npm run dev         # Iniciar em desenvolvimento
+\`\`\`
+
+### 3. Frontend
+\`\`\`bash
+cd frontend
+npm install
+cp .env.example .env
+# Editar REACT_APP_API_URL=http://localhost:3001/api
+npm start
+\`\`\`
+
+## Variáveis de Ambiente
+
+### Backend (.env.example)
+\`\`\`env
+PORT=3001
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASS=
+DB_NAME=sislab
+JWT_SECRET=troque_por_chave_forte_aqui
+JWT_EXPIRES_IN=7d
+
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=sislab.fatec@gmail.com
+SMTP_PASS=app_password_aqui
+EMAIL_FROM="SisLab Fatec ZL <sislab.fatec@gmail.com>"
+\`\`\`
+
+### Frontend (.env.example)
+\`\`\`env
+REACT_APP_API_URL=http://localhost:3001/api
+\`\`\`
+
+## Credenciais Padrão (seed)
+| Role | Email | Senha |
+|------|-------|-------|
+| ADMIN | admin@fatec.sp.gov.br | admin123 |
+
+> ⚠️ Trocar a senha do ADMIN antes de qualquer uso em produção.
+
+## Arquitetura do Backend
+\`\`\`
+src/
+├── controllers/      # Receber req, delegar para Service, devolver res
+├── services/         # Regras de negócio
+├── repositories/     # Queries SQL (acesso a dados)
+├── middlewares/      # auth, authorize, errorHandler
+├── routes/           # Definição de rotas
+├── events/           # EventBus + listeners de notificação
+├── emails/           # Templates HTML de email
+├── utils/            # RecurrenceHelper, statusValidator
+└── database/         # Configuração de conexão MySQL
+\`\`\`
+
+## Executar Testes
+\`\`\`bash
+# Backend
+cd backend
+npm test                  # Unitários + Integração
+npm run test:coverage     # Com relatório de cobertura
+
+# Frontend
+cd frontend
+npm test                  # Componentes (React Testing Library)
+\`\`\`
+
+## Documentação da API
+Com o backend rodando, acessar:
+\`\`\`
+http://localhost:3001/api-docs
+\`\`\`
+
+## Fases de Desenvolvimento
+| Fase | Descrição | Status |
+|------|-----------|--------|
+| 1 | Autenticação e JWT | ✅ |
+| 2 | CRUDs de Configuração | ✅ |
+| 3 | Ciclos e Feriados | ✅ |
+| 4 | Reservas Simples | ✅ |
+| 5 | Reservas Recorrentes + Aprovações | ✅ |
+| 6 | Sobrescrita e Auditoria | ✅ |
+| 7 | Notificações por Email | ✅ |
+| 8 | Calendário e Dashboard | ✅ |
+| 9 | Refinamentos e Exportação | ✅ |
+| 10 | Testes e Documentação | ✅ |
+```
+
+---
+
+**2. swagger/swagger.js (gerador automático):**
+```javascript
+const swaggerAutogen = require('swagger-autogen')();
+
+const doc = {
+  info: {
+    title: 'SisLab API',
+    version: '1.0.0',
+    description: 'API do Sistema de Reserva de Laboratórios — Fatec Zona Leste'
+  },
+  host: 'localhost:3001',
+  basePath: '/api',
+  securityDefinitions: {
+    bearerAuth: {
+      type: 'apiKey',
+      in: 'header',
+      name: 'Authorization',
+      description: 'Bearer {token}'
+    }
+  },
+  tags: [
+    { name: 'Auth', description: 'Autenticação' },
+    { name: 'Users', description: 'Gestão de usuários' },
+    { name: 'Laboratories', description: 'Gestão de laboratórios' },
+    { name: 'TimeSlots', description: 'Gestão de horários' },
+    { name: 'AcademicCycles', description: 'Ciclos acadêmicos' },
+    { name: 'Holidays', description: 'Feriados' },
+    { name: 'Reservations', description: 'Reservas' },
+    { name: 'Audit', description: 'Logs de auditoria' }
+  ]
+};
+
+const outputFile = './swagger/swagger_output.json';
+const endpointsFiles = ['./src/app.js'];
+
+swaggerAutogen(outputFile, endpointsFiles, doc);
+```
+
+**Anotações nos controllers (exemplo):**
+```javascript
+// Adicionar nos controllers para enriquecer a documentação gerada
+
+async create(req, res) {
+  /*
+    #swagger.tags = ['Reservations']
+    #swagger.summary = 'Criar reserva simples ou recorrente'
+    #swagger.security = [{ bearerAuth: [] }]
+    #swagger.parameters['body'] = {
+      in: 'body',
+      required: true,
+      schema: {
+        type: 'SIMPLE',
+        lab_id: 1,
+        date: '2026-03-10',
+        time_slot_ids: [1, 2]
+      }
+    }
+    #swagger.responses[201] = { description: 'Reserva criada' }
+    #swagger.responses[400] = { description: 'Conflito ou validação' }
+    #swagger.responses[401] = { description: 'Não autenticado' }
+  */
+}
+```
+
+**Registrar Swagger no app.js:**
+```javascript
+const swaggerUi = require('swagger-ui-express');
+const swaggerFile = require('./swagger/swagger_output.json');
+
+// Após as rotas da API:
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
+```
+
+**package.json (adicionar script):**
+```json
+{
+  "scripts": {
+    "swagger": "node swagger/swagger.js"
+  }
+}
+```
+
+---
+
+**3. Postman Collection (sislab.postman_collection.json):**
+- [ ] Exportar collection com todas as pastas organizadas por recurso:
+  - Auth (register, login)
+  - Users (pending, approve, reject, me, me/password)
+  - Laboratories (CRUD)
+  - TimeSlots (CRUD)
+  - AcademicCycles (CRUD + activate)
+  - Holidays (list, create, delete)
+  - Reservations (create, my, pending, approve, reject, redirect, overwrite, bulk, check-conflict, calendar, stats, export)
+  - Audit (by record, by user)
+- [ ] Environment: `sislab_local` com variáveis:
+  ```json
+  {
+    "base_url": "http://localhost:3001/api",
+    "token_admin": "",
+    "token_professor": "",
+    "lab_id": "",
+    "cycle_id": ""
+  }
+  ```
+- [ ] Scripts de pré-request nos endpoints de login para salvar token automaticamente:
+  ```javascript
+  // No teste de POST /auth/login:
+  pm.test('Login OK', function() {
+    pm.response.to.have.status(200);
+    const json = pm.response.json();
+    pm.environment.set('token_admin', json.token);
+  });
+  ```
+
+**Critérios de Aceite:**
+- [ ] `npm run swagger` gera `swagger_output.json` sem erros
+- [ ] Swagger UI acessível em `http://localhost:3001/api-docs`
+- [ ] Todos os endpoints documentados com tags, parâmetros e responses
+- [ ] README contém todos os passos de instalação e consegue onboardar novo dev sem suporte
+- [ ] Collection Postman importável com um clique, environment pré-configurado
+- [ ] Scripts de login na collection salvam token automaticamente nas variáveis
+
+**Status:** 🔴 PENDENTE  
+**Responsável:** Kaique  
+**Depende de:** F10-BE-02, F10-FE-01
+
+---
+
+## 🔹 Teste Final de Fase
+
+### [F10-INT-01] Teste de Integração da FASE 10
+
+**Descrição:**  
+Validar cobertura de testes, qualidade da documentação e executar rodada final de smoke tests com tudo integrado.
+
+**Checklist de Testes:**
+
+**Cenário 1: Cobertura de Testes Backend**
+- [ ] 1. Rodar `npm run test:coverage` no backend
+- [ ] 2. Verificar relatório: statements ≥ 70%, branches ≥ 70%, functions ≥ 70%, lines ≥ 70%
+- [ ] 3. Nenhum teste falhando
+- [ ] 4. Verificar que testes de integração usam `sislab_test`, não o banco de dev
+- [ ] 5. Teste de performance: check-conflict responde < 500ms
+
+**Cenário 2: Testes Frontend**
+- [ ] 1. Rodar `npm test` no frontend
+- [ ] 2. Todos os testes passam sem warnings de deprecação
+- [ ] 3. LoginPage: 4 testes ✓
+- [ ] 4. CreateReservationPage: 4 testes ✓
+- [ ] 5. NotificationContext: 3 testes ✓
+
+**Cenário 3: Documentação**
+- [ ] 1. Clonar repositório em pasta limpa, seguir README do zero
+- [ ] 2. Backend sobe sem erros após seguir o guia
+- [ ] 3. Frontend conecta à API sem configuração extra
+- [ ] 4. Swagger UI em /api-docs exibe todos os endpoints organizados por tag
+- [ ] 5. Importar collection Postman → fazer login e salvar token automaticamente
+- [ ] 6. Executar 3 requests da collection com token → todas retornam 200/201
+
+**Cenário 4: Smoke Test Final de Todo o Sistema**
+- [ ] 1. Registro e aprovação de professor
+- [ ] 2. Criação e ativação de ciclo + feriados
+- [ ] 3. Reserva simples → APPROVED
+- [ ] 4. Reserva recorrente → PENDING → email para ADMIN → ADMIN aprova → email para professor
+- [ ] 5. Sobrescrita → email para professor afetado → audit_log
+- [ ] 6. Bulk cancel → reservas canceladas
+- [ ] 7. Exportar CSV → abre corretamente
+- [ ] 8. Dashboard exibe métricas corretas
+- [ ] 9. Calendário reflete todas as reservas
+- [ ] 10. Perfil: editar nome + trocar senha → login com nova senha funciona
+
+**Critérios de Aceite Final (Todo o SisLab):**
+- [ ] Cobertura de testes backend ≥ 70%
+- [ ] Todos os testes (unitários, integração, componentes) passam
+- [ ] README onboarda novo desenvolvedor sem suporte adicional
+- [ ] Swagger documenta 100% dos endpoints
+- [ ] Collection Postman exportável e funcional
+- [ ] Smoke test completo (10 passos) sem nenhum bug
+- [ ] Nenhum console.error ou erro 500 em nenhum fluxo
+- [ ] **SisLab pronto para apresentação e entrega**
+
+**Status:** 🔴 PENDENTE  
+**Responsável:** Kaique  
+**Depende de:** Todas as tasks F10-* concluídas
 
 ## 📊 RESUMO DE REQUISITOS FUNCIONAIS
 

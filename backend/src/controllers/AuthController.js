@@ -1,5 +1,4 @@
 import AuthService from '../services/AuthService.js';
-import CreateUserDTO from '../dtos/CreateUserDTO.js';
 
 
 /**

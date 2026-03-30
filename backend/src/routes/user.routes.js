@@ -1,11 +1,14 @@
 import { Router } from 'express';
 import UserController from '../controllers/UserController.js';
-import { verifyToken, authorize } from '../middlewares/auth.middleware.js';
+import { authMiddleware, requireRole } from '../middlewares/auth.middleware.js';
+import validateRequest from '../middlewares/validateRequest.js';
+import UserApprovalDTO from '../dtos/UserApprovalDTO.js';
 
 const router = Router();
 
-router.get('/pending', verifyToken, authorize(['ADMIN']), UserController.getPending);
-router.put('/:id/approve', verifyToken, authorize(['ADMIN']), UserController.approve);
-router.put('/:id/reject', verifyToken, authorize(['ADMIN']), UserController.reject);
+
+router.get('/pending', authMiddleware, requireRole(['ADMIN']), UserController.getPending);
+router.patch('/:id/approve', authMiddleware, requireRole(['ADMIN']), UserController.approve);
+router.patch('/:id/reject', authMiddleware, requireRole(['ADMIN']), validateRequest(UserApprovalDTO.rejectSchema), UserController.reject);
 
 export default router;

@@ -32,7 +32,7 @@ class timeSlotRepository {
 
     async update(id, data){
         const query = `
-        UPDATE time_slot
+        UPDATE time_slots
         SET name = ?,
         start_time = ?,
         end_time = ?
@@ -46,7 +46,7 @@ class timeSlotRepository {
 
     async softDelete(id){
         const query = `
-        UPDATE time_slot
+        UPDATE time_slots
         SET is_active = false
         WHERE id = ?
         `;
@@ -67,3 +67,5 @@ class timeSlotRepository {
         return rows[0].count > 0;
     }
 }
+
+export default new timeSlotRepository();
