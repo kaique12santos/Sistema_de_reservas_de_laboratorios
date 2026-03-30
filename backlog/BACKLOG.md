@@ -1410,15 +1410,15 @@ export const academicCycleService = {
 ```
 
 **Critérios de Aceite:**
-- [ ] DataGrid carrega ciclos ao montar
-- [ ] Chip colorido diferencia ciclo ativo dos demais
-- [ ] Criar novo ciclo → aparece na lista como inativo
+- [x] DataGrid carrega ciclos ao montar
+- [x] Chip colorido diferencia ciclo ativo dos demais
+- [x] Criar novo ciclo → aparece na lista como inativo
 - [ ] Não pode criar com nome duplicado (erro via toast)
 - [ ] Não pode criar com datas inválidas (validação frontend + backend)
-- [ ] Ativar ciclo → chip do antigo vira cinza, novo vira verde
-- [ ] Confirmação antes de ativar
+- [x] Ativar ciclo → chip do antigo vira cinza, novo vira verde
+- [x] Confirmação antes de ativar
 - [ ] Apenas ADMIN acessa (router protect)
-- [ ] Responsivo
+- [x] Responsivo
 
 **Status:** 🔴 PENDENTE  
 **Responsável:** -  

@@ -14,6 +14,7 @@ import RoleRoute from '../components/RoleRouter';
 import PendingUsersPage from '../pages/Coordenador/PendingUsersPage';
 import ManageLaboratoriesPage from '../pages/Coordenador/ManageLaboratoriesPage';
 import TimeSlotsPage from '../pages/Coordenador/TimeSlotsPage';
+import AcademicCyclesPage from '../pages/Coordenador/AcademicCyclesPage';
 
 // Componente para proteger rotas privadas
 const PrivateRoute = ({ children }) => {
@@ -69,6 +70,7 @@ const AppRoutes = () => {
           <Route path="/gestao-cadastros" element={<PendingUsersPage />} />
           <Route path="/gestao-laboratorios" element={<ManageLaboratoriesPage />} />
           <Route path="/gestao-horarios" element={<TimeSlotsPage />} />
+          <Route path="/gestao-ciclos" element={<AcademicCyclesPage />} />
           {/* Futura tela de aprovação de reservas */}
           {/* <Route path="/gestao-reservas" element={<AprovarReservasPage />} /> */}
         </Route>
