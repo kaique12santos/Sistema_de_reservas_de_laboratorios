@@ -79,13 +79,20 @@ export default function TimeSlotsPage() {
     setLoading(true);
     try {
       const data = await timeSlotService.getAll();
+      
+      // AJUSTE 1: Lendo 'start_time' vindo do banco para evitar Crash
       const sorted = [...data].sort((a, b) => {
-        const toMin = (t) => { if (!t) return 0; const [h, m] = t.split(':').map(Number); return h * 60 + m; };
-        return toMin(a.startTime) - toMin(b.startTime);
+        const toMin = (t) => { 
+          if (!t) return 0; 
+          const [h, m] = t.split(':').map(Number); 
+          return h * 60 + m; 
+        };
+        return toMin(a.start_time) - toMin(b.start_time);
       });
       setSlots(sorted);
-    } catch {
-      setNotify({ open: true, message: 'Erro ao carregar horários.', severity: 'error' });
+    } catch (error) {
+      const errMsg = error.response?.data?.error || 'Erro ao carregar horários.';
+      setNotify({ open: true, message: errMsg, severity: 'error' });
     } finally {
       setLoading(false);
     }
@@ -94,14 +101,23 @@ export default function TimeSlotsPage() {
   useEffect(() => { load(); }, [load]);
 
   const handleSave = async (data) => {
-    if (editingSlot) {
-      await timeSlotService.update(editingSlot.id, data);
-      setNotify({ open: true, message: `Horário ${data.name} atualizado!`, severity: 'success' });
-    } else {
-      await timeSlotService.create(data);
-      setNotify({ open: true, message: `Horário ${data.name} criado!`, severity: 'success' });
+    // AJUSTE 2: Bloco Try/Catch para segurar os erros de validação do Backend
+    try {
+      if (editingSlot) {
+        await timeSlotService.update(editingSlot.id, data);
+        setNotify({ open: true, message: `Horário ${data.name} atualizado!`, severity: 'success' });
+      } else {
+        await timeSlotService.create(data);
+        setNotify({ open: true, message: `Horário ${data.name} criado!`, severity: 'success' });
+      }
+      await load();
+      setFormOpen(false); // Fecha o modal se o componente filho não fechar sozinho
+    } catch (error) {
+      // Pega o erro de regra de negócio (ex: start_time < end_time) ou erro do Zod
+      const errMsg = error.response?.data?.error || error.response?.data?.errors?.[0]?.message || 'Erro ao salvar horário.';
+      setNotify({ open: true, message: errMsg, severity: 'error' });
+      throw error; // Lança o erro para o TimeSlotFormModal saber que falhou e parar o loading spinner dele
     }
-    await load();
   };
 
   const openCreate = () => { setEditingSlot(null); setFormOpen(true); };
@@ -117,7 +133,8 @@ export default function TimeSlotsPage() {
       setNotify({ open: true, message: `Horário ${deleteDialog.slot.name} inativado.`, severity: 'info' });
       await load();
     } catch (err) {
-      setDeleteError(err?.response?.data?.message || 'Não foi possível inativar. Pode haver reservas futuras vinculadas.');
+      // AJUSTE 3: Lendo o '.error' padrão da nossa API
+      setDeleteError(err?.response?.data?.error || 'Não foi possível inativar. Pode haver reservas futuras vinculadas.');
     } finally {
       setActionLoading(false);
     }
@@ -186,13 +203,13 @@ export default function TimeSlotsPage() {
                     <TableCell>
                       <Typography variant="body1" sx={{ fontWeight: 'bold' }}>{slot.name}</Typography>
                     </TableCell>
-                    <TableCell>{slot.startTime || '—'}</TableCell>
-                    <TableCell>{slot.endTime || '—'}</TableCell>
+                    <TableCell>{slot.start_time || '—'}</TableCell>
+                    <TableCell>{slot.end_time || '—'}</TableCell>
                     <TableCell>
                       <Chip
-                        label={slot.active !== false ? 'Ativo' : 'Inativo'}
+                        label={slot.is_active !== false ? 'Ativo' : 'Inativo'}
                         size="small"
-                        color={slot.active !== false ? 'success' : 'default'}
+                        color={slot.is_active !== false ? 'success' : 'default'}
                         variant="outlined"
                       />
                     </TableCell>

@@ -932,12 +932,12 @@ Validar que todos os CRUDs funcionam end-to-end.
 - [x] 8. PROFESSOR tenta criar lab → 403 bloqueado
 
 **Cenário 3: Gestão de Horários**
-- [ ] 1. ADMIN cria horário "M5" (11:00-11:50)
-- [ ] 2. Horário aparece na lista
-- [ ] 3. Tentar criar horário com início 12:00 e fim 11:00 → erro
-- [ ] 4. Editar M5 para 11:10-12:00 → atualiza
-- [ ] 5. Deletar M5 (sem reservas) → inativa
-- [ ] 6. PROFESSOR tenta criar horário → 403
+- [x] 1. ADMIN cria horário "M5" (11:00-11:50)
+- [x] 2. Horário aparece na lista
+- [x] 3. Tentar criar horário com início 12:00 e fim 11:00 → erro
+- [x] 4. Editar M5 para 11:10-12:00 → atualiza
+- [x] 5. Deletar M5 (sem reservas) → inativa
+- [x] 6. PROFESSOR tenta criar horário → 403
 
 **Cenário 4: Proteção de Rotas**
 - [x] 1. Tentar acessar /admin/pending-users sem login → 401
@@ -945,12 +945,12 @@ Validar que todos os CRUDs funcionam end-to-end.
 - [x] 3. Login como ADMIN → todas rotas permitidas
 
 **Critérios de Aceite:**
-- [ ] Todos os 4 cenários passam sem bugs
-- [ ] Nenhum console.error no frontend
-- [ ] Nenhum erro 500 no backend
-- [ ] Pronto para avançar para FASE 3
+- [x] Todos os 4 cenários passam sem bugs
+- [x] Nenhum console.error no frontend
+- [x] Nenhum erro 500 no backend
+- [x] Pronto para avançar para FASE 3
 
-**Status:** 🔴 PENDENTE  
+**Status:** ✅ Concluído 
 **Responsável:** Kaique  
 **Depende de:** Todas as tasks F2-* concluídas
 
