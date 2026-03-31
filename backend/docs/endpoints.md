@@ -490,3 +490,115 @@ Aqui está a documentação atualizada para o `endpoints.md`, seguindo o modelo 
 - `403 Forbidden` (Acesso negado)
 
 ```
+
+---
+
+## Ciclos Acadêmicos
+
+### GET /api/academic-cycles
+**Descrição:** Retorna a lista de todos os semestres letivos cadastrados no sistema, ordenados do mais recente para o mais antigo.
+**Resposta de Sucesso:** `200 OK`
+**Exemplo de Retorno:**
+```json
+[
+  {
+    "id": 2,
+    "name": "2026-2",
+    "start_date": "2026-08-01T00:00:00.000Z",
+    "end_date": "2026-12-15T00:00:00.000Z",
+    "admin_exclusive_end_date": "2026-07-25T00:00:00.000Z",
+    "is_active": false
+  },
+  {
+    "id": 1,
+    "name": "2026-1",
+    "start_date": "2026-02-01T00:00:00.000Z",
+    "end_date": "2026-06-30T00:00:00.000Z",
+    "admin_exclusive_end_date": "2026-01-25T00:00:00.000Z",
+    "is_active": true
+  }
+]
+```
+
+---
+
+### `GET /api/academic-cycles/active`
+**Descrição:** Retorna exclusivamente o ciclo acadêmico que está ativo no momento para recebimento de reservas.  
+**Resposta de Sucesso:** `200 OK`  
+**Resposta de Erro:** `404 Not Found` (Se não houver ciclo ativo).
+
+---
+
+### `POST /api/academic-cycles/generate` 
+> **Apenas ADMIN**
+
+**Descrição:** Rota de automação (Motor). Calcula qual deve ser o próximo semestre, gera as datas padrão letivas da Fatec ZL, insere no banco (inativo por padrão) e dispara a sincronização automática de feriados na BrasilAPI para o período gerado.  
+**Corpo da Requisição:** Vazio.  
+**Resposta de Sucesso:** `201 Created`
+
+**Exemplo de Retorno:**
+```json
+{
+  "message": "Ciclo 2026-1 gerado com sucesso!",
+  "cycle": {
+    "id": 1,
+    "name": "2026-1",
+    "start_date": "2026-02-01",
+    "end_date": "2026-06-30",
+    "admin_exclusive_end_date": "2026-01-25",
+    "is_active": false
+  },
+  "holidays_synced": 14
+}
+```
+
+---
+
+### `PUT /api/academic-cycles/:id/activate`
+> **Apenas ADMIN**
+
+**Descrição:** Ativa um ciclo acadêmico específico e desativa todos os outros automaticamente.  
+**Resposta de Sucesso:** `200 OK`
+
+---
+
+## Feriados e Recessos
+
+### `GET /api/holidays`
+**Descrição:** Retorna a lista de feriados bloqueados. Se nenhum `cycle_id` for passado, retorna os feriados do ciclo ativo atual.  
+**Parâmetros de Consulta (Opcional):**
+* `cycle_id=1` - Filtra os feriados de um ciclo específico.
+
+**Resposta de Sucesso:** `200 OK`
+
+**Exemplo de Retorno:**
+```json
+[
+  {
+    "id": 1,
+    "cycle_id": 1,
+    "date": "2026-02-17T00:00:00.000Z",
+    "description": "Carnaval"
+  },
+  {
+    "id": 2,
+    "cycle_id": 1,
+    "date": "2026-04-03T00:00:00.000Z",
+    "description": "Paixão de Cristo"
+  }
+]
+```
+
+---
+
+### `POST /api/holidays/sync`
+> **Apenas ADMIN**
+
+**Descrição:** Força a ressincronização dos feriados de um ciclo específico com a BrasilAPI e com as regras institucionais (wipe & load).  
+**Corpo da Requisição (JSON):**
+```json
+{
+  "cycle_id": 1
+}
+```
+**Resposta de Sucesso:** `200 OK`

@@ -128,3 +128,9 @@ O endpoint agora bloqueia acessos de contas com status `PENDING` e `REJECTED` an
 - **Autor:** Nicole Lisboa
 **Impacto:** Criação da estrutura completa nos arquivos `TimeSlotRepository.js` `TimeSlotService.js`, `TimeSlotController.js` e `routes/timeSlot.routes.js`. 
 -Implementação das rotas `GET`, `POST`, `PUT` e `DELETE` em `/api/time-slots` com integração com middleware de autencação e autorização (verifyToken, authorize).
+
+## [31/03/2026]
+### 1. Motor de Geração Automática de Ciclos e Feriados [F3-BE-AUTO]
+- **Descrição:** Substituição dos CRUDs manuais de Semestres e Feriados por um motor de automação. O sistema agora prevê e gera o próximo semestre letivo (com datas baseadas no calendário da Fatec ZL) e sincroniza automaticamente os feriados nacionais, estaduais e recessos institucionais utilizando a BrasilAPI.
+- **Autor:** Kaique Caitano
+- **Impacto:** Alterações profundas nos fluxos de `AcademicCycleService` e `HolidayService`. Criação da rota automatizada `POST /api/academic-cycles/generate`. Inclusão dos módulos nas rotas principais do servidor (`app.js`).
