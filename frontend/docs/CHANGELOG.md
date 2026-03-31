@@ -236,3 +236,8 @@
   - **Estado Vazio:** Mensagem amigável quando nenhum feriado está cadastrado para o ciclo.
   - **Camada de Serviço:** Criação do `holiday.service.js` com os métodos `getByCycle`, `create`, `update` e `delete`.
 - **Autor:** - Luiz 
+
+## [31/03/2026]
+### 1. Refatoração UI/UX e Integração do Motor de Ciclos e Feriados [F3-FE-AUTO]
+- **Descrição:** Remoção de modais, estados locais e formulários complexos para criação e edição manual de Semestres Letivos e Feriados. A interface foi totalmente refatorada para um padrão de listagem simplificada (Read-Only), guiada por automação. Foram introduzidos os botões de ação única "Gerar Próximo Semestre" e "Ressincronizar Feriados", conectados diretamente ao novo motor do backend.
+- **Autor:** Kaique Caitano

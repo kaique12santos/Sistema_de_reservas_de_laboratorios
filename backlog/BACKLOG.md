@@ -1137,8 +1137,8 @@ router.put('/:id/activate', verifyToken, authorize(['ADMIN']), AcademicCycleCont
   - [ ] Tentar criar com datas inválidas (deve falhar)
   - [ ] Tentar ativar ciclo já ativo (deve falhar)
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** ✅ Concluído  
+**Responsável:** Kaique
 **Depende de:** F1-BE-04
 
 ---
@@ -1270,8 +1270,8 @@ router.delete('/:id', verifyToken, authorize(['ADMIN']), HolidayController.destr
   - [ ] Deletar feriado futuro
   - [ ] Tentar deletar feriado passado (deve falhar)
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** ✅ Concluído  
+**Responsável:** Kaique
 **Depende de:** F3-BE-01
 
 ---
@@ -1420,8 +1420,8 @@ export const academicCycleService = {
 - [ ] Apenas ADMIN acessa (router protect)
 - [x] Responsivo
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** ✅ Concluído  
+**Responsável:** Luiz
 **Depende de:** F3-BE-01
 
 ---
@@ -1540,8 +1540,8 @@ export const holidayService = {
 - [x] Apenas ADMIN acessa
 - [x] Responsivo
 
-**Status:** 🟢 entregue
-**Responsável:** -  
+**Status:** 🟢 Concluido
+**Responsável:** Luiz
 **Depende de:** F3-BE-02, F3-FE-01
 
 ---

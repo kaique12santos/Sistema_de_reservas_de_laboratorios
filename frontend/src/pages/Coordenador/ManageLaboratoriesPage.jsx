@@ -17,7 +17,7 @@ import LoadingOverlay from '../../components/LoadingOverlay';
 import Toast from '../../utils/Toast';
 
 import { laboratoryService } from '../../services/laboratory.service';
-import LaboratoryFormModal from './LaboratoryFormModal';
+import LaboratoryFormModal from '../../components/LaboratoryFormModal';
 
 const ManageLaboratoriesPage = () => {
   const [labs, setLabs] = useState([]);
