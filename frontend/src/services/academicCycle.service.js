@@ -1,29 +1,33 @@
-// Mock temporário — apaga quando o backend estiver pronto
-let db = [
-  { id: 1, name: '2025-2', startDate: '2025-07-01', endDate: '2025-12-20', coordEndDate: '2025-07-07', active: false },
-  { id: 2, name: '2026-1', startDate: '2026-02-01', endDate: '2026-06-30', coordEndDate: '2026-02-07', active: true },
-  { id: 3, name: '2026-2', startDate: '2026-07-01', endDate: '2026-12-20', coordEndDate: '2026-07-07', active: false },
-];
+import api from './api'; 
 
-export const academicCycleService = {
+class AcademicCycleService {
+  /**
+   * Lista todos os ciclos acadêmicos do backend
+   * @returns {Promise<Array>}
+   */
   async getAll() {
-    return [...db];
-  },
-  async create(data) {
-    const novo = { ...data, id: Date.now(), active: false };
-    db.push(novo);
-    return novo;
-  },
-  async update(id, data) {
-    db = db.map(c => c.id === id ? { ...c, ...data } : c);
-    return db.find(c => c.id === id);
-  },
-  async delete(id) {
-    db = db.filter(c => c.id !== id);
-    return { ok: true };
-  },
-  async activate(id) {
-    db = db.map(c => ({ ...c, active: c.id === id }));
-    return db.find(c => c.id === id);
+    const response = await api.get('/academic-cycles');
+    return response.data;
   }
-};
+
+  /**
+   * 🚀 Dispara o Motor de Automação que cria o próximo semestre e puxa os feriados
+   * @returns {Promise<Object>}
+   */
+  async generate() {
+    const response = await api.post('/academic-cycles/generate');
+    return response.data;
+  }
+
+  /**
+   * Ativa um ciclo específico e desativa os demais
+   * @param {number|string} id 
+   * @returns {Promise<Object>}
+   */
+  async activate(id) {
+    const response = await api.put(`/academic-cycles/${id}/activate`);
+    return response.data;
+  }
+}
+
+export const academicCycleService = new AcademicCycleService();

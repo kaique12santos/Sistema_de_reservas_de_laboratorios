@@ -1,19 +1,26 @@
-let db = [
-  { id: 1, academic_cycle_id: 2, date: '2026-04-21', description: 'Tiradentes' },
-  { id: 2, academic_cycle_id: 2, date: '2026-05-01', description: 'Dia do Trabalho' },
-];
+import api from './api'; 
 
-export const holidayService = {
+class HolidayService {
+  /**
+   * Busca os feriados (Se não passar o ID, o backend já traz do ciclo ativo padrão)
+   * @param {number|string} [cycleId] - Opcional
+   * @returns {Promise<Array>}
+   */
   async getByCycle(cycleId) {
-    return db.filter(h => h.academic_cycle_id === cycleId);
-  },
-  async create(data) {
-    const novo = { ...data, id: Date.now() };
-    db.push(novo);
-    return novo;
-  },
-  async delete(id) {
-    db = db.filter(h => h.id !== id);
-    return { ok: true };
+    const url = cycleId ? `/holidays?cycle_id=${cycleId}` : '/holidays';
+    const response = await api.get(url);
+    return response.data;
   }
-};
+
+  /**
+   * ♻️ Força a sincronização dos feriados de um ciclo com a BrasilAPI
+   * @param {number|string} cycleId 
+   * @returns {Promise<Object>}
+   */
+  async sync(cycleId) {
+    const response = await api.post('/holidays/sync', { cycle_id: cycleId });
+    return response.data;
+  }
+}
+
+export const holidayService = new HolidayService();

@@ -31,14 +31,11 @@ class AuthService {
     return response.data;
   }
 
-  // ✅ NOVO MÉTODO (Tela Esqueci a Senha)
   async forgotPassword({ email }) {
     const response = await api.post('/auth/forgot-password', { email });
     return response.data;
   }
 
-  // ✅ CORRIGIDO MÉTODO (Tela Nova Senha)
-  // Adicionado as chaves { token, password } para receber o objeto enviado pela página
   async resetPassword({ token, password }) {
     const response = await api.post('/auth/reset-password', {
       token,
