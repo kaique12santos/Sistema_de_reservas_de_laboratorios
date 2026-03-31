@@ -19,6 +19,7 @@ import RuleIcon from '@mui/icons-material/Rule';
 import LayersIcon from '@mui/icons-material/Layers';
 import EditIcon from '@mui/icons-material/Edit';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 // Ícones de Transição (Seta)
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -74,6 +75,7 @@ const BaseLayout = () => {
     { text: 'Aprovar Reservas', icon: <RuleIcon />, path: '/gestao-reservas', roles: ['ADMIN'] },
     { text: 'Equipamentos', icon: <BuildIcon />, path: '/equipamentos', roles: ['SUPORT', 'ADMIN'] },
     { text: 'Gestão de horários', icon: <AccessTimeIcon />, path: '/gestao-horarios', roles: [ 'ADMIN'] },
+    { text: 'Gestão de ciclos', icon: <CalendarMonthIcon />, path: '/gestao-ciclos', roles: ['ADMIN'] }, // ← nova linha
   ];
 
   const userRole = user?.role?.toUpperCase() || 'PROFESSOR';
