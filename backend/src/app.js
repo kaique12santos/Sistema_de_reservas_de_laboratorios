@@ -5,6 +5,8 @@ import departmentRoutes from './routes/department.routes.js';
 import laboratoryRoutes from './routes/laboratory.routes.js';
 import userRoutes from './routes/user.routes.js';
 import timeSlotRoutes from './routes/timeSlot.routes.js';
+import AcademicCycleRouter from './routes/academicCycle.routes.js';
+import holidayRouter from './routes/holiday.routes.js';
 
 class App {
   constructor() {
@@ -37,6 +39,8 @@ class App {
     this.server.use('/api/laboratories', laboratoryRoutes);
     this.server.use('/api/users', userRoutes);
     this.server.use('/api/time-slots', timeSlotRoutes);
+    this.server.use('/api/academic-cycles', AcademicCycleRouter);
+    this.server.use('/api/holidays', holidayRouter);
 
   }
 }
