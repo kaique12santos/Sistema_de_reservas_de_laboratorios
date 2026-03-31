@@ -209,3 +209,15 @@
   - **Formulários e Validação:** Criação do componente isolado `LaboratoryFormModal` para inserção e edição, com validação de campos obrigatórios e tipagem (ex: capacidade > 0).
   - **Tratamento de Regras de Negócio (Front-end):** Interceptação de erros específicos simulados no `laboratory.service.js` (ex: bloqueio de deleção de laboratórios com reservas ativas e verificação de nome duplicado), exibindo feedback claro via `Toast`.
 - **Autor:** Kaique Caitano
+
+## [30/03/2026]
+
+### 1. Gestão de Ciclos Acadêmicos [Task F3-FE-01]
+- **Descrição:** Desenvolvimento da interface administrativa para gerenciamento de ciclos acadêmicos (`AcademicCyclesPage`), exclusiva para coordenadores.
+  - **Listagem:** Tabela nativa do MUI com `StaggerItem` para entrada em cascata, exibindo Nome, Datas de Início/Fim, Fim do Período Exclusivo Coordenador e Status (Ativo/Inativo) com `Chip` colorido.
+  - **Formulário:** Criação do componente isolado `AcademicCycleFormModal` para inserção e edição, com validação de campos obrigatórios, verificação de nome duplicado, datas inválidas (início no passado, início ≥ fim, período exclusivo fora do intervalo do ciclo).
+  - **Ativar Ciclo:** Ação exclusiva com modal de confirmação. Ao ativar, o ciclo anterior é automaticamente desativado e o novo passa a ser o vigente.
+  - **Proteção de Deleção:** Botão de excluir desabilitado para o ciclo atualmente ativo, prevenindo inconsistências.
+  - **Camada de Serviço:** Criação do `academicCycle.service.js` com os métodos `getAll`, `create`, `update`, `delete` e `activate`.
+  - **Feedback:** Integração com o componente global `Toast` e `LoadingOverlay` para todas as ações assíncronas.
+- **Autor:** - Luiz 
