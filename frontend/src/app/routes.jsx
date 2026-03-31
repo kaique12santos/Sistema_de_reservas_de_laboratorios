@@ -15,6 +15,7 @@ import PendingUsersPage from '../pages/Coordenador/PendingUsersPage';
 import ManageLaboratoriesPage from '../pages/Coordenador/ManageLaboratoriesPage';
 import TimeSlotsPage from '../pages/Coordenador/TimeSlotsPage';
 import AcademicCyclesPage from '../pages/Coordenador/AcademicCyclesPage';
+import HolidaysPage from '../pages/Coordenador/HolidaysPage';
 
 // Componente para proteger rotas privadas
 const PrivateRoute = ({ children }) => {
@@ -71,6 +72,7 @@ const AppRoutes = () => {
           <Route path="/gestao-laboratorios" element={<ManageLaboratoriesPage />} />
           <Route path="/gestao-horarios" element={<TimeSlotsPage />} />
           <Route path="/gestao-ciclos" element={<AcademicCyclesPage />} />
+          <Route path="/gestao-feriados" element={<HolidaysPage />} />
           {/* Futura tela de aprovação de reservas */}
           {/* <Route path="/gestao-reservas" element={<AprovarReservasPage />} /> */}
         </Route>
