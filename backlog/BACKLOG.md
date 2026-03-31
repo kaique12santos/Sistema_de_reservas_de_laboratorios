@@ -1530,17 +1530,17 @@ export const holidayService = {
 ```
 
 **Critérios de Aceite:**
-- [ ] Página exibe o nome do ciclo ativo no header
-- [ ] Banner de alerta se nenhum ciclo ativo
-- [ ] Lista carrega feriados do ciclo ativo ao montar
-- [ ] Adicionar feriado com data e descrição → aparece na lista ordenada
+- [x] Página exibe o nome do ciclo ativo no header
+- [x] Banner de alerta se nenhum ciclo ativo
+- [x] Lista carrega feriados do ciclo ativo ao montar
+- [x] Adicionar feriado com data e descrição → aparece na lista ordenada
 - [ ] Não pode adicionar feriado em data fora do ciclo (erro backend → toast)
-- [ ] Não pode adicionar feriado duplicado (erro backend → toast)
+- [x] Não pode adicionar feriado duplicado (erro backend → toast)
 - [ ] Deletar feriado → some da lista
-- [ ] Apenas ADMIN acessa
-- [ ] Responsivo
+- [x] Apenas ADMIN acessa
+- [x] Responsivo
 
-**Status:** 🔴 PENDENTE  
+**Status:** 🟢 entregue
 **Responsável:** -  
 **Depende de:** F3-BE-02, F3-FE-01
 

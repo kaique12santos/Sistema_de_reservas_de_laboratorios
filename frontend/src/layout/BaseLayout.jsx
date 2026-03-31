@@ -23,6 +23,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 // Ícones de Transição (Seta)
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import BeachAccessIcon from '@mui/icons-material/BeachAccess';
 
 import { useAuth } from '../context/AuthContext';
 
@@ -71,11 +72,12 @@ const BaseLayout = () => {
     { text: 'Laboratórios', icon: <ScienceIcon />, path: '/laboratories', roles: ['PROFESSOR', 'ADMIN'] },
     { text: 'Gestão de Labs', icon: <EditIcon />, path: '/gestao-laboratorios', roles: ['ADMIN'] },
     { text: 'Minhas reservas', icon: <EventNoteIcon />, path: '/reservas', roles: ['PROFESSOR'] },
-    { text: 'Aprovar Cadastros', icon: <RuleIcon />, path: '/gestao-cadastros', roles: ['ADMIN'] }, // A tela nova
+    { text: 'Aprovar Cadastros', icon: <RuleIcon />, path: '/gestao-cadastros', roles: ['ADMIN'] }, 
     { text: 'Aprovar Reservas', icon: <RuleIcon />, path: '/gestao-reservas', roles: ['ADMIN'] },
     { text: 'Equipamentos', icon: <BuildIcon />, path: '/equipamentos', roles: ['SUPORT', 'ADMIN'] },
     { text: 'Gestão de horários', icon: <AccessTimeIcon />, path: '/gestao-horarios', roles: [ 'ADMIN'] },
-    { text: 'Gestão de ciclos', icon: <CalendarMonthIcon />, path: '/gestao-ciclos', roles: ['ADMIN'] }, // ← nova linha
+    { text: 'Gestão de ciclos', icon: <CalendarMonthIcon />, path: '/gestao-ciclos', roles: ['ADMIN'] }, 
+    { text: 'Gestão de feriados',  icon: <BeachAccessIcon />,  path: '/gestao-feriados', roles: ['ADMIN'] },
   ];
 
   const userRole = user?.role?.toUpperCase() || 'PROFESSOR';

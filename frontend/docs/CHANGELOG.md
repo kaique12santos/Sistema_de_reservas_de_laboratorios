@@ -221,3 +221,18 @@
   - **Camada de Serviço:** Criação do `academicCycle.service.js` com os métodos `getAll`, `create`, `update`, `delete` e `activate`.
   - **Feedback:** Integração com o componente global `Toast` e `LoadingOverlay` para todas as ações assíncronas.
 - **Autor:** - Luiz 
+
+
+## [31/03/2026]
+
+### 1. Gestão de Feriados [Task F3-FE-02]
+- **Descrição:** Desenvolvimento da interface administrativa para cadastro, edição e remoção de feriados vinculados ao ciclo ativo (`HolidaysPage`), exclusiva para coordenadores.
+  - **Header Dinâmico:** Exibe o nome do ciclo ativo no título ("Feriados — Ciclo 2026-1"). Caso nenhum ciclo esteja ativo, exibe um banner de alerta orientando o usuário a ativar um ciclo antes de prosseguir.
+  - **Formulário Inline:** Campos de Data (`type="date"`) e Descrição (opcional) com botão de adição rápida, sem necessidade de modal.
+  - **Validações de Duplicidade (Frontend):** Impede a criação de feriados com data já cadastrada no ciclo ou com descrição idêntica a um feriado existente, exibindo feedback via `Toast` antes de qualquer chamada à API.
+  - **Listagem:** Tabela com colunas de Data (formatada pt-BR), Dia da Semana (calculado no frontend via `Date`) e Descrição, ordenada por data crescente com animações de entrada via `StaggerItem`.
+  - **Edição:** Modal de edição (`Dialog`) com os mesmos campos do formulário inline, aplicando as mesmas validações de duplicidade e ignorando o próprio registro na comparação.
+  - **Deleção Rápida:** Remoção direta pelo ícone de lixeira, sem modal de confirmação, com feedback via `Toast`.
+  - **Estado Vazio:** Mensagem amigável quando nenhum feriado está cadastrado para o ciclo.
+  - **Camada de Serviço:** Criação do `holiday.service.js` com os métodos `getByCycle`, `create`, `update` e `delete`.
+- **Autor:** - Luiz 
