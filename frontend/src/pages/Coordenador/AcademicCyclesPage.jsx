@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Box, Typography, Button, Chip, IconButton, Tooltip,
+  Box, Typography, Button, Chip, Tooltip,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert,
-  Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
+  Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Switch
 } from '@mui/material';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -127,7 +128,7 @@ export default function AcademicCyclesPage() {
           </Box>
           <Button 
             variant="contained" 
-            color="secondary" // Uma cor diferente para dar destaque à automação
+            color="primary" // Uma cor diferente para dar destaque à automação
             startIcon={<AutoAwesomeIcon />} 
             onClick={handleGenerateNextCycle} 
             disableElevation 
@@ -159,7 +160,7 @@ export default function AcademicCyclesPage() {
                 </TableRow>
               ) : cycles.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
+                  <TableCell colSpan={6} align="center" sx={{ py: 6 }} >
                     <Typography variant="h6" color="text.secondary">
                       Nenhum ciclo acadêmico gerado ainda. Clique no botão acima para iniciar.
                     </Typography>
@@ -171,8 +172,8 @@ export default function AcademicCyclesPage() {
                     key={cycle.id}
                     component={TableRow}
                     index={index + 2}
-                    delayStep={0.08}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    delayStep={0.1}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0.0 } }}
                   >
                     <TableCell>
                       <Typography variant="body1" sx={{ fontWeight: 'bold' }}>{cycle.name}</Typography>
@@ -193,14 +194,22 @@ export default function AcademicCyclesPage() {
                       <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
                         {!cycle.is_active ? (
                           <Tooltip title="Ativar este ciclo">
-                            <IconButton size="small" color="success" onClick={() => openActivate(cycle)}>
-                              <CheckCircleIcon fontSize="small" />
-                            </IconButton>
+                            <Switch
+                              checked={false}
+                              onChange={() => openActivate(cycle)}
+                              color="success"
+                              size="small"
+                            />
                           </Tooltip>
                         ) : (
-                           <Typography variant="caption" color="success.main" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', height: '34px' }}>
-                             Atual
-                           </Typography>
+                          <Tooltip title="Ciclo vigente — não pode ser desativado">
+                            <Switch
+                              checked={true}
+                              color="success"
+                              size="small"
+                              disabled
+                            />
+                          </Tooltip>
                         )}
                       </Box>
                     </TableCell>
