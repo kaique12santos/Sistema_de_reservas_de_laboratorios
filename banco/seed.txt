@@ -1,44 +1,53 @@
 USE fatecZL_lab_reservations;
 
-SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE holidays; TRUNCATE TABLE reservation_items; TRUNCATE TABLE reservations;
-TRUNCATE TABLE users; TRUNCATE TABLE laboratories; TRUNCATE TABLE time_slots;
-TRUNCATE TABLE academic_cycles; TRUNCATE TABLE departments;
-SET FOREIGN_KEY_CHECKS = 1;
-
-INSERT INTO departments (id, name, code) VALUES 
-(1, 'Desenv. Software Multiplataforma', 'DSM'),
-(2, 'Gestão da Produção Industrial', 'GPI'),
-(3, 'Gestão Empresarial', 'GE');
-
 INSERT INTO academic_cycles (id, name, start_date, end_date, is_active) 
 VALUES (1, '2026-1', '2026-02-01', '2026-07-10', TRUE);
 
-INSERT INTO holidays (cycle_id, date, description) VALUES 
-(1, '2026-02-17', 'Carnaval'),
-(1, '2026-04-03', 'Páscoa'),
-(1, '2026-04-21', 'Tiradentes'),
-(1, '2026-05-01', 'Dia do Trabalho'),
-(1, '2026-06-04', 'Corpus Christi');
+INSERT INTO departments (name, code) VALUES
+('Análise e Desenvolvimento de Sistemas', 'ADS'),
+('Comércio Exterior', 'CE'), 
+('Desenvolvimento de Software Multiplataforma', 'DSM'),
+('Gestão da Produção Industrial', 'GPI'),
+('Logística', 'LG'),
+('Gestão Empresarial', 'GE'),
+('Departamento de Tecnologia da Informação', 'DTI'),
+('Diretoria de Serviços', 'DS'),
+('Direção', 'DI'),
+('Secretaria', 'SC'),
+('Coordenação', 'CO'),
+('Estágio', 'ES');
 
-INSERT INTO time_slots (id, name, start_time, end_time) VALUES 
-(1, 'M1', '07:30:00', '08:20:00'), 
-(2, 'M2', '08:20:00', '09:10:00'),
-(3, 'M3', '09:10:00', '10:00:00'),
-(4, 'M4', '10:10:00', '11:00:00'),
-(5, 'N1', '19:00:00', '19:50:00');
+
+-- senha:  senha1234
+INSERT INTO users (name, email, password_hash, role, status, department_id) VALUES 
+('Professor Teste 1', 'prof1@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'PROFESSOR', 'APPROVED', 1),
+('Professor Teste 2', 'prof2@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'PROFESSOR', 'APPROVED', 2),
+('Administrador Master', 'admin@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'ADMIN', 'APPROVED', 3);
+
+INSERT INTO time_slots (name, start_time, end_time) VALUES 
+('Manhã', '07:30:00', '08:20:00'),
+('Manhã', '08:20:00', '09:10:00'),
+('Manhã', '09:20:00', '10:10:00'),
+('Manhã', '11:00:00', '11:50:00'),
+('Manhã/Tarde', '11:50:00', '12:40:00'),
+('Tarde', '13:00:00', '13:50:00'),
+('Tarde', '13:50:00', '14:40:00'),
+('Tarde', '14:50:00', '15:40:00'),
+('Tarde', '15:40:00', '16:30:00'),
+('Tarde', '16:40:00', '17:30:00'),
+('Tarde', '17:30:00', '18:20:00'),
+('Noite', '19:20:00', '20:10:00'),
+('Noite', '20:10:00', '21:00:00'),
+('Noite', '21:10:00', '22:00:00'),
+('Noite', '22:00:00', '22:50:00');
+
 
 INSERT INTO laboratories (name, capacity, type, location) VALUES 
 ('Lab 01', 20, 'LABORATORIO', 'Bloco A'), 
 ('Lab 02', 20, 'LABORATORIO', 'Bloco A'),
 ('Auditório', 100, 'AUDITORIO', 'Bloco C');
 
-INSERT INTO users (name, email, password_hash, role, status, department_id) VALUES 
-('Admin', 'admin@fatec.sp.gov.br', 'admin123', 'ADMIN', 'ACTIVE', 3),
-('Professor Teste 1', 'prof1@fatec.sp.gov.br', 'senha123', 'PROFESSOR', 'ACTIVE', 1),
-('Professor Teste 2', 'prof2@fatec.sp.gov.br', 'senha123', 'PROFESSOR', 'ACTIVE', 2);
 
----------------------------------------------------------
 USE fatecZL_lab_reservations;
 CREATE OR REPLACE VIEW view_calendario_reservas AS
 SELECT ri.date, ts.name AS horario, l.name AS lab, u.name AS professor, d.code AS depto
@@ -50,7 +59,3 @@ JOIN users u ON r.user_id = u.id
 LEFT JOIN departments d ON u.department_id = d.id
 WHERE ri.status = 'ACTIVE';
 
--- [F1-BD-01] BLOCO DE LIMPEZA DE DADOS
-USE fatecZL_lab_reservations;
-
--- Desativa verificações para permitir o TRUNCATE em tabelas relacionadas

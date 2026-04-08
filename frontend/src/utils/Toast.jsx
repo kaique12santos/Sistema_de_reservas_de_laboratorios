@@ -16,8 +16,8 @@ const Toast = ({ open, handleClose, message, severity = "success" }) => {
           maxWidth: '400px', // A "parede" que impede o Toast de vazar pela tela
           boxShadow: 3,
           '& .MuiAlert-message': {
-            wordBreak: 'break-word', // Garante que textos longos quebrem de linha
-            lineHeight: 1.4 // Dá um respiro entre as linhas para facilitar a leitura
+            wordBreak: 'break-word', 
+            lineHeight: 1.4 
           }
         }}
       >

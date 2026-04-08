@@ -241,3 +241,21 @@
 ### 1. Refatoração UI/UX e Integração do Motor de Ciclos e Feriados [F3-FE-AUTO]
 - **Descrição:** Remoção de modais, estados locais e formulários complexos para criação e edição manual de Semestres Letivos e Feriados. A interface foi totalmente refatorada para um padrão de listagem simplificada (Read-Only), guiada por automação. Foram introduzidos os botões de ação única "Gerar Próximo Semestre" e "Ressincronizar Feriados", conectados diretamente ao novo motor do backend.
 - **Autor:** Kaique Caitano
+
+## [07/04/2026]
+### 1. Implementação do Dark Mode e Padronização de Tema (MUI)
+**Descrição:** Criação de um ThemeContext dinâmico envelopando a aplicação para alternância de temas (Light/Dark). Refatoração completa do arquivo theme.js implementando uma paleta customizada e cores semânticas (como custom.sectionTitle). Remoção de cores hexadecimais inline (chumbadas) nos layouts (BaseLayout, DashboardPage) para permitir a herança correta do Material UI, além da substituição de sombras manuais opacas por elevações nativas (elevation={1}).
+
+**Autor:** Kaique Caitano
+
+### 2. Blindagem de Autenticação e Validação de Token (JWT)
+**Descrição:** Refatoração do componente <PrivateRoute> para realizar a decodificação e validação de expiração do token JWT localmente, evitando requisições desnecessárias. Implementação de um Interceptor global no Axios (api.js) para capturar respostas 401 Unauthorized, limpando o storage e forçando o redirecionamento para a tela de login, com exceção de falhas ocorridas na própria rota de autenticação.
+**Autor:** Kaique Caitano
+
+### 3. Ajuste Fino de UX e Autocomplete de Navegadores
+**Descrição:** Correção de bugs visuais em inputs renderizados com cores de preenchimento automático (autocomplete) do navegador (Chrome/Edge) na página de Login, injetando uma sombra interna (inset box-shadow) vinculada ao tema atual para forçar a renderização limpa do MuiOutlinedInput.
+**Autor:** Kaique Caitano
+
+### 4. Integração de Motor de Acessibilidade (UserWay)
+**Descrição:** Injeção e configuração do widget de acessibilidade UserWay no index.html. Implementação da variável global _userway_config para forçar o posicionamento do ícone no canto inferior da tela, garantindo conformidade com os critérios WCAG de acessibilidade para a avaliação.
+**Autor:** Kaique Caitano

@@ -1,4 +1,5 @@
 USE fatecZL_lab_reservations;
+
 CREATE OR REPLACE VIEW view_calendario_reservas AS
 SELECT 
     ri.date AS data_aula, 
@@ -12,33 +13,40 @@ JOIN laboratories l ON ri.lab_id = l.id
 JOIN reservations r ON ri.reservation_id = r.id
 JOIN users u ON r.user_id = u.id
 LEFT JOIN departments d ON u.department_id = d.id
-WHERE ri.status = 'ACTIVE';
-
-SELECT * FROM view_calendario_reservas;
+WHERE ri.is_active = 1  -- Mudança aqui: de 'ACTIVE' para 1
+  AND u.is_active = 1;  -- Garante que o professor não foi desativado
 
 
 -- exemplo de utilização do view
 
 USE fatecZL_lab_reservations;
 
--- 1. Cria a Reserva (Pai) - Para o Professor (ID 2) no Lab (ID 1)
-INSERT INTO reservations (id, user_id, lab_id, cycle_id, status) 
-VALUES (100, 2, 1, 1, 'APPROVED');
+USE fatecZL_lab_reservations;
 
--- 2. Cria o Item da Reserva (Filho) - O horário específico no calendário
--- Nota: O status deve ser 'ACTIVE' para aparecer na View
-INSERT INTO reservation_items (reservation_id, lab_id, date, time_slot_id, start_time, end_time, status)
-VALUES (100, 1, '2026-03-20', 1, '07:30:00', '08:20:00', 'ACTIVE');
+-- 1. Criar um Departamento (se não existir)
+INSERT INTO departments (id, name, code) VALUES (1, 'Tecnologia da Informação', 'ADS')
+ON DUPLICATE KEY UPDATE code='ADS';
 
--- 3. Outro exemplo para outro dia
-INSERT INTO reservation_items (reservation_id, lab_id, date, time_slot_id, start_time, end_time, status)
-VALUES (100, 1, '2026-03-21', 2, '08:20:00', '09:10:00', 'ACTIVE');
+-- 2. Criar um Usuário Professor Ativo (Nova Estrutura)
+-- Note: is_active = 1 e status = 'APPROVED'
+INSERT INTO users (id, name, email, password_hash, role, department_id, status, is_active)
+VALUES (2, 'Dr. Veronesi', 'veronesi@fatec.sp.gov.br', 'hash_seguro', 'PROFESSOR', 1, 'APPROVED', 1);
 
-SET FOREIGN_KEY_CHECKS = 0;
+-- 3. Criar um Laboratório
+INSERT INTO laboratories (id, name, capacity, is_active) VALUES (1, 'Lab 101', 40, 1);
 
--- Limpa as tabelas de movimentação e histórico
-TRUNCATE TABLE reservation_items;
-TRUNCATE TABLE reservations;
+-- 4. Criar um Slot de Horário
+INSERT INTO time_slots (id, name, start_time, end_time) VALUES (1, '1º Horário Manhã', '07:30:00', '08:20:00');
+INSERT INTO time_slots (id, name, start_time, end_time) VALUES (2, '2º Horário Manhã', '08:20:00', '09:10:00');
 
--- Reativa as verificações de integridade
-SET FOREIGN_KEY_CHECKS = 1;
+-- 5. Cria a Reserva (Pai) 
+INSERT INTO reservations (id, user_id, lab_id, status) 
+VALUES (100, 2, 1, 'APPROVED');
+
+-- 6. Cria os Itens da Reserva (Filhos)
+-- Mudança: Usando is_active = 1 em vez de status = 'ACTIVE'
+INSERT INTO reservation_items (reservation_id, lab_id, date, time_slot_id, is_active)
+VALUES (100, 1, '2026-03-20', 1, 1);
+
+INSERT INTO reservation_items (reservation_id, lab_id, date, time_slot_id, is_active)
+VALUES (100, 1, '2026-03-21', 2, 1);

@@ -2,15 +2,20 @@ import Toast from "../../utils/Toast.jsx";
 
 import { useState } from "react";
 import {
-  Box, Paper, Typography, TextField, Button, Link as MuiLink,
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Link as MuiLink,
 } from "@mui/material";
-import { useNavigate,Link as RouterLink } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import LoadingOverlay from "../../components/LoadingOverlay.jsx";
 
 import LogoFatec from "../../public/images/LogoFatec.png";
 import FotoFatec from "../../public/images/FOTOFATEC.jpeg";
 
-import AuthService from "../../services/auth.service.js"; 
+import AuthService from "../../services/auth.service.js";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
@@ -18,7 +23,6 @@ const ForgotPasswordPage = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-   
   const [notify, setNotify] = useState({
     open: false,
     message: "",
@@ -36,11 +40,9 @@ const ForgotPasswordPage = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-    
     if (!validarEmail(email)) {
-     
       setNotify({
         open: true,
         message: "Por favor, informe um endereço de e-mail válido.",
@@ -51,27 +53,27 @@ const ForgotPasswordPage = () => {
     setLoading(true);
 
     try {
-      
-
       // Chamada REAL para a sua API!
       await AuthService.forgotPassword({ email });
       setLoading(false);
-      
+
       setNotify({
         open: true,
-        message: "Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha em instantes.",
+        message:
+          "Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha em instantes.",
         severity: "success",
       });
 
       setTimeout(() => {
-      navigate("/login");
-       }, 3500);
+        navigate("/login");
+      }, 3500);
     } catch (err) {
-      
       setLoading(false);
       setNotify({
         open: true,
-        message: err?.message || "Não foi possível solicitar a redefinição no momento. Tente novamente mais tarde.",
+        message:
+          err?.message ||
+          "Não foi possível solicitar a redefinição no momento. Tente novamente mais tarde.",
         severity: "error",
       });
     }
@@ -136,7 +138,11 @@ const ForgotPasswordPage = () => {
                 textAlign: "center",
               }}
             >
-              Sistema de<br />Reservas de<br />Laboratórios
+              Sistema de
+              <br />
+              Reservas de
+              <br />
+              Laboratórios
             </Typography>
           </Box>
         </Box>
@@ -167,8 +173,10 @@ const ForgotPasswordPage = () => {
 
           {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-            
-            <Typography variant="inputLabel" sx={{ mt: 2, mb: 1, display: "block" }}>
+            <Typography
+              variant="inputLabel"
+              sx={{ mt: 2, mb: 1, display: "block" }}
+            >
               E-MAIL INSTITUCIONAL
             </Typography>
 
@@ -212,7 +220,9 @@ const ForgotPasswordPage = () => {
                 color: "text.secondary",
               }}
             >
-              <Typography variant="caption">© 2026 Centro Paula Souza</Typography>
+              <Typography variant="caption">
+                © 2026 Centro Paula Souza
+              </Typography>
               <Typography variant="caption">www.cps.sp.gov.br</Typography>
             </Box>
           </Box>

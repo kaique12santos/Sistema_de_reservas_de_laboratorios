@@ -61,7 +61,7 @@ const TimeSlotFormModal = ({ open, onClose, onSave, editingSlot }) => {
       <DialogContent dividers>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
           <TextField
-            label="Nome do período" fullWidth required placeholder="Ex: M1, T3, N2…"
+            label="Nome do período" fullWidth required placeholder="Ex: Manhã, Tarde, Noite…"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             error={!!errors.name} helperText={errors.name}
