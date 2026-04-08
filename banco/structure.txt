@@ -1,6 +1,6 @@
 -- ==============================================================================
 -- SISTEMA DE RESERVA DE LABORATÓRIOS - FATEC ZL
--- Versão do Schema: 2.1 (Revisão de Metadados e Encoding)
+-- Versão do Schema: 2.2 (Revisão de Metadados e Encoding)
 -- Banco de Dados: MySQL
 -- ==============================================================================
 
@@ -38,9 +38,10 @@ CREATE TABLE users (
     department VARCHAR(255) NULL COMMENT 'Nome do departamento',
     -- Role define as permissões macro (Baseado no arquivo constants/roles.js)
     role ENUM('ADMIN', 'PROFESSOR', 'SUPPORT') NOT NULL DEFAULT 'PROFESSOR' COMMENT 'Nível de acesso',
-    rejection_reason TEXT DEFAULT NULL AFTER status,
+    status ENUM('PENDING', 'APPROVED', 'REJECTED') NOT NULL DEFAULT 'PENDING' COMMENT 'Fluxo de aprovação de cadastro',
+    is_active TINYINT(1) NOT NULL DEFAULT 0 COMMENT '0 = Inativo, 1 = Ativo (Pode logar)',
+    rejection_reason TEXT DEFAULT NULL COMMENT 'Motivo caso o cadastro seja rejeitado',
     department_id INT NULL,
-    status ENUM('PENDING', 'APPROVED', 'REJECTED', 'ACTIVE') NOT NULL DEFAULT 'PENDING' COMMENT 'Fluxo de aprovação de cadastro',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL,

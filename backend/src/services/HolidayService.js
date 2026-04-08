@@ -40,7 +40,6 @@ class HolidayService {
       if (!response.ok) throw new Error(`Falha na BrasilAPI: Status ${response.status}`);
       const nationalHolidays = await response.json();
 
-      // 1. INJETOR DE FERIADOS LOCAIS E INSTITUCIONAIS
       const localHolidays = [
         { date: `${startYear}-01-25`, name: 'Aniversário de São Paulo (Feriado Municipal)' },
         { date: `${startYear}-07-09`, name: 'Revolução Constitucionalista (Feriado Estadual SP)' },
@@ -48,7 +47,6 @@ class HolidayService {
         { date: `${startYear}-10-28`, name: 'Dia do Servidor Público (Recesso Institucional)' }
       ];
 
-      // 2. Mescla a API com as regras de negócio da Instituição
       const allHolidays = [...nationalHolidays, ...localHolidays];
       const validHolidays = allHolidays.filter(holiday => {
         return holiday.date >= startStr && holiday.date <= endStr;

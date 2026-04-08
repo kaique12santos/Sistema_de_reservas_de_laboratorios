@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
+import { useLocation } from 'react-router-dom';
 import LoginPage from '../pages/Auth/LoginPage';
 import RegisterPage from '../pages/Auth/RegisterPage';
 import DashboardPage from '../pages/DashboardPage';
@@ -16,15 +16,43 @@ import ManageLaboratoriesPage from '../pages/Coordenador/ManageLaboratoriesPage'
 import TimeSlotsPage from '../pages/Coordenador/TimeSlotsPage';
 import AcademicCyclesPage from '../pages/Coordenador/AcademicCyclesPage';
 import HolidaysPage from '../pages/Coordenador/HolidaysPage';
+import { CircularProgress } from '@mui/material';
 
 // Componente para proteger rotas privadas
+const isTokenExpired = (token) => {
+  if (!token) return true;
+  try {
+    // Pega a parte do meio do JWT (o payload onde fica a validade)
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    // Multiplica por 1000 porque o JWT usa segundos, e o JS usa milissegundos
+    return (payload.exp * 1000) < Date.now();
+  } catch (error) {
+    return true; // Se der erro ao ler, assume que é inválido/corrompido
+  }
+};
+
 const PrivateRoute = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth(); // Se o seu useAuth tiver a função logout, puxe-a!
+  const location = useLocation();
   
-  if (loading) return <div>Carregando...</div>;
+  if (loading) return <CircularProgress>Carregando...</CircularProgress>; // Opcional: Trocar por um <CircularProgress /> estiloso depois
   
-  if (!user) {
-    return <Navigate to="/login" />;
+  const token = localStorage.getItem('token');
+
+  // A GRANDE BARREIRA:
+  // 1. Não tem usuário no contexto? OU
+  // 2. Não tem token guardado? OU
+  // 3. O token existe, mas já passou de 1 hora (expirou)?
+  if (!user || !token || isTokenExpired(token)) {
+    
+    // Se o token estiver expirado, fazemos uma faxina antes de redirecionar
+    if (token && isTokenExpired(token)) {
+       localStorage.removeItem('token');
+       localStorage.removeItem('user');
+       logout(); // Limpa o estado global também, se possível
+    }
+
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
   return children;

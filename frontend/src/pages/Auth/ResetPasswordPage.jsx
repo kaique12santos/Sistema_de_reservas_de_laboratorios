@@ -1,7 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams, Link as RouterLink } from "react-router-dom";
 import {
-  Box, Paper, Typography, TextField, Button, Link as MuiLink,
+  useNavigate,
+  useSearchParams,
+  Link as RouterLink,
+} from "react-router-dom";
+import {
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Link as MuiLink,
 } from "@mui/material";
 
 import LogoFatec from "../../public/images/LogoFatec.png";
@@ -46,7 +55,8 @@ const ResetPasswordPage = () => {
       setStatus("error");
       setNotify({
         open: true,
-        message: "Token não encontrado na URL. Verifique o link recebido no e-mail.",
+        message:
+          "Token não encontrado na URL. Verifique o link recebido no e-mail.",
         severity: "error",
       });
     }
@@ -96,23 +106,26 @@ const ResetPasswordPage = () => {
     }
     setLoading(true);
     try {
-
       const response = await AuthService.resetPassword({ token, password });
 
       setLoading(false);
       setNotify({
         open: true,
-        message: response?.message || "Senha redefinida com sucesso! Você será redirecionado para o login.",
+        message:
+          response?.message ||
+          "Senha redefinida com sucesso! Você será redirecionado para o login.",
         severity: "success",
       });
 
       setTimeout(() => navigate("/login"), 1200);
     } catch (err) {
       setLoading(false);
-      
+
       setNotify({
         open: true,
-        message: err?.message || "Não foi possível redefinir a senha. Tente novamente.",
+        message:
+          err?.message ||
+          "Não foi possível redefinir a senha. Tente novamente.",
         severity: "error",
       });
     }
@@ -177,7 +190,11 @@ const ResetPasswordPage = () => {
                 textAlign: "center",
               }}
             >
-              Sistema de<br />Reservas de<br />Laboratórios
+              Sistema de
+              <br />
+              Reservas de
+              <br />
+              Laboratórios
             </Typography>
           </Box>
         </Box>
@@ -205,8 +222,10 @@ const ResetPasswordPage = () => {
           </Typography>
 
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-            
-            <Typography variant="inputLabel" sx={{ mt: 2, mb: 1, display: 'block' }}>
+            <Typography
+              variant="inputLabel"
+              sx={{ mt: 2, mb: 1, display: "block" }}
+            >
               NOVA SENHA
             </Typography>
             <TextField
@@ -217,7 +236,10 @@ const ResetPasswordPage = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            <Typography variant="inputLabel" sx={{ mt: 3, mb: 1, display: 'block' }}>
+            <Typography
+              variant="inputLabel"
+              sx={{ mt: 3, mb: 1, display: "block" }}
+            >
               CONFIRMAR SENHA
             </Typography>
             <TextField
@@ -259,7 +281,9 @@ const ResetPasswordPage = () => {
                 color: "text.secondary",
               }}
             >
-              <Typography variant="caption">© 2026 Centro Paula Souza</Typography>
+              <Typography variant="caption">
+                © 2026 Centro Paula Souza
+              </Typography>
               <Typography variant="caption">www.cps.sp.gov.br</Typography>
             </Box>
           </Box>

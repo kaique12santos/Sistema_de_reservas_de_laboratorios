@@ -15,7 +15,7 @@ const StaggerItem = ({ children, index = 0, delayStep = 0.1, sx, ...props }) => 
           '0%': { opacity: 0, transform: 'translateY(20px)' },
           '100%': { opacity: 1, transform: 'translateY(0)' },
         },
-        ...sx, // <-- A MÁGICA: Junta a animação com qualquer CSS que você passar de fora!
+        ...sx,
       }}
     >
       {children}

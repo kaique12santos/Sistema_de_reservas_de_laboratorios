@@ -23,25 +23,20 @@ class AcademicCycleService {
     let nextName = '';
     let start_date, end_date, admin_exclusive_end_date;
 
-    // 1. Calcular o NOME do próximo ciclo
     if (!latestCycle) {
-      // Se o banco estiver vazio, começa com o ano atual, semestre 1
       const currentYear = new Date().getFullYear();
       nextName = `${currentYear}-1`;
     } else {
-      // Ex: Quebra "2026-1" em [2026, 1]
       const [yearStr, semStr] = latestCycle.name.split('-');
       let year = parseInt(yearStr);
       let sem = parseInt(semStr);
 
       if (sem === 1) {
-        nextName = `${year}-2`; // Pula pro 2º Semestre do mesmo ano
+        nextName = `${year}-2`;
       } else {
-        nextName = `${year + 1}-1`; // Pula pro 1º Semestre do ano seguinte
+        nextName = `${year + 1}-1`;
       }
     }
-
-    // 2. Calcular as DATAS PADRÃO pragmáticas
     const [nextYear, nextSem] = nextName.split('-');
     
     if (nextSem === '1') {
@@ -54,7 +49,6 @@ class AcademicCycleService {
       admin_exclusive_end_date = `${nextYear}-07-25`;
     }
 
-    // 3. Salvar no banco (nasce inativo por segurança)
     const newCycle = await AcademicCycleRepository.create({
       name: nextName,
       start_date,
@@ -62,7 +56,6 @@ class AcademicCycleService {
       admin_exclusive_end_date
     });
 
-    // 4. A MÁGICA: Puxar os feriados automaticamente usando o SEU código!
     let holidaysResult;
     try {
       holidaysResult = await HolidayService.syncHolidaysForCycle(newCycle.id);

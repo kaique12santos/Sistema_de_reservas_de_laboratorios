@@ -220,7 +220,6 @@ const LoginPage = () => {
               sx={{
                 "& .MuiOutlinedInput-root": {
                   borderRadius: "12px",
-                  backgroundColor: "#ffffff",
                 },
               }}
             />
@@ -259,7 +258,7 @@ const LoginPage = () => {
     component={RouterLink}
     to="/forgot-password"
     underline="hover"
-    sx={{ color: "#9e1b1f", fontSize: "14px" }}
+    sx={{ color: "primary.main", fontSize: "14px" }}
   >
     Esqueci minha senha
   </MuiLink>
@@ -268,7 +267,7 @@ const LoginPage = () => {
     component={RouterLink}
     to="/register"
     underline="hover"
-    sx={{ color: "#9e1b1f", fontSize: "14px" }}
+    sx={{ color: "primary.main", fontSize: "14px" }}
   >
     Criar conta
   </MuiLink>

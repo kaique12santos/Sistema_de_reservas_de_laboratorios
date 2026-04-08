@@ -23,7 +23,6 @@ import LoadingOverlay from "../../components/LoadingOverlay.jsx";
 import LogoFatec from "../../public/images/LogoFatec.png";
 import FotoFatec from "../../public/images/FOTOFATEC.jpeg";
 
-
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -35,7 +34,6 @@ const RegisterPage = () => {
   const [departments, setDepartments] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
 
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -54,14 +52,12 @@ const RegisterPage = () => {
     fetchDepartments();
   }, []);
 
-
   const handleCourseChange = (e) => {
     setFormData({
       ...formData,
       department_id: e.target.value,
     });
   };
-
 
   // --- ESTADO DO TOAST ---
   const [notify, setNotify] = useState({
@@ -81,8 +77,8 @@ const RegisterPage = () => {
     if (reason === "clickaway") return;
     setNotify({ ...notify, open: false });
   };
-  
- const handleSubmit = async (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // --- VALIDAÇÕES DO FRONT-END (Paridade com o Zod) ---
@@ -129,7 +125,7 @@ const RegisterPage = () => {
 
     try {
       await register(formData);
-      
+
       setLoading(false);
       setNotify({
         open: true,
@@ -140,17 +136,16 @@ const RegisterPage = () => {
       setTimeout(() => {
         navigate("/");
       }, 3500);
-
     } catch (err) {
       setLoading(false);
-      
+
       // --- A MÁGICA DA LEITURA DO ZOD ---
       // 1. Tenta pegar a primeira mensagem do array 'details' do Zod
       // 2. Se não tiver, tenta pegar o 'error' genérico
       // 3. Se o back-end caiu de vez, mostra a mensagem padrão
-      const errorMessage = 
-        err.response?.data?.details?.[0] || 
-        err.response?.data?.error || 
+      const errorMessage =
+        err.response?.data?.details?.[0] ||
+        err.response?.data?.error ||
         "Erro ao cadastrar.";
 
       // --- DISPARANDO O TOAST NO ERRO ---
@@ -423,11 +418,11 @@ const RegisterPage = () => {
         </Box>
       </Paper>
 
-      <Toast 
-        open={notify.open} 
-        handleClose={handleCloseToast} 
-        message={notify.message} 
-        severity={notify.severity} 
+      <Toast
+        open={notify.open}
+        handleClose={handleCloseToast}
+        message={notify.message}
+        severity={notify.severity}
       />
       <LoadingOverlay open={loading} message="Enviando solicitação..." />
     </Box>

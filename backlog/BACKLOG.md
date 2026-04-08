@@ -1413,11 +1413,11 @@ export const academicCycleService = {
 - [x] DataGrid carrega ciclos ao montar
 - [x] Chip colorido diferencia ciclo ativo dos demais
 - [x] Criar novo ciclo → aparece na lista como inativo
-- [ ] Não pode criar com nome duplicado (erro via toast)
-- [ ] Não pode criar com datas inválidas (validação frontend + backend)
+- [x] Não pode criar com nome duplicado (erro via toast)
+- [x] Não pode criar com datas inválidas (validação frontend + backend)
 - [x] Ativar ciclo → chip do antigo vira cinza, novo vira verde
 - [x] Confirmação antes de ativar
-- [ ] Apenas ADMIN acessa (router protect)
+- [x] Apenas ADMIN acessa (router protect)
 - [x] Responsivo
 
 **Status:** ✅ Concluído  
@@ -1534,9 +1534,9 @@ export const holidayService = {
 - [x] Banner de alerta se nenhum ciclo ativo
 - [x] Lista carrega feriados do ciclo ativo ao montar
 - [x] Adicionar feriado com data e descrição → aparece na lista ordenada
-- [ ] Não pode adicionar feriado em data fora do ciclo (erro backend → toast)
+- [X] Não pode adicionar feriado em data fora do ciclo (erro backend → toast)
 - [x] Não pode adicionar feriado duplicado (erro backend → toast)
-- [ ] Deletar feriado → some da lista
+- [X] Deletar feriado → some da lista
 - [x] Apenas ADMIN acessa
 - [x] Responsivo
 
@@ -1556,48 +1556,48 @@ Validar que ciclos e feriados funcionam end-to-end e estão prontos para suporta
 **Checklist de Testes:**
 
 **Cenário 1: Criação e Ativação de Ciclo**
-- [ ] 1. ADMIN cria ciclo "2026-1" com datas válidas
-- [ ] 2. Ciclo aparece na lista com status Inativo
-- [ ] 3. ADMIN ativa o ciclo "2026-1"
-- [ ] 4. Ciclo exibe chip "Ativo"
-- [ ] 5. GET /api/academic-cycles/active retorna "2026-1"
-- [ ] 6. ADMIN cria segundo ciclo "2026-2"
-- [ ] 7. ADMIN ativa "2026-2"
-- [ ] 8. "2026-1" passa a ficar Inativo, "2026-2" fica Ativo
-- [ ] 9. Tentar ativar "2026-2" novamente → erro claro
-- [ ] 10. PROFESSOR tenta criar ciclo → 403
+- [X] 1. ADMIN cria ciclo "2026-1" com datas válidas
+- [X] 2. Ciclo aparece na lista com status Inativo
+- [X] 3. ADMIN ativa o ciclo "2026-1"
+- [X] 4. Ciclo exibe chip "Ativo"
+- [X] 5. GET /api/academic-cycles/active retorna "2026-1"
+- [X] 6. ADMIN cria segundo ciclo "2026-2"
+- [X] 7. ADMIN ativa "2026-2"
+- [X] 8. "2026-1" passa a ficar Inativo, "2026-2" fica Ativo
+- [X] 9. Tentar ativar "2026-2" novamente → erro claro
+- [x] 10. PROFESSOR tenta criar ciclo → 403
 
 **Cenário 2: Validações de Ciclo**
-- [ ] 1. Criar ciclo com nome duplicado → erro "Já existe um ciclo com este nome"
-- [ ] 2. Criar ciclo com start_date >= end_date → erro
-- [ ] 3. Criar ciclo com exclusive_admin_end_date > start_date → erro
-- [ ] 4. Tentar editar ciclo ativo → erro "Não é possível editar um ciclo ativo"
+- [X] 1. Criar ciclo com nome duplicado → erro "Já existe um ciclo com este nome"
+- [x] 2. Criar ciclo com start_date >= end_date → erro
+- [x] 3. Criar ciclo com exclusive_admin_end_date > start_date → erro
+- [x] 4. Tentar editar ciclo ativo → erro "Não é possível editar um ciclo ativo"
 
 **Cenário 3: Gestão de Feriados**
-- [ ] 1. Com ciclo "2026-1" ativo, ADMIN acessa tela de feriados
-- [ ] 2. Header exibe "Feriados — Ciclo 2026-1"
-- [ ] 3. ADMIN adiciona feriado "03/03/2026 - Carnaval"
-- [ ] 4. Feriado aparece na lista
-- [ ] 5. Tentar adicionar outro feriado em "03/03/2026" → erro "Já existe um feriado nesta data"
-- [ ] 6. Tentar adicionar feriado em data fora do range do ciclo → erro
-- [ ] 7. ADMIN remove o feriado de Carnaval → some da lista
-- [ ] 8. PROFESSOR tenta POST /holidays → 403
+- [x] 1. Com ciclo "2026-1" ativo, ADMIN acessa tela de feriados
+- [x] 2. Header exibe "Feriados — Ciclo 2026-1"
+- [x] 3. ADMIN adiciona feriado "03/03/2026 - Carnaval"
+- [x] 4. Feriado aparece na lista
+- [x] 5. Tentar adicionar outro feriado em "03/03/2026" → erro "Já existe um feriado nesta data"
+- [x] 6. Tentar adicionar feriado em data fora do range do ciclo → erro
+- [x] 7. ADMIN remove o feriado de Carnaval → some da lista
+- [x] 8. PROFESSOR tenta POST /holidays → 403
 
 **Cenário 4: Proteção de Rotas**
-- [ ] 1. GET /api/academic-cycles sem token → 401
-- [ ] 2. GET /api/academic-cycles/active com token PROFESSOR → 200
-- [ ] 3. POST /api/academic-cycles com token PROFESSOR → 403
-- [ ] 4. POST /api/holidays com token PROFESSOR → 403
-- [ ] 5. GET /api/holidays com token PROFESSOR → 200
+- [x] 1. GET /api/academic-cycles sem token → 401
+- [x] 2. GET /api/academic-cycles/active com token PROFESSOR → 200
+- [x] 3. POST /api/academic-cycles com token PROFESSOR → 403
+- [x] 4. POST /api/holidays com token PROFESSOR → 403
+- [x] 5. GET /api/holidays com token PROFESSOR → 200
 
 **Critérios de Aceite:**
-- [ ] Todos os 4 cenários passam sem bugs
-- [ ] Nenhum console.error no frontend
-- [ ] Nenhum erro 500 no backend
-- [ ] GET /api/academic-cycles/active retorna dados corretos
-- [ ] Pronto para avançar para FASE 4
+- [x] Todos os 4 cenários passam sem bugs
+- [x] Nenhum console.error no frontend
+- [x] Nenhum erro 500 no backend
+- [x] GET /api/academic-cycles/active retorna dados corretos
+- [x] Pronto para avançar para FASE 4
 
-**Status:** 🔴 PENDENTE  
+**Status:** 🟢 Concluído  
 **Responsável:** Kaique  
 **Depende de:** Todas as tasks F3-* concluídas
 
