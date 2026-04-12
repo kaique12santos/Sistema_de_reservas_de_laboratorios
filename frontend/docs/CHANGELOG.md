@@ -259,3 +259,12 @@
 ### 4. Integração de Motor de Acessibilidade (UserWay)
 **Descrição:** Injeção e configuração do widget de acessibilidade UserWay no index.html. Implementação da variável global _userway_config para forçar o posicionamento do ícone no canto inferior da tela, garantindo conformidade com os critérios WCAG de acessibilidade para a avaliação.
 **Autor:** Kaique Caitano
+
+## [12/04/2026]
+### 1. Refatoração e Componentização de "Minhas Reservas" (Task F4-FE-02)
+**Descrição:** Remodelação da página de histórico de reservas do professor. Criação do componente de domínio `ReservationTable` para isolar a lógica de renderização da tabela e status. Substituição de modais locais redundantes pelo novo utilitário genérico `ConfirmDialog`. Atualização do `reservation.service.js` para atuar como um *stateful mock* (memória viva), permitindo o fluxo completo de cancelamento de reservas e atualização da interface em tempo real sem a necessidade do backend concluído.
+**Autor:** Kaique Caitano
+
+### 2. Implementação do Formulário de Nova Reserva (Task F4-FE-01)
+- **Descrição:** Criação da interface de solicitação de reservas (`CreateReservationPage`) e extração do componente de domínio `ReservationForm` para manter a arquitetura limpa. Implementação de regras de negócio avançadas no front-end: bloqueio de datas (fins de semana, feriados e fora do ciclo letivo) via `DatePicker` e checagem de conflito de horários em tempo real (com *debounce* para otimizar requisições). Integração com os modais globais (`Toast` e `ConfirmDialog`) para feedback e confirmação antes do envio para a fila de aprovação.
+- **Autor:** Kaique Caitano Dos Santos
