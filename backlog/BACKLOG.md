@@ -5,7 +5,7 @@
 # 🟢 FASE 1 – Infraestrutura e Autenticação (MVP)
 **Requisitos:** RF01, RF02, RF03, RNF03
 
-**Status Geral:** 🟡 EM ANDAMENTO (Ajustes Finais)
+**Status Geral:** 🟢 Concluído
 
 ### 🔹 Banco de Dados
 
@@ -166,7 +166,7 @@
 # 🟡 FASE 2 – Aprovação de Cadastros e Configurações Básicas
 
 **Requisitos:** RF02, RF03, RF04, RF08, RF09  
-**Status Geral:** 🔴 PENDENTE  
+**Status Geral:** ✅ CONCLUÍDO 
 **Meta:** Admins podem gerenciar usuários, laboratórios e horários
 
 ---
@@ -960,7 +960,7 @@ Validar que todos os CRUDs funcionam end-to-end.
 # 🟠 FASE 3 – Ciclos Acadêmicos e Feriados
 
 **Requisitos:** RF05, RF06, RF07, RF19  
-**Status Geral:** 🔴 PENDENTE  
+**Status Geral:** ✅ CONCLUÍDO  
 **Meta:** Admins podem criar ciclos letivos, ativá-los e cadastrar feriados vinculados
 
 ---
@@ -2072,18 +2072,18 @@ export const reservationService = {
 ```
 
 **Critérios de Aceite:**
-- [ ] DatePicker bloqueia datas fora do ciclo ativo
-- [ ] DatePicker mostra feriados desabilitados
-- [ ] Ao selecionar lab + data + horários, verificação de conflito é disparada
-- [ ] Banner de conflito aparece em < 1s após seleção (RNF05)
-- [ ] Checkboxes com conflito ficam visuais em laranja/alerta
-- [ ] Botão "Criar Reserva" fica desabilitado se conflito detectado
-- [ ] Submit com dados válidos → redireciona para "Minhas Reservas"
-- [ ] Erros do backend exibidos em toast
-- [ ] Responsivo
+- [x] DatePicker bloqueia datas fora do ciclo ativo
+- [x] DatePicker mostra feriados desabilitados
+- [x] Ao selecionar lab + data + horários, verificação de conflito é disparada
+- [x] Banner de conflito aparece em < 1s após seleção (RNF05)
+- [x] Checkboxes com conflito ficam visuais em laranja/alerta
+- [x] Botão "Criar Reserva" fica desabilitado se conflito detectado
+- [x] Submit com dados válidos → redireciona para "Minhas Reservas"
+- [x] Erros do backend exibidos em toast
+- [x] Responsivo
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** 🟠 Esperando backend  
+**Responsável:** kaique
 **Depende de:** F4-BE-02, F3-FE-01
 
 ---

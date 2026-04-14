@@ -17,6 +17,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import StaggerItem from "../utils/StaggerItem";
+import { useNavigate } from "react-router-dom";
 
 // Mock Temporário de Laboratórios
 const mockLaboratorios = [
@@ -119,6 +120,7 @@ const LaboratoriesPage = () => {
     setLabSelecionado(null);
   };
 
+  const navigate = useNavigate();
   return (
     <Box>
       <StaggerItem index={0}>
@@ -314,7 +316,7 @@ const LaboratoriesPage = () => {
                   fullWidth
                   disableElevation
                   disabled={lab.status !== "Livre"}
-                  onClick={() => handleOpenModal(lab)}
+                  onClick={() => navigate(`/reservas/nova?lab_id=${lab.id}`)}
                 >
                   {lab.status === "Livre" ? "Reservar" : "Indisponível"}
                 </Button>

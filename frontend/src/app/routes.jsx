@@ -16,6 +16,8 @@ import ManageLaboratoriesPage from '../pages/Coordenador/ManageLaboratoriesPage'
 import TimeSlotsPage from '../pages/Coordenador/TimeSlotsPage';
 import AcademicCyclesPage from '../pages/Coordenador/AcademicCyclesPage';
 import HolidaysPage from '../pages/Coordenador/HolidaysPage';
+import CreateReservationPage from '../pages/Professor/CreateReservationPage';
+import SupportManagementPage from '../pages/Support/SupportManagementPage';
 import { CircularProgress } from '@mui/material';
 
 // Componente para proteger rotas privadas
@@ -91,6 +93,7 @@ const AppRoutes = () => {
         {/* Rotas Exclusivas do Professor */}
         <Route element={<RoleRoute allowedRoles={['PROFESSOR']} />}>
           <Route path="/reservas" element={<MinhasReservasPage />} />
+          <Route path="/reservas/nova" element={<CreateReservationPage />} />
         </Route>
 
         {/* 🔒 Rotas Exclusivas do Administrador (Coordenador) */}
@@ -106,8 +109,9 @@ const AppRoutes = () => {
         </Route>
 
         {/* 🛠️ Rotas Exclusivas do Suporte */}
-        <Route element={<RoleRoute allowedRoles={['SUPORT', 'ADMIN']} />}>
+        <Route element={<RoleRoute allowedRoles={['SUPPORT']} />}>
           {/* Futura tela de gestão de equipamentos */}
+          <Route path="/gestao-usuarios" element={<SupportManagementPage />} />
           {/* <Route path="/equipamentos" element={<EquipamentosPage />} /> */}
         </Route>
 

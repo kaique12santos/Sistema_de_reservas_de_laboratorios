@@ -31,6 +31,23 @@ class UserService {
     const response = await api.patch(`/users/${userId}/reject`, { reason });
     return response.data;
   }
+
+
+  async getAllUsers() {
+    const response = await api.get('/users');
+    return response.data;
+  }
+
+
+  async changeUserRole(id, newRole) {
+    const response = await api.patch(`/users/${id}/role`, { role: newRole });
+    return response.data;
+  }
+
+  async toggleUserStatus(id) {
+    const response = await api.patch(`/users/${id}/toggle-status`);
+    return response.data;
+  }
 }
 
 export const userService = new UserService();

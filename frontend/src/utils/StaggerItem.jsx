@@ -6,7 +6,7 @@ const StaggerItem = ({ children, index = 0, delayStep = 0.1, sx, ...props }) => 
 
   return (
     <Box
-      {...props} // Repassa qualquer outra propriedade (className, onClick, etc)
+      {...props} 
       sx={{
         opacity: 0,
         animation: `fadeSlideUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`,

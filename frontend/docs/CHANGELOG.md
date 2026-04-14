@@ -259,3 +259,21 @@
 ### 4. Integração de Motor de Acessibilidade (UserWay)
 **Descrição:** Injeção e configuração do widget de acessibilidade UserWay no index.html. Implementação da variável global _userway_config para forçar o posicionamento do ícone no canto inferior da tela, garantindo conformidade com os critérios WCAG de acessibilidade para a avaliação.
 **Autor:** Kaique Caitano
+
+## [12/04/2026]
+### 1. Refatoração e Componentização de "Minhas Reservas" (Task F4-FE-02)
+**Descrição:** Remodelação da página de histórico de reservas do professor. Criação do componente de domínio `ReservationTable` para isolar a lógica de renderização da tabela e status. Substituição de modais locais redundantes pelo novo utilitário genérico `ConfirmDialog`. Atualização do `reservation.service.js` para atuar como um *stateful mock* (memória viva), permitindo o fluxo completo de cancelamento de reservas e atualização da interface em tempo real sem a necessidade do backend concluído.
+**Autor:** Kaique Caitano
+
+### 2. Implementação do Formulário de Nova Reserva (Task F4-FE-01)
+- **Descrição:** Criação da interface de solicitação de reservas (`CreateReservationPage`) e extração do componente de domínio `ReservationForm` para manter a arquitetura limpa. Implementação de regras de negócio avançadas no front-end: bloqueio de datas (fins de semana, feriados e fora do ciclo letivo) via `DatePicker` e checagem de conflito de horários em tempo real (com *debounce* para otimizar requisições). Integração com os modais globais (`Toast` e `ConfirmDialog`) para feedback e confirmação antes do envio para a fila de aprovação.
+- **Autor:** Kaique Caitano
+
+## [13/04/2026]
+### 1. Criação da Tela de Gestão de Usuários (Front-End)
+**Descrição:** Desenvolvimento da interface central de gerenciamento de usuários (UserManagementPage e UserTable) dedicada ao perfil de Suporte. A tela conta com tabelas dinâmicas, filtros por status, badges visuais com base no estado do banco (status e is_active) e modais interativos para aprovação de cadastros, bloqueio/desbloqueio de acesso e alteração de cargos.
+**Autor:** Kaique Caitano
+
+### 2. Refatoração de Responsividade no Layout Base (Front-End)
+**Descrição:** Ajuste fino de CSS e refatoração da estrutura de Grid do Material UI nas páginas CreateReservationPage e MinhasReservasPage. Remoção de larguras fixas (maxWidth) e aplicação combinada de flexGrow e minWidth para garantir a fluidez perfeita da página ao abrir e fechar a Sidebar lateral, evitando quebra dos campos do formulário.
+**Autor:** Kaique Caitano
