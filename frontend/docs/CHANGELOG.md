@@ -267,4 +267,13 @@
 
 ### 2. Implementação do Formulário de Nova Reserva (Task F4-FE-01)
 - **Descrição:** Criação da interface de solicitação de reservas (`CreateReservationPage`) e extração do componente de domínio `ReservationForm` para manter a arquitetura limpa. Implementação de regras de negócio avançadas no front-end: bloqueio de datas (fins de semana, feriados e fora do ciclo letivo) via `DatePicker` e checagem de conflito de horários em tempo real (com *debounce* para otimizar requisições). Integração com os modais globais (`Toast` e `ConfirmDialog`) para feedback e confirmação antes do envio para a fila de aprovação.
-- **Autor:** Kaique Caitano Dos Santos
+- **Autor:** Kaique Caitano
+
+## [13/04/2026]
+### 1. Criação da Tela de Gestão de Usuários (Front-End)
+**Descrição:** Desenvolvimento da interface central de gerenciamento de usuários (UserManagementPage e UserTable) dedicada ao perfil de Suporte. A tela conta com tabelas dinâmicas, filtros por status, badges visuais com base no estado do banco (status e is_active) e modais interativos para aprovação de cadastros, bloqueio/desbloqueio de acesso e alteração de cargos.
+**Autor:** Kaique Caitano
+
+### 2. Refatoração de Responsividade no Layout Base (Front-End)
+**Descrição:** Ajuste fino de CSS e refatoração da estrutura de Grid do Material UI nas páginas CreateReservationPage e MinhasReservasPage. Remoção de larguras fixas (maxWidth) e aplicação combinada de flexGrow e minWidth para garantir a fluidez perfeita da página ao abrir e fechar a Sidebar lateral, evitando quebra dos campos do formulário.
+**Autor:** Kaique Caitano

@@ -16,6 +16,7 @@ import EventIcon from "@mui/icons-material/Event";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import SearchIcon from "@mui/icons-material/Search";
+import { useNavigate } from "react-router-dom";
 
 // Mock Temporário
 const mockReservas = Array.from({ length: 20 }, (_, index) => {
@@ -31,6 +32,7 @@ const mockReservas = Array.from({ length: 20 }, (_, index) => {
 });
 
 const DashboardPage = () => {
+  const navigate = useNavigate();
   const [reservas, setReservas] = useState(mockReservas);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("todos");
@@ -224,12 +226,14 @@ const DashboardPage = () => {
             color="primary"
             startIcon={<AddIcon />}
             disableElevation
+            onClick={() => navigate('/reservas/nova')}
             sx={{
               width: { xs: "100%", md: "auto" },
               height: "100%",
               minHeight: "64px",
               fontWeight: "bold",
               borderRadius: 2,
+              
             }}
           >
             Nova Reserva

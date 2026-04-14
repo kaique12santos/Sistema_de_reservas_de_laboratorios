@@ -1,40 +1,19 @@
-/**
- * Middleware genérico para validação de dados usando Zod Schemas.
- * @param {import('zod').ZodSchema} schema - O schema estático do DTO
- */
 const validateRequest = (schema) => {
   return (req, res, next) => {
     try {
-      // 🚨 Mapeador de problemas: Se o schema chegar vazio, a gente avisa na hora!
-      if (!schema) {
-        throw new Error("O schema de validação não foi injetado corretamente na rota!");
-      }
-
-      console.log('\n[🔎 DEBUG ZOD] Body recebido do Front-end:');
-      console.log(JSON.stringify(req.body, null, 2));
-      console.log('-------------------------------------------\n');
-      // O Zod valida e já devolve o objeto limpo
-      req.body = schema.parse(req.body); 
+      if (!schema) throw new Error("Schema não injetado");
       
-      // Se passou, manda para o Controller
-      next(); 
+      // 👈 Se o front mandar undefined, o Zod valida um objeto vazio {} sem quebrar o Node
+      req.body = schema.parse(req.body || {}); 
+      next();
     } catch (error) {
       if (error.name === 'ZodError') {
-        const errorMessages = error.errors.map((err) => err.message);
-        
-        // Manda o erro pro Toast do Front-end!
-        return res.status(400).json({
-          success: false,
-          error: errorMessages[0], 
-          details: errorMessages
-        });
+        // 👈 Usando .issues (que é o padrão oficial e blindado do Zod)
+        const errorMessages = error.issues.map((err) => err.message);
+        return res.status(400).json({ success: false, error: errorMessages[0] });
       }
-
-      // 🔴 Se não for um erro do Zod, é um erro no nosso código (como o schema undefined)
-      console.error('[-1] Erro CRÍTICO no middleware de validação:', error);
       return res.status(500).json({ error: 'Erro interno ao processar validação.' });
     }
   };
 };
-
 export default validateRequest;

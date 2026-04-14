@@ -39,7 +39,7 @@ CREATE TABLE users (
     -- Role define as permissões macro (Baseado no arquivo constants/roles.js)
     role ENUM('ADMIN', 'PROFESSOR', 'SUPPORT') NOT NULL DEFAULT 'PROFESSOR' COMMENT 'Nível de acesso',
     status ENUM('PENDING', 'APPROVED', 'REJECTED') NOT NULL DEFAULT 'PENDING' COMMENT 'Fluxo de aprovação de cadastro',
-    is_active TINYINT(1) NOT NULL DEFAULT 0 COMMENT '0 = Inativo, 1 = Ativo (Pode logar)',
+    is_active TINYINT(1) NOT NULL DEFAULT 1 COMMENT '0 = Inativo, 1 = Ativo (Pode logar)',
     rejection_reason TEXT DEFAULT NULL COMMENT 'Motivo caso o cadastro seja rejeitado',
     department_id INT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

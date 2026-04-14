@@ -41,6 +41,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import EditCalendarIcon from "@mui/icons-material/EditCalendar";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 // Ícones de Transição (Seta)
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -108,7 +109,7 @@ const BaseLayout = () => {
       text: "Dashboard",
       icon: <DashboardIcon />,
       path: "/dashboard",
-      roles: ["PROFESSOR", "ADMIN", "SUPORT"],
+      roles: ["PROFESSOR", "ADMIN", "SUPPORT"],
     },
     {
       text: "Laboratórios",
@@ -144,7 +145,7 @@ const BaseLayout = () => {
       text: "Equipamentos",
       icon: <BuildIcon />,
       path: "/equipamentos",
-      roles: ["SUPORT", "ADMIN"],
+      roles: ["SUPPORT", "ADMIN"],
     },
     {
       text: "Gestão de horários",
@@ -169,6 +170,12 @@ const BaseLayout = () => {
       icon: <EditCalendarIcon />,
       path: "/reservas/nova",
       roles: ["PROFESSOR"],
+    },
+    {
+      text: "Gestão de usuários",
+      icon: <ManageAccountsIcon />,
+      path: "/gestao-usuarios",
+      roles: ["SUPPORT"],
     }
   ];
 
@@ -192,7 +199,7 @@ const BaseLayout = () => {
         return IconProfessor;
       case "ADMIN":
         return IconCoordenador;
-      case "SUPORT":
+      case "SUPPORT":
         return IconSuporte;
       default:
         return null;
@@ -274,7 +281,7 @@ const BaseLayout = () => {
                 mb: 1,
               }}
             >
-              SisLab.
+              SisLab
             </Typography>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Box
@@ -311,7 +318,7 @@ const BaseLayout = () => {
         <IconButton
           onClick={handleSidebarToggle}
           sx={{
-            display: { xs: "none", md: "inline-flex" }, // <--- A MÁGICA ESTÁ AQUI (Some no mobile)
+            display: { xs: "none", md: "inline-flex" }, 
             color: "background.paper",
             bgcolor: "rgba(255,255,255,0.05)",
             "&:hover": { bgcolor: "rgba(255,255,255,0.15)" },
@@ -383,14 +390,13 @@ const BaseLayout = () => {
                       ? "background.paper"
                       : "rgba(255,255,255,0.7)",
                     fontWeight: isActive ? "bold" : "normal",
-                    whiteSpace: "nowrap", // Impede quebra de linha durante a transição
+                    whiteSpace: "nowrap", 
                   },
-                  // A mágica da transição de sumir o texto
                   opacity: isSidebarMinimized ? 0 : 1,
                   width: isSidebarMinimized ? 0 : "auto",
                   ml: isSidebarMinimized ? 0 : 0,
                   transition: "all 0.2s ease",
-                  display: isSidebarMinimized ? "none" : "block", // Esconde completamente após a transição
+                  display: isSidebarMinimized ? "none" : "block",
                 }}
               />
             </ListItemButton>
@@ -399,12 +405,10 @@ const BaseLayout = () => {
           return (
             <ListItem disablePadding key={item.path} sx={{ display: "block" }}>
               {isSidebarMinimized ? (
-                // Se minimizado, coloca TOOLTIP
                 <Tooltip title={item.text} placement="right" arrow>
                   {buttonContent}
                 </Tooltip>
               ) : (
-                // Se cheio, não precisa de Tooltip
                 buttonContent
               )}
             </ListItem>
@@ -435,7 +439,7 @@ const BaseLayout = () => {
                 minHeight: 48,
                 "&:hover": { bgcolor: "rgba(255,255,255,0.08)" },
               }}
-              onClick={handleOpenLogout} // <--- ALTERAÇÃO AQUI
+              onClick={handleOpenLogout}
             >
               <ListItemIcon
                 sx={{

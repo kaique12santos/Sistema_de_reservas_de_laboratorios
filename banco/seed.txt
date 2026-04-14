@@ -21,8 +21,9 @@ INSERT INTO departments (name, code) VALUES
 -- senha:  senha1234
 INSERT INTO users (name, email, password_hash, role, status, department_id) VALUES 
 ('Professor Teste 1', 'prof1@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'PROFESSOR', 'APPROVED', 1),
-('Professor Teste 2', 'prof2@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'PROFESSOR', 'APPROVED', 2),
-('Administrador Master', 'admin@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'ADMIN', 'APPROVED', 3);
+('Professor Teste 2', 'prof2@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'PROFESSOR', 'APPROVED', 1),
+('Suporte Master', 'suporte@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'SUPPORT', 'APPROVED', 1),
+('Administrador Master', 'admin@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'ADMIN', 'APPROVED', 1);
 
 INSERT INTO time_slots (name, start_time, end_time) VALUES 
 ('Manhã', '07:30:00', '08:20:00'),

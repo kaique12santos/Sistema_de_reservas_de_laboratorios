@@ -91,7 +91,7 @@ const handlePreSubmit = (formData, hasConflict) => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
-      <Box sx={{ maxWidth: 900, mx: 'auto' }}>
+      <Box sx={{ maxWidth: '100%', mx: 'auto' }}>
         
         {/* HEADER E BOTÃO VOLTAR BLINDADO */}
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, gap: 2 }}>
@@ -99,7 +99,7 @@ const handlePreSubmit = (formData, hasConflict) => {
           <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/laboratories')} color="inherit">
             Voltar
           </Button>
-          <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'custom.sectionTitle' }}>
+          <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'sectionTitle' }}>
             Nova Reserva de Laboratório
           </Typography>
         </Box>

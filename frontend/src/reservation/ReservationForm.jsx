@@ -60,46 +60,55 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
   const isSubmitDisabled = submitting || checkingConflict || conflictInfo?.hasConflict || formData.time_slot_ids.length === 0;
 
   return (
-    <Grid container spacing={4}>
-      <Grid item xs={12} md={6}>
-        <TextField
-          select
-          fullWidth
-          label="Selecione o Laboratório"
-          value={formData.lab_id}
-          onChange={(e) => setFormData({ ...formData, lab_id: e.target.value })}
-          sx={{ mb: 3 }}
-        >
-          {labs.map(lab => (
-            <MenuItem key={lab.id} value={lab.id}>{lab.nome}</MenuItem>
-          ))}
-        </TextField>
+    <Grid container spacing={3}>
+      
+      {/* COLUNA ESQUERDA: Lab e Data empilhados */}
+     <Grid item xs={12} md={6}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '100%' }}>
+          <TextField
+            select
+            fullWidth
+            label="Selecione o Laboratório"
+            value={formData.lab_id}
+            onChange={(e) => setFormData({ ...formData, lab_id: e.target.value })}
+          >
+            {labs.map(lab => (
+              <MenuItem key={lab.id} value={lab.id}>{lab.nome}</MenuItem>
+            ))}
+          </TextField>
 
-        <DatePicker
-          label="Data da Reserva"
-          value={formData.date}
-          onChange={(newValue) => setFormData({ ...formData, date: newValue })}
-          minDate={dayjs(activeCycle?.start_date)}
-          maxDate={dayjs(activeCycle?.end_date)}
-          shouldDisableDate={(date) => 
-            holidays.includes(dayjs(date).format('YYYY-MM-DD')) || dayjs(date).day() === 0
-          }
-          slotProps={{ textField: { fullWidth: true } }}
-        />
+          <DatePicker
+            label="Data da Reserva"
+            value={formData.date}
+            onChange={(newValue) => setFormData({ ...formData, date: newValue })}
+            minDate={dayjs(activeCycle?.start_date)}
+            maxDate={dayjs(activeCycle?.end_date)}
+            shouldDisableDate={(date) => 
+              holidays.includes(dayjs(date).format('YYYY-MM-DD')) || dayjs(date).day() === 0
+            }
+            slotProps={{ textField: { fullWidth: true } }}
+          />
+        </Box>
       </Grid>
 
-      <Grid item xs={12} md={6}>
+      {/* COLUNA DIREITA: Observações */}
+     <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
         <TextField
           fullWidth
           multiline
           rows={4}
           label="Observações / Motivo (Opcional)"
+          placeholder="Ex: Instalar software X para a aula de Sistemas Operacionais"
           value={formData.notes}
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+          sx={{ 
+            flexGrow: 1,
+            minWidth: { xs: '100%', md: '35rem' }, 
+          }}
         />
       </Grid>
 
-      <Grid item xs={12}>
+      <Grid item xs={12} sx={{ mt: 1 }}>
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', borderBottom: '1px solid', borderColor: 'divider', pb: 1 }}>
           Horários Disponíveis
         </Typography>

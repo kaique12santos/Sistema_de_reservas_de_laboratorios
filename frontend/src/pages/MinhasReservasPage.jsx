@@ -95,7 +95,7 @@ const MinhasReservasPage = () => {
     <Box>
       <StaggerItem index={0}>
         <Box sx={{ display: "flex", flexDirection: { xs: 'column', md: 'row' }, justifyContent: "space-between", alignItems: { xs: 'stretch', md: 'center' }, gap: 2, mb: 4 }}>
-          <Typography variant="h5" sx={{ fontWeight: "bold", color: "custom.sectionTitle" }}>
+          <Typography variant="h5" sx={{ fontWeight: "bold", color: "sectionTitle" }}>
             Minhas Reservas
           </Typography>
 

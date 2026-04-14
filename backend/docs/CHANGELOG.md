@@ -134,3 +134,12 @@ O endpoint agora bloqueia acessos de contas com status `PENDING` e `REJECTED` an
 - **Descrição:** Substituição dos CRUDs manuais de Semestres e Feriados por um motor de automação. O sistema agora prevê e gera o próximo semestre letivo (com datas baseadas no calendário da Fatec ZL) e sincroniza automaticamente os feriados nacionais, estaduais e recessos institucionais utilizando a BrasilAPI.
 - **Autor:** Kaique Caitano
 - **Impacto:** Alterações profundas nos fluxos de `AcademicCycleService` e `HolidayService`. Criação da rota automatizada `POST /api/academic-cycles/generate`. Inclusão dos módulos nas rotas principais do servidor (`app.js`).
+
+## [13/04/2026]
+### 1. Implementação da Gestão Global de Usuários (Back-End)
+**Descrição:** Expansão da arquitetura de usuários (UserController, UserService e UserRepository) para suportar as requisições do perfil de Suporte. Foi implementada uma lógica de bypass para listar a base completa (ignorando os filtros de departamento) e criados os métodos de changeRole e toggleStatus. A lógica do banco foi ajustada para separar o controle do fluxo de aprovação (status) da permissão de login (is_active).
+**Autor:** Kaique Caitano
+
+### 2. Blindagem do Middleware de Validação com Zod (Back-End)
+**Descrição:** Refatoração crítica na camada de segurança e validação (validateRequest.js e UserApprovalDTO.js). O middleware foi ajustado para processar objetos vazios com segurança e utilizar .issues de forma padronizada. Os schemas de aprovação receberam tratamento de fallback (.nullish() e .catch(undefined)) para garantir compatibilidade retroativa com requisições legadas do painel Administrativo.
+**Autor:** Kaique Caitano
