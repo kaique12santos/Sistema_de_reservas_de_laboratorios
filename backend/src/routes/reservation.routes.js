@@ -10,7 +10,7 @@ const router = Router();
 router.get(
   '/check-conflict',
   authMiddleware,
-  validateRequest(CheckConflictDTO.schema),
+  validateRequest(CheckConflictDTO.schema, 'query'),
   ReservationController.checkConflict
 );
 
