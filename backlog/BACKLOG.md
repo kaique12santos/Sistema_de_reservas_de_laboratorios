@@ -1622,7 +1622,7 @@ Verificar se um laboratório já está ocupado no horário solicitado antes de c
 **Entregáveis:**
 
 **1. ReservationRepository.js (métodos de conflito):**
-- [ ] `findConflicting(labId, date, timeSlotIds)` → detecta conflito
+- [x] `findConflicting(labId, date, timeSlotIds)` → detecta conflito
   ```javascript
   async findConflicting(labId, date, timeSlotIds) {
     // Busca reservation_items onde:
@@ -1645,7 +1645,7 @@ Verificar se um laboratório já está ocupado no horário solicitado antes de c
   }
   ```
 
-- [ ] `findByProfessorAndDateRange(professorId, startDate, endDate)` → reservas do professor
+- [x] `findByProfessorAndDateRange(professorId, startDate, endDate)` → reservas do professor
   ```javascript
   async findByProfessorAndDateRange(professorId, startDate, endDate) {
     const query = `
@@ -1661,7 +1661,7 @@ Verificar se um laboratório já está ocupado no horário solicitado antes de c
   ```
 
 **2. ConflictService.js (novo arquivo):**
-- [ ] `checkConflict(labId, date, timeSlotIds)` → retorna detalhes do conflito
+- [x] `checkConflict(labId, date, timeSlotIds)` → retorna detalhes do conflito
   ```javascript
   async checkConflict(labId, date, timeSlotIds) {
     const conflicts = await ReservationRepository.findConflicting(
@@ -1684,7 +1684,7 @@ Verificar se um laboratório já está ocupado no horário solicitado antes de c
   ```
 
 **3. Endpoint de verificação prévia (opcional mas recomendado):**
-- [ ] GET `/api/reservations/check-conflict?lab_id=1&date=2026-03-10&time_slots=1,2,3`
+- [x] GET `/api/reservations/check-conflict?lab_id=1&date=2026-03-10&time_slots=1,2,3`
   - Permite o frontend verificar disponibilidade antes de submeter o formulário
   - Retorna `{ hasConflict: boolean, conflictingSlots: number[] }`
 
@@ -1697,7 +1697,7 @@ Verificar se um laboratório já está ocupado no horário solicitado antes de c
   - [ ] Verificar lab ocupado → `{ hasConflict: true, conflictingSlots: [...] }`
 
 **Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Responsável:** Nicole  
 **Depende de:** F2-BE-02, F3-BE-01
 
 ---
