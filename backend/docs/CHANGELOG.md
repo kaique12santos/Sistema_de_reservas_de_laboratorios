@@ -143,3 +143,9 @@ O endpoint agora bloqueia acessos de contas com status `PENDING` e `REJECTED` an
 ### 2. Blindagem do Middleware de Validação com Zod (Back-End)
 **Descrição:** Refatoração crítica na camada de segurança e validação (validateRequest.js e UserApprovalDTO.js). O middleware foi ajustado para processar objetos vazios com segurança e utilizar .issues de forma padronizada. Os schemas de aprovação receberam tratamento de fallback (.nullish() e .catch(undefined)) para garantir compatibilidade retroativa com requisições legadas do painel Administrativo.
 **Autor:** Kaique Caitano
+
+## [15/04/2026]
+### 1. Validação de Conflitos com Zod e Refatoração do Endpoint
+- **Descrição:** Implementação de validação robusta no endpoint `GET /check-conflict` utilizando Zod. Inclui coerção de tipos, transformação de `time_slots` para array numérico e validação rigorosa de datas no formato `YYYY-MM-DD`. Refatoração do middleware `validateRequest` para suportar múltiplas fontes (`query`) e padronização de `req.validatedData`. Simplificação do Controller removendo validações manuais e ajuste da lógica de conflito com *early return* e eliminação de duplicidades.
+- **Autor:** Nicole Lisboa
+- **Impacto:** `src/dtos/CheckConflictDTO.js`, `src/middlewares/validateRequest.js`, `src/controllers/ReservationController.js`, `src/services/ConflictService.js`, `src/repositories/ReservationRepository.js`, `src/routes/reservation.routes.js`
