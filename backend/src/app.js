@@ -7,6 +7,7 @@ import userRoutes from './routes/user.routes.js';
 import timeSlotRoutes from './routes/timeSlot.routes.js';
 import AcademicCycleRouter from './routes/academicCycle.routes.js';
 import holidayRouter from './routes/holiday.routes.js';
+import reservationRoutes from './routes/reservation.routes.js';
 
 class App {
   constructor() {
@@ -41,6 +42,7 @@ class App {
     this.server.use('/api/time-slots', timeSlotRoutes);
     this.server.use('/api/academic-cycles', AcademicCycleRouter);
     this.server.use('/api/holidays', holidayRouter);
+    this.server.use('/api/reservations', reservationRoutes);
 
   }
 }
