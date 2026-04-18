@@ -14,9 +14,17 @@ class timeSlotRepository {
         return rows[0]; // Retorna undefined se não achar
     }
 
-    async findByName(name) {
+   async findByName(name) {
         const [rows] = await db.connection.query('SELECT * FROM time_slots WHERE name = ?', [name]);
         return rows[0]; // Retorna undefined se não achar
+    }
+
+    async findByIds(ids) {
+        if (!ids || ids.length === 0) return [];
+        const placeholders = ids.map(() => '?').join(',');
+        const query = `SELECT * FROM time_slots WHERE id IN (${placeholders}) AND is_active = true ORDER BY start_time ASC`;
+        const [rows] = await db.connection.query(query, ids);
+        return rows;
     }
 
     async create(data){
