@@ -14,6 +14,11 @@ class timeSlotRepository {
         return rows[0]; // Retorna undefined se não achar
     }
 
+   async findByName(name) {
+        const [rows] = await db.connection.query('SELECT * FROM time_slots WHERE name = ?', [name]);
+        return rows[0]; // Retorna undefined se não achar
+    }
+
     async findByIds(ids) {
         if (!ids || ids.length === 0) return [];
         const placeholders = ids.map(() => '?').join(',');
