@@ -14,4 +14,16 @@ router.get(
   ReservationController.checkConflict
 );
 
+router.post(
+  '/create',
+  authMiddleware,
+  ReservationController.create
+);
+
+router.get(
+  '/my-reservations',
+  authMiddleware,
+  ReservationController.myReservations
+);
+
 export default router;
