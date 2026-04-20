@@ -277,3 +277,9 @@
 ### 2. Refatoração de Responsividade no Layout Base (Front-End)
 **Descrição:** Ajuste fino de CSS e refatoração da estrutura de Grid do Material UI nas páginas CreateReservationPage e MinhasReservasPage. Remoção de larguras fixas (maxWidth) e aplicação combinada de flexGrow e minWidth para garantir a fluidez perfeita da página ao abrir e fechar a Sidebar lateral, evitando quebra dos campos do formulário.
 **Autor:** Kaique Caitano
+
+## [19/04/2026]
+### 1. Integração de UI para Cancelamento e Permissões Visuais de Admin
+**Descrição:** Integração da chamada de API de cancelamento na tela de "Minhas Reservas", com botões funcionais e tratamento de erros. Adaptação do componente `ReservationForm` para consumir a prop `userRole`, alterando o alerta de conflito para informativo e destravando o botão de submissão para administradores. Melhoria de performance e UX na listagem utilizando `useMemo` para filtrar e ocultar instantaneamente as reservas com status `CANCELED`.
+**Autor:** Kaique Caitano
+**Impacto:** `src/services/Reservation.service.js`, `src/pages/MinhasReservasPage.jsx`, `src/pages/CreateReservationPage.jsx`, `src/components/ReservationForm.jsx`
