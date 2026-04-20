@@ -11,10 +11,11 @@ class ReservationController {
         lab_id,
         date,
         time_slots
-      );
+      ); 
 
       return res.status(200).json(result);
     } catch (error) {
+      console.error('Erro ao verificar conflito:', error.message);
       return res.status(500).json({
         error: 'Erro interno ao verificar conflito'
       });
@@ -24,8 +25,8 @@ class ReservationController {
   async createSimpleReservation(req, res) {
     try {
       const validatedData = req.validatedData;
-      const userId = req.userId;
-      const userRole = req.userRole;
+      const userId = req.user.id;
+      const userRole = req.user.role;
 
       const reservation = await ReservationService.createSimpleReservation(
         userId,
@@ -61,6 +62,21 @@ class ReservationController {
       });
     }
   }
+
+  async cancel(req, res) {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id; // Pego pelo token do authMiddleware
+      
+      await ReservationService.cancelReservation(id, userId);
+      
+      return res.status(200).json({ message: 'Reserva cancelada com sucesso.' });
+    } catch (error) {
+      console.error('Erro ao cancelar reserva:', error);
+      return res.status(400).json({ error: error.message });
+    }
+  }
+
 }
 
 export default new ReservationController();

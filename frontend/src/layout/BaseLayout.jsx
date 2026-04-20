@@ -127,7 +127,7 @@ const BaseLayout = () => {
       text: "Minhas reservas",
       icon: <EventNoteIcon />,
       path: "/reservas",
-      roles: ["PROFESSOR"],
+      roles: ["PROFESSOR", "ADMIN"],
     },
     {
       text: "Aprovar Cadastros",
@@ -169,7 +169,7 @@ const BaseLayout = () => {
       text: "Reservas Simples",
       icon: <EditCalendarIcon />,
       path: "/reservas/nova",
-      roles: ["PROFESSOR"],
+      roles: ["PROFESSOR", "ADMIN"],
     },
     {
       text: "Gestão de usuários",

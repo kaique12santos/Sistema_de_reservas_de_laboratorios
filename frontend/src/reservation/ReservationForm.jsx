@@ -9,7 +9,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import SaveIcon from '@mui/icons-material/Save';
 import { reservationService } from '../services/Reservation.service';
 
-export default function ReservationForm({ labs, timeSlots, activeCycle, holidays, initialLabId, onSubmit, submitting }) {
+export default function ReservationForm({ labs, timeSlots, activeCycle, holidays, initialLabId, onSubmit, submitting, userRole }) {
   const [formData, setFormData] = useState({
     lab_id: initialLabId || '',
     date: null,
@@ -57,7 +57,10 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
     });
   };
 
-  const isSubmitDisabled = submitting || checkingConflict || conflictInfo?.hasConflict || formData.time_slot_ids.length === 0;
+  const isSubmitDisabled = submitting || 
+    checkingConflict || 
+    (conflictInfo?.hasConflict && userRole !== 'ADMIN') || 
+    formData.time_slot_ids.length === 0;
 
   return (
     <Grid container spacing={3}>
@@ -121,8 +124,12 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
             </Box>
           )}
           {conflictInfo?.hasConflict && !checkingConflict && (
-            <Alert severity="warning" icon={<WarningAmberIcon />}>
-              <strong>Atenção!</strong> Os horários <strong>{conflictInfo.conflictingSlots.join(', ')}</strong> já estão reservados para este dia.
+            <Alert severity={userRole === 'ADMIN' ? 'info' : 'warning'} icon={<WarningAmberIcon />}>
+              {userRole === 'ADMIN' 
+                ? `Informação: Os horários ${conflictInfo.conflictingSlots.map(id => timeSlots.find(slot => slot.id === id)?.name).join(', ')} já possuem pedidos aguardando aprovação ou aprovados. Como Coordenador, você pode sobrescrever e alocar este laboratório.`
+                : <><strong>Atenção!</strong> Os horários <strong>{conflictInfo.conflictingSlots.map(id => timeSlots.find(slot => slot.id === id)?.name).join(', ')}</strong> já estão reservados para este dia.</>
+              }
+              
             </Alert>
           )}
         </Box>

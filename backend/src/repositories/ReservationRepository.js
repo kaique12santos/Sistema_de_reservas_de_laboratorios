@@ -47,12 +47,13 @@ class ReservationRepository {
     const conn = connection || db.connection;
     const query = `
       INSERT INTO reservations (user_id, lab_id, cycle_id, type, status, created_at, updated_at)
-      VALUES (?, ?, ?, 'SINGLE', 'APPROVED', NOW(), NOW())
+      VALUES (?, ?, ?, 'SINGLE', ?, NOW(), NOW())
     `;
     const [result] = await conn.query(query, [
       reservationData.user_id,
       reservationData.lab_id,
-      reservationData.cycle_id
+      reservationData.cycle_id,
+      reservationData.status || 'PENDING'
     ]);
     return result.insertId;
   }
@@ -120,6 +121,35 @@ class ReservationRepository {
       oldValues ? JSON.stringify(oldValues) : null,
       newValues ? JSON.stringify(newValues) : null
     ]);
+  }
+
+  async updateStatus(reservationId, newStatus, connection) {
+    const dbConn = connection || db;
+    await dbConn.query(
+      'UPDATE reservations SET status = ? WHERE id = ?',
+      [newStatus, reservationId]
+    );
+  }
+
+  async overrideConflictingItems(labId, date, timeSlotIds, connection) {
+    const dbConn = connection || db;
+    
+    // 1. Cancela a reserva PAI (do professor que perdeu a vaga)
+    const updateReservationsQuery = `
+      UPDATE reservations r
+      INNER JOIN reservation_items ri ON r.id = ri.reservation_id
+      SET r.status = 'CANCELED'
+      WHERE ri.lab_id = ? AND ri.date = ? AND ri.time_slot_id IN (?) AND ri.status = 'ACTIVE'
+    `;
+    await dbConn.query(updateReservationsQuery, [labId, date, timeSlotIds]);
+
+    // 2. Cancela os ITENS da reserva antiga para liberar a restrição UNIQUE do banco
+    const updateItemsQuery = `
+      UPDATE reservation_items
+      SET status = 'CANCELED'
+      WHERE lab_id = ? AND date = ? AND time_slot_id IN (?) AND status = 'ACTIVE'
+    `;
+    await dbConn.query(updateItemsQuery, [labId, date, timeSlotIds]);
   }
 }
 

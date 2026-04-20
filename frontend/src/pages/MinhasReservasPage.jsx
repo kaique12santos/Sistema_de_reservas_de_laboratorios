@@ -1,18 +1,31 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Box, Typography, MenuItem, TextField, Button, Dialog,
-  DialogTitle, DialogContent, DialogActions, IconButton, Grid, Divider, CircularProgress, Paper
+  Box,
+  Typography,
+  MenuItem,
+  TextField,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  Grid,
+  Divider,
+  CircularProgress,
+  Paper,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import StaggerItem from "../utils/StaggerItem"; 
+import StaggerItem from "../utils/StaggerItem";
 
 // Componentes da Arquitetura
 import ReservationTable from "../reservation/ReservationTable";
 import ConfirmDialog from "../utils/ConfirmDialog";
 import Toast from "../utils/Toast";
 import { reservationService } from "../services/reservation.service";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 const MinhasReservasPage = () => {
   const navigate = useNavigate();
@@ -25,13 +38,17 @@ const MinhasReservasPage = () => {
   // Estados de Modais
   const [modalOpen, setModalOpen] = useState(false);
   const [reservaSelecionada, setReservaSelecionada] = useState(null);
-  
+
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [idParaCancelar, setIdParaCancelar] = useState(null);
   const [canceling, setCanceling] = useState(false);
 
   // Estado do Toast
-  const [notify, setNotify] = useState({ open: false, message: '', severity: 'success' });
+  const [notify, setNotify] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   // 1. Carregar Dados
   useEffect(() => {
@@ -44,23 +61,36 @@ const MinhasReservasPage = () => {
       const data = await reservationService.getMyReservations();
       setReservas(data);
     } catch (error) {
-      setNotify({ open: true, message: 'Erro ao carregar reservas.', severity: 'error' });
+      setNotify({
+        open: true,
+        message: "Erro ao carregar reservas.",
+        severity: "error",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-
  const reservasFiltradas = useMemo(() => {
-    if (statusFilter === "Todos") return reservas;
+    // 1. LIMPEZA INICIAL: Esconde tudo que for cancelado (Atenção ao CANCELED em maiúsculo)
+    const reservasVisiveis = reservas.filter(
+      (res) => res.status.toUpperCase() !== "CANCELED" && res.status.toUpperCase() !== "CANCELADO"
+    );
+
+    // 2. Agora sim, aplicamos o filtro do Dropdown apenas na lista limpa!
+    if (statusFilter === "Todos") return reservasVisiveis;
     
+    // Se o seu dropdown tem a opção "Recusado", a gente filtra pelo status REJECTED do banco
     if (statusFilter === "Recusado") {
-      return reservas.filter((res) => 
-        res.status.toUpperCase() === "RECUSADO" || res.status.toUpperCase() === "CANCELADO"
+      return reservasVisiveis.filter((res) => 
+        res.status.toUpperCase() === "REJECTED" || res.status.toUpperCase() === "RECUSADO"
       );
     }
     
-    return reservas.filter((res) => res.status.toUpperCase() === statusFilter.toUpperCase());
+    // Para Aprovados e Pendentes
+    return reservasVisiveis.filter((res) => 
+      res.status.toUpperCase() === statusFilter.toUpperCase()
+    );
   }, [statusFilter, reservas]);
 
   // 3. Ações
@@ -78,47 +108,82 @@ const MinhasReservasPage = () => {
     setCanceling(true);
     try {
       await reservationService.cancelReservation(idParaCancelar);
-      setNotify({ open: true, message: 'Reserva cancelada com sucesso.', severity: 'success' });
+      setNotify({
+        open: true,
+        message: "Reserva cancelada com sucesso.",
+        severity: "success",
+      });
       setConfirmOpen(false);
       carregarReservas(); // Recarrega a lista para atualizar o status
     } catch (error) {
-      setNotify({ open: true, message: 'Erro ao cancelar reserva.', severity: 'error' });
+      setNotify({
+        open: true,
+        message: "Erro ao cancelar reserva.",
+        severity: "error",
+      });
     } finally {
       setCanceling(false);
       setIdParaCancelar(null);
     }
   };
 
-  if (loading) return <CircularProgress sx={{ display: 'block', margin: 'auto', mt: 10 }} />;
+  if (loading)
+    return (
+      <CircularProgress sx={{ display: "block", margin: "auto", mt: 10 }} />
+    );
 
   return (
     <Box>
+      <LoadingOverlay open={canceling} message="Cancelando reserva..." />
       <StaggerItem index={0}>
-        <Box sx={{ display: "flex", flexDirection: { xs: 'column', md: 'row' }, justifyContent: "space-between", alignItems: { xs: 'stretch', md: 'center' }, gap: 2, mb: 4 }}>
-          <Typography variant="h5" sx={{ fontWeight: "bold", color: "sectionTitle" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            justifyContent: "space-between",
+            alignItems: { xs: "stretch", md: "center" },
+            gap: 2,
+            mb: 4,
+          }}
+        >
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: "bold", color: "sectionTitle" }}
+          >
             Minhas Reservas
           </Typography>
 
-          <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              flexDirection: { xs: "column", sm: "row" },
+            }}
+          >
             <TextField
               select
               size="small"
               label="Filtrar por Status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              sx={{ minWidth: 200, bgcolor: "background.paper", borderRadius: 1 }}
+              sx={{
+                minWidth: 200,
+                bgcolor: "background.paper",
+                borderRadius: 1,
+              }}
             >
               <MenuItem value="Todos">Todos</MenuItem>
               <MenuItem value="Aprovado">Aprovados</MenuItem>
               <MenuItem value="Pendente">Pendentes</MenuItem>
-              <MenuItem value="Recusado">Recusados / Cancelados</MenuItem>
+              <MenuItem value="canceled">Cancelados</MenuItem>
+              <MenuItem value="Recusado">Recusados</MenuItem>
             </TextField>
-            
-            <Button 
-              variant="contained" 
-              startIcon={<AddIcon />} 
-              onClick={() => navigate('/reservas/nova')}
-              sx={{ fontWeight: 'bold' }}
+
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => navigate("/reservas/nova")}
+              sx={{ fontWeight: "bold" }}
               disableElevation
             >
               Nova Reserva
@@ -129,52 +194,162 @@ const MinhasReservasPage = () => {
 
       <StaggerItem index={1}>
         {/* COMPONENTE DE TABELA INJETADO AQUI */}
-        <ReservationTable 
-          reservations={reservasFiltradas} 
-          onViewDetails={handleVerDetalhes} 
+        <ReservationTable
+          reservations={reservasFiltradas}
+          onViewDetails={handleVerDetalhes}
           onCancelClick={handleAbrirConfirm}
-          onNewReservation={() => navigate('/reservas/nova')}
+          onNewReservation={() => navigate("/reservas/nova")}
         />
       </StaggerItem>
 
       {/* MODAL DE DETALHES DA RESERVA (Refatorado cores Hex) */}
-      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
-        <DialogTitle sx={{ m: 0, p: 2, display: "flex", justifyContent: "space-between", alignItems: "center", bgcolor: "primary.main", color: "white" }}>
-          <Typography variant="h6" sx={{ fontWeight: "bold" }}>Detalhes da Solicitação #{reservaSelecionada?.id}</Typography>
-          <IconButton onClick={() => setModalOpen(false)} sx={{ color: "white" }}><CloseIcon /></IconButton>
+      <Dialog
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 3 } }}
+      >
+        <DialogTitle
+          sx={{
+            m: 0,
+            p: 2,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            bgcolor: "primary.main",
+            color: "white",
+          }}
+        >
+          <Box
+            component="span"
+            sx={{ fontSize: "1.25rem", fontWeight: "bold" }}
+          >
+            Detalhes da Solicitação #{reservaSelecionada?.id}
+          </Box>
+          <IconButton
+            onClick={() => setModalOpen(false)}
+            sx={{ color: "white" }}
+          >
+            <CloseIcon />
+          </IconButton>
         </DialogTitle>
         <DialogContent dividers sx={{ p: 4 }}>
           {reservaSelecionada && (
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6}>
-                <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: "bold", display: "block", mb: 0.5 }}>DATA DA RESERVA</Typography>
-                <Typography variant="body1" sx={{ fontWeight: "bold" }}>{reservaSelecionada.dataReserva}</Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "text.secondary",
+                    fontWeight: "bold",
+                    display: "block",
+                    mb: 0.5,
+                  }}
+                >
+                  DATA DA RESERVA
+                </Typography>
+                <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                  {reservaSelecionada.dataReserva}
+                </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: "bold", display: "block", mb: 0.5 }}>HORÁRIO</Typography>
-                <Typography variant="body1" sx={{ fontWeight: "bold" }}>{reservaSelecionada.horario}</Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "text.secondary",
+                    fontWeight: "bold",
+                    display: "block",
+                    mb: 0.5,
+                  }}
+                >
+                  HORÁRIO
+                </Typography>
+                <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                  {reservaSelecionada.horario}
+                </Typography>
               </Grid>
-              <Grid item xs={12}><Divider sx={{ my: 1 }} /></Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: "bold", display: "block", mb: 0.5 }}>LABORATÓRIO / SALA</Typography>
-                <Typography variant="body1" sx={{ fontWeight: "bold" }}>{reservaSelecionada.lab}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: "bold", display: "block", mb: 0.5 }}>STATUS ATUAL</Typography>
-                <Typography variant="body1" sx={{ fontWeight: "bold", color: 'primary.main' }}>{reservaSelecionada.status}</Typography>
-              </Grid>
-              <Grid item xs={12}><Divider sx={{ my: 1 }} /></Grid>
               <Grid item xs={12}>
-                <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: "bold", display: "block", mb: 0.5 }}>MOTIVO / OBSERVAÇÃO</Typography>
-                <Paper elevation={0} sx={{ p: 2, bgcolor: "background.default", border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-                  <Typography variant="body2">{reservaSelecionada.motivo}</Typography>
+                <Divider sx={{ my: 1 }} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "text.secondary",
+                    fontWeight: "bold",
+                    display: "block",
+                    mb: 0.5,
+                  }}
+                >
+                  LABORATÓRIO / SALA
+                </Typography>
+                <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                  {reservaSelecionada.lab}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "text.secondary",
+                    fontWeight: "bold",
+                    display: "block",
+                    mb: 0.5,
+                  }}
+                >
+                  STATUS ATUAL
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{ fontWeight: "bold", color: "primary.main" }}
+                >
+                  {reservaSelecionada.status}
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Divider sx={{ my: 1 }} />
+              </Grid>
+              <Grid item xs={12}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "text.secondary",
+                    fontWeight: "bold",
+                    display: "block",
+                    mb: 0.5,
+                  }}
+                >
+                  MOTIVO / OBSERVAÇÃO
+                </Typography>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    bgcolor: "background.default",
+                    border: "1px solid",
+                    borderColor: "divider",
+                    borderRadius: 2,
+                  }}
+                >
+                  <Typography variant="body2">
+                    {reservaSelecionada.motivo}
+                  </Typography>
                 </Paper>
               </Grid>
             </Grid>
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2, px: 3 }}>
-          <Button onClick={() => setModalOpen(false)} variant="contained" color="primary" disableElevation sx={{ fontWeight: "bold" }}>Fechar</Button>
+          <Button
+            onClick={() => setModalOpen(false)}
+            variant="contained"
+            color="primary"
+            disableElevation
+            sx={{ fontWeight: "bold" }}
+          >
+            Fechar
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -192,7 +367,12 @@ const MinhasReservasPage = () => {
       />
 
       {/* TOAST DO SISTEMA */}
-      <Toast open={notify.open} handleClose={() => setNotify({ ...notify, open: false })} message={notify.message} severity={notify.severity} />
+      <Toast
+        open={notify.open}
+        handleClose={() => setNotify({ ...notify, open: false })}
+        message={notify.message}
+        severity={notify.severity}
+      />
     </Box>
   );
 };

@@ -12,11 +12,15 @@ import ReservationForm from '../../reservation/ReservationForm';
 import { reservationService } from '../../services/Reservation.service'; 
 import Toast from '../../utils/Toast'; 
 import ConfirmDialog from '../../utils/ConfirmDialog'; 
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 const CreateReservationPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const labFromUrl = searchParams.get('lab_id') || '';
+
+  const userString = localStorage.getItem('user'); 
+  const user = userString ? JSON.parse(userString) : null;
 
   const [initialData, setInitialData] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -49,7 +53,9 @@ const handlePreSubmit = (formData, hasConflict) => {
     if (!formData.lab_id) return setNotify({ open: true, message: 'Selecione um laboratório.', severity: 'error' });
     if (!formData.date) return setNotify({ open: true, message: 'Selecione a data da reserva.', severity: 'error' });
     if (formData.time_slot_ids.length === 0) return setNotify({ open: true, message: 'Selecione ao menos um horário.', severity: 'error' });
-    if (hasConflict) return setNotify({ open: true, message: 'Resolva os conflitos antes de salvar.', severity: 'error' });
+    if (hasConflict && user?.role !== 'ADMIN') {
+        return setNotify({ open: true, message: 'Resolva os conflitos antes de salvar.', severity: 'error' });
+    }
 
     // Tudo válido! Salva no estado temporário e abre o Modal de Confirm
     setPendingFormData(formData);
@@ -62,7 +68,8 @@ const handlePreSubmit = (formData, hasConflict) => {
     try {
       await reservationService.create({
         ...pendingFormData,
-        date: dayjs(pendingFormData.date).format('YYYY-MM-DD')
+        date: dayjs(pendingFormData.date).format('YYYY-MM-DD'),
+        note: pendingFormData.notes
       });
       
       setConfirmOpen(false); // Fecha o modal de confirmação
@@ -72,7 +79,7 @@ const handlePreSubmit = (formData, hasConflict) => {
         severity: 'success' 
       });
       
-      setTimeout(() => navigate('/laboratories'), 2500); 
+      setTimeout(() => navigate('/reservas'), 2500); 
 
     } catch (error) {
       console.error(error);
@@ -92,6 +99,7 @@ const handlePreSubmit = (formData, hasConflict) => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
       <Box sx={{ maxWidth: '100%', mx: 'auto' }}>
+        <LoadingOverlay open={submitting} message="Processando..." />
         
         {/* HEADER E BOTÃO VOLTAR BLINDADO */}
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, gap: 2 }}>
@@ -113,6 +121,7 @@ const handlePreSubmit = (formData, hasConflict) => {
             initialLabId={labFromUrl}
             onSubmit={handlePreSubmit}
             submitting={submitting}
+            userRole={user?.role}
           />
         </Paper>
 

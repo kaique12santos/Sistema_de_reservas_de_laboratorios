@@ -1,19 +1,23 @@
 const validateRequest = (schema, source = 'body') => {
   return (req, res, next) => {
-    try {
+   try {
       if (!schema) throw new Error("Schema não injetado");
       
-      // 👈 Se o front mandar undefined, o Zod valida um objeto vazio {} sem quebrar o Node
       const data = req[source] || {};
-
       const parsed = schema.parse(data);
 
-      req.validatedData = parsed;
+      // 👇 A CORREÇÃO: Trata o 'body' e o 'query' de formas diferentes
+      if (source === 'body') {
+        req.body = parsed; // Salva a pátria do painel antigo
+      } else {
+        Object.assign(req[source], parsed); // Atualiza os dados da URL com segurança
+      }
+      
+      req.validatedData = parsed; // Mantém o controller novo funcionando
 
       next();
     } catch (error) {
       if (error.name === 'ZodError') {
-        // 👈 Usando .issues (que é o padrão oficial e blindado do Zod)
         const errorMessages = error.issues.map((err) => err.message);
         return res.status(400).json({
           success: false,
@@ -21,7 +25,6 @@ const validateRequest = (schema, source = 'body') => {
         });
       }
       console.error(error);
-
       return res.status(500).json({ error: 'Erro interno ao processar validação.' });
     }
   };
