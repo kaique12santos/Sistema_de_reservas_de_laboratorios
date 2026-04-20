@@ -88,12 +88,13 @@ const AppRoutes = () => {
         {/* Rotas Compartilhadas (Professor e Admin) */}
         <Route element={<RoleRoute allowedRoles={['PROFESSOR', 'ADMIN']} />}>
           <Route path="/laboratories" element={<LaboratoriesPage />} />
+          <Route path="/reservas" element={<MinhasReservasPage />} />
+          <Route path="/reservas/nova" element={<CreateReservationPage />} />
         </Route>
 
         {/* Rotas Exclusivas do Professor */}
         <Route element={<RoleRoute allowedRoles={['PROFESSOR']} />}>
-          <Route path="/reservas" element={<MinhasReservasPage />} />
-          <Route path="/reservas/nova" element={<CreateReservationPage />} />
+          
         </Route>
 
         {/* 🔒 Rotas Exclusivas do Administrador (Coordenador) */}

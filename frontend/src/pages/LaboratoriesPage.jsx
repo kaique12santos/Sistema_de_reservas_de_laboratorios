@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -7,120 +8,106 @@ import {
   Button,
   Grid,
   Paper,
-  Divider,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   IconButton,
+  CircularProgress,
+  Alert
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import StaggerItem from "../utils/StaggerItem";
 import { useNavigate } from "react-router-dom";
-
-// Mock Temporário de Laboratórios
-const mockLaboratorios = [
-  {
-    id: 1,
-    nome: "Lab 102",
-    local: "Bloco A, 2º andar",
-    capacidade: 35,
-    descricao: "Computadores Intel i5, Ar condicionado, TV",
-    tipo: "Laboratório",
-    status: "Livre",
-  },
-  {
-    id: 2,
-    nome: "Lab 101",
-    local: "Bloco A, 1º andar",
-    capacidade: 30,
-    descricao:
-      "Computadores Intel i5, Ar condicionado, TV,k kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkjjjjjjjjjjsssssssssssssssssssssssaaaaaaaaaaaaaaaaaaaaadddddddddddddddaaaaaaaaaaaaaeeeeeeeeeeeeeeeewqqqqqqqqqqqqqqqwwwwwww",
-    tipo: "Laboratório",
-    status: "Ocupado",
-  },
-  {
-    id: 3,
-    nome: "Lab 202",
-    local: "Bloco A, 2º andar",
-    capacidade: 40,
-    descricao: "Computadores Intel i5, Ar condicionado, TV,",
-    tipo: "Laboratório",
-    status: "Ocupado",
-  },
-  {
-    id: 4,
-    nome: "Sala 207",
-    local: "Bloco A, 2º andar",
-    capacidade: 40,
-    descricao: "Ventilador, TV, Projetor",
-    tipo: "Sala de aula",
-    status: "Livre",
-  },
-  {
-    id: 5,
-    nome: "Sala T02",
-    local: "Bloco A, Térreo",
-    capacidade: 50,
-    descricao: "Ventilador, TV, Projetor",
-    tipo: "Sala de aula",
-    status: "Livre",
-  },
-  {
-    id: 6,
-    nome: "Lab Maker",
-    local: "Bloco B, Térreo",
-    capacidade: 20,
-    descricao: "Impressoras 3D, Bancadas, Ferramentas",
-    tipo: "Laboratório",
-    status: "Livre",
-  },
-];
+// IMPORTANTE: Ajuste o caminho do import conforme a sua estrutura de pastas
+import { laboratoryService } from "../services/laboratory.service";
 
 const LaboratoriesPage = () => {
-  // Estados dos Filtros
+  // 1. Estados da API
+  const [laboratorios, setLaboratorios] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // 2. Estados dos Filtros
   const [searchTerm, setSearchTerm] = useState("");
   const [capacidadeFilter, setCapacidadeFilter] = useState("todas");
   const [statusFilter, setStatusFilter] = useState("todos");
   const [tipoFilter, setTipoFilter] = useState("todos");
 
-  // Estados do Modal de Reserva
+  // 3. Estados do Modal de Reserva (Mantido, embora a navegação esteja no botão)
   const [modalOpen, setModalOpen] = useState(false);
   const [labSelecionado, setLabSelecionado] = useState(null);
 
-  // Lógica de Filtros
+  const navigate = useNavigate();
+
+  // ==========================================
+  // BUSCA DOS DADOS REAIS
+  // ==========================================
+  useEffect(() => {
+    const fetchLaboratorios = async () => {
+      try {
+        setLoading(true);
+        // Trazemos todos os laboratórios (incluindo inativos para o filtro funcionar)
+        const data = await laboratoryService.getAll(true);
+        setLaboratorios(data);
+      } catch (err) {
+        console.error("Erro ao buscar laboratórios:", err);
+        setError("Não foi possível carregar os laboratórios. Tente novamente mais tarde.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLaboratorios();
+  }, []);
+
+  // ==========================================
+  // LÓGICA DE FILTROS ADAPTADA PARA O BANCO REAL
+  // ==========================================
   const laboratoriosFiltrados = useMemo(() => {
-    return mockLaboratorios.filter((lab) => {
+    return laboratorios.filter((lab) => {
+      const nome = lab.name || "";
+      const descricao = lab.description || "";
+      const tipo = lab.type || "";
+      const capacidade = lab.capacity || 0;
+      // Assume que is_active 1/true é Livre e 0/false é Inativo/Ocupado
+      const isLivre = lab.is_active === 1 || lab.is_active === true; 
+
       const matchSearch =
-        lab.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lab.descricao.toLowerCase().includes(searchTerm.toLowerCase());
+        nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        descricao.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const statusLabString = isLivre ? "livre" : "ocupado";
       const matchStatus =
-        statusFilter === "todos" ||
-        lab.status.toLowerCase() === statusFilter.toLowerCase();
+        statusFilter === "todos" || statusLabString === statusFilter.toLowerCase();
+      
       const matchTipo =
-        tipoFilter === "todos" ||
-        lab.tipo.toLowerCase() === tipoFilter.toLowerCase();
+        tipoFilter === "todos" || tipo.toLowerCase().includes(tipoFilter.toLowerCase());
 
       let matchCapacidade = true;
-      if (capacidadeFilter === "ate30") matchCapacidade = lab.capacidade <= 30;
-      if (capacidadeFilter === "mais30") matchCapacidade = lab.capacidade > 30;
+      if (capacidadeFilter === "ate30") matchCapacidade = capacidade <= 30;
+      if (capacidadeFilter === "mais30") matchCapacidade = capacidade > 30;
 
       return matchSearch && matchStatus && matchTipo && matchCapacidade;
     });
-  }, [searchTerm, capacidadeFilter, statusFilter, tipoFilter]);
+  }, [searchTerm, capacidadeFilter, statusFilter, tipoFilter, laboratorios]);
 
   // Controles do Modal
-  const handleOpenModal = (lab) => {
-    setLabSelecionado(lab);
-    setModalOpen(true);
-  };
   const handleCloseModal = () => {
     setModalOpen(false);
     setLabSelecionado(null);
   };
 
-  const navigate = useNavigate();
+  // Se estiver carregando, mostra o spinner
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
     <Box>
       <StaggerItem index={0}>
@@ -131,6 +118,12 @@ const LaboratoriesPage = () => {
           Laboratórios Disponíveis
         </Typography>
       </StaggerItem>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
 
       {/* BARRA DE FILTROS */}
       <StaggerItem index={1}>
@@ -178,7 +171,7 @@ const LaboratoriesPage = () => {
               >
                 <MenuItem value="todos">Todos</MenuItem>
                 <MenuItem value="livre">Livres</MenuItem>
-                <MenuItem value="ocupado">Ocupados</MenuItem>
+                <MenuItem value="ocupado">Inativos</MenuItem>
               </TextField>
             </Grid>
             <Grid item xs={12} sm={4} md={3}>
@@ -191,8 +184,9 @@ const LaboratoriesPage = () => {
                 onChange={(e) => setTipoFilter(e.target.value)}
               >
                 <MenuItem value="todos">Todos</MenuItem>
-                <MenuItem value="laboratório">Laboratório</MenuItem>
-                <MenuItem value="sala de aula">Sala de Aula</MenuItem>
+                <MenuItem value="laboratorio">Laboratório</MenuItem>
+                <MenuItem value="sala">Sala de Aula</MenuItem>
+                <MenuItem value="auditorio">Auditorio</MenuItem>
               </TextField>
             </Grid>
           </Grid>
@@ -200,10 +194,6 @@ const LaboratoriesPage = () => {
       </StaggerItem>
 
       {/* GRID DE LABORATÓRIOS */}
-      {/* ========================================== */}
-      {/* CSS GRID: O "Ditador" do Layout (3 colunas exatas) */}
-      {/* ========================================== */}
-      {/* CSS GRID */}
       <Box
         sx={{
           display: "grid",
@@ -215,118 +205,118 @@ const LaboratoriesPage = () => {
           gap: 3,
         }}
       >
-        {/* Adicionamos o 'index' como segundo parâmetro do map */}
-        {laboratoriosFiltrados.map((lab, index) => (
-          // O StaggerItem vira o pai, recebe a KEY e o INDEX automático!
-          <StaggerItem key={lab.id} index={index} sx={{ height: "100%" }}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 3,
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                borderRadius: 2,
-                borderTop: "4px solid",
-                borderColor:
-                  lab.status === "Livre" ? "success.main" : "error.main",
-                boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
-              }}
-            >
-              <Box sx={{ mb: 1 }}>
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: "bold", lineHeight: 1.2, mb: 0.5 }}
-                >
-                  {lab.nome}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ color: "text.secondary", display: "block" }}
-                >
-                  Localização: {lab.local}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ color: "text.secondary", display: "block" }}
-                >
-                  Capacidade: {lab.capacidade} lugares
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}
+        {laboratoriosFiltrados.map((lab, index) => {
+          const isLivre = lab.is_active === 1 || lab.is_active === true;
+          
+          return (
+            <StaggerItem key={lab.id} index={index} sx={{ height: "100%" }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  borderRadius: 2,
+                  borderTop: "4px solid",
+                  borderColor: isLivre ? "success.main" : "error.main",
+                  boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
+                }}
               >
-                <Box sx={{ mb: 2, minHeight: "60px" }}>
+                <Box sx={{ mb: 1 }}>
                   <Typography
-                    variant="body2"
-                    sx={{
-                      color: "text.secondary",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      wordBreak: "break-word",
-                    }}
+                    variant="h6"
+                    sx={{ fontWeight: "bold", lineHeight: 1.2, mb: 0.5 }}
                   >
-                    {lab.descricao}
-                  </Typography>
-
-                  {lab.descricao.length > 50 && (
-                    <Typography
-                      variant="caption"
-                      color="info.main"
-                      sx={{
-                        cursor: "pointer",
-                        display: "inline-block",
-                        fontWeight: "bold",
-                        mt: 0.5,
-                      }}
-                      onClick={() =>
-                        alert(`Detalhes de ${lab.nome}:\n\n${lab.descricao}`)
-                      }
-                    >
-                      Ver detalhes
-                    </Typography>
-                  )}
-                </Box>
-
-                <Box>
-                  <Typography variant="body2">
-                    <strong>Tipo:</strong> {lab.tipo}
+                    {lab.name}
                   </Typography>
                   <Typography
-                    variant="body2"
-                    sx={{
-                      color:
-                        lab.status === "Livre" ? "success.main" : "error.main",
-                      fontWeight: "bold",
-                    }}
+                    variant="caption"
+                    sx={{ color: "text.secondary", display: "block" }}
                   >
-                    Status: {lab.status}
+                    Localização: {lab.location || 'Não informada'}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "text.secondary", display: "block" }}
+                  >
+                    Capacidade: {lab.capacity || 0} lugares
                   </Typography>
                 </Box>
-              </Box>
 
-              <Box sx={{ mt: 3 }}>
-                <Button
-                  variant={lab.status === "Livre" ? "contained" : "outlined"}
-                  color={lab.status === "Livre" ? "primary" : "inherit"}
-                  fullWidth
-                  disableElevation
-                  disabled={lab.status !== "Livre"}
-                  onClick={() => navigate(`/reservas/nova?lab_id=${lab.id}`)}
+                <Box
+                  sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}
                 >
-                  {lab.status === "Livre" ? "Reservar" : "Indisponível"}
-                </Button>
-              </Box>
-            </Paper>
-          </StaggerItem>
-        ))}
+                  <Box sx={{ mb: 2, minHeight: "60px" }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "text.secondary",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        wordBreak: "break-word",
+                      }}
+                    >
+                      {lab.description || "Sem descrição disponível."}
+                    </Typography>
+
+                    {(lab.description && lab.description.length > 50) && (
+                      <Typography
+                        variant="caption"
+                        color="info.main"
+                        sx={{
+                          cursor: "pointer",
+                          display: "inline-block",
+                          fontWeight: "bold",
+                          mt: 0.5,
+                        }}
+                        onClick={() =>
+                          alert(`Detalhes de ${lab.name}:\n\n${lab.description}`)
+                        }
+                      >
+                        Ver detalhes
+                      </Typography>
+                    )}
+                  </Box>
+
+                  <Box>
+                    <Typography variant="body2">
+                      <strong>Tipo:</strong> {lab.type || 'N/A'}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: isLivre ? "success.main" : "error.main",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Status: {isLivre ? "Livre" : "Inativo"}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Box sx={{ mt: 3 }}>
+                  <Button
+                    variant={isLivre ? "contained" : "outlined"}
+                    color={isLivre ? "primary" : "inherit"}
+                    fullWidth
+                    disableElevation
+                    disabled={!isLivre}
+                    onClick={() => navigate(`/reservas/nova?lab_id=${lab.id}`)}
+                  >
+                    {isLivre ? "Reservar" : "Indisponível"}
+                  </Button>
+                </Box>
+              </Paper>
+            </StaggerItem>
+          );
+        })}
       </Box>
 
-      {/* MODAL DE RESERVA */}
+      {/* O Modal permanece o mesmo código, já que aparentemente o botão 'Reservar' está fazendo um navigate direto para a tela de nova reserva */}
       <Dialog
         open={modalOpen}
         onClose={handleCloseModal}
@@ -346,19 +336,15 @@ const LaboratoriesPage = () => {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-            Reservar {labSelecionado?.nome}
+            Reservar {labSelecionado?.name}
           </Typography>
           <IconButton onClick={handleCloseModal} sx={{ color: "white" }}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>
 
-        <DialogContent
-          dividers
-          sx={{ p: 3, display: "flex", flexDirection: "column", gap: 3 }}
-        >
-          {/* Campo de Data */}
-          <TextField
+        <DialogContent dividers sx={{ p: 3, display: "flex", flexDirection: "column", gap: 3 }}>
+           <TextField
             label="Selecionar Data"
             type="date"
             fullWidth
@@ -385,7 +371,7 @@ const LaboratoriesPage = () => {
             fullWidth
             placeholder="Ex: Aula de desenvolvimento web, prova de banco de dados..."
           />
-        </DialogContent>
+        
 
         <DialogActions sx={{ p: 2, px: 3 }}>
           <Button
@@ -403,6 +389,12 @@ const LaboratoriesPage = () => {
           >
             Confirmar Reserva
           </Button>
+        </DialogActions>
+          <Typography variant="body1">O redirecionamento é feito pelo botão da listagem.</Typography>
+        </DialogContent>
+        
+        <DialogActions sx={{ p: 2, px: 3 }}>
+          <Button onClick={handleCloseModal} color="inherit" sx={{ fontWeight: "bold" }}>Cancelar</Button>
         </DialogActions>
       </Dialog>
     </Box>

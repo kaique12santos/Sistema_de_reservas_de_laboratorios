@@ -29,5 +29,6 @@ router.get(
   authMiddleware,
   ReservationController.getMyReservations
 );
+router.patch('/:id/cancel', authMiddleware, ReservationController.cancel);
 
 export default router;

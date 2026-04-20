@@ -19,25 +19,29 @@ class ReservationService {
         throw new Error('Nenhum ciclo acadêmico ativo encontrado.');
       }
 
-      // Validate that the requested date is within the active cycle
-      const requestDate = new Date(reservationData.date);
-      const cycleStart = new Date(activeCycle.start_date);
-      const cycleEnd = new Date(activeCycle.end_date);
-      if (requestDate < cycleStart || requestDate > cycleEnd) {
+      const requestDateStr = reservationData.date; // Já vem "YYYY-MM-DD" do Zod
+      
+      // Converte as datas do banco para o formato YYYY-MM-DD
+      const cycleStartStr = activeCycle.start_date.toISOString().split('T')[0];
+      const cycleEndStr = activeCycle.end_date.toISOString().split('T')[0];
+
+      if (requestDateStr < cycleStartStr || requestDateStr > cycleEndStr) {
         throw new Error('A data solicitada está fora do período do ciclo acadêmico ativo.');
       }
 
-      // Check if the date is a holiday
-      const isHoliday = await HolidayService.isHoliday(reservationData.date, activeCycle.id);
+      // Verifica se é feriado
+      const isHoliday = await HolidayService.isHoliday(requestDateStr, activeCycle.id);
       if (isHoliday) {
         throw new Error('A data solicitada é um feriado e não permite reservas.');
       }
 
-      // Exclusive Admin Period
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const exclusiveEnd = activeCycle.admin_exclusive_end_date ? new Date(activeCycle.admin_exclusive_end_date) : null;
-      if (exclusiveEnd && today <= exclusiveEnd && userRole !== 'ADMIN') {
+      // Período exclusivo Admin (Comparação de strings é imune a fuso horário)
+      const todayStr = new Date().toISOString().split('T')[0]; 
+      const exclusiveEndStr = activeCycle.admin_exclusive_end_date 
+        ? activeCycle.admin_exclusive_end_date.toISOString().split('T')[0] 
+        : null;
+
+      if (exclusiveEndStr && todayStr <= exclusiveEndStr && userRole !== 'ADMIN') {
         throw new Error('Período exclusivo para coordenadores. Professores não podem fazer reservas neste momento.');
       }
 
@@ -64,23 +68,27 @@ class ReservationService {
         if (userRole === 'PROFESSOR') {
           throw new Error('Conflito detectado: O laboratório já está reservado para um ou mais horários selecionados.');
         } else if (userRole === 'ADMIN') {
-          // Log as warning but allow creation
-          console.warn(`Admin override: Conflict detected for reservation on ${reservationData.date}, lab ${reservationData.lab_id}`);
+          console.warn(`Admin override: Cancelando reservas conflitantes em ${reservationData.date}, lab ${reservationData.lab_id}`);
+          
+          // 👇 A MÁGICA ACONTECE AQUI: O Admin "limpa" a agenda antes de inserir a dele!
+          await ReservationRepository.overrideConflictingItems(
+            reservationData.lab_id,
+            reservationData.date,
+            reservationData.time_slot_ids,
+            connection
+          );
         }
       }
 
-      // 3. Status Definition
-      const status = 'APPROVED'; // Both professor and admin get APPROVED
+      const status = userRole === 'ADMIN' ? 'APPROVED' : 'PENDING'; 
 
-      // 4. Data Persistence (ATOMIC TRANSACTION)
-      // Insert into 'reservations'
       const reservationId = await ReservationRepository.create({
         user_id: userId,
         lab_id: reservationData.lab_id,
-        cycle_id: activeCycle.id
+        cycle_id: activeCycle.id,
+        status: status
       }, connection);
 
-      // Map 'time_slot_ids' to insert multiple rows into 'reservation_items'
       const reservationItems = [];
       for (const timeSlotId of reservationData.time_slot_ids) {
         const timeSlot = timeSlots.find(ts => ts.id === timeSlotId);
@@ -144,6 +152,49 @@ class ReservationService {
 
   async getMyReservations(userId) {
     return await ReservationRepository.findByProfessor(userId);
+  }
+
+  async cancelReservation(reservationId, userId) {
+    const connection = await db.connection.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      // 1. Busca a reserva para validar
+      const reservation = await ReservationRepository.findById(reservationId);
+      
+      if (!reservation) {
+        throw new Error('Reserva não encontrada.');
+      }
+
+      // 2. Trava de Segurança: Só o dono da reserva (ou um ADMIN) pode cancelar
+      if (reservation.user_id !== userId) {
+        throw new Error('Acesso negado. Você não tem permissão para cancelar esta reserva.');
+      }
+
+      // 3. Impede cancelamento de algo que já está cancelado
+      if (reservation.status === 'CANCELED') {
+        throw new Error('Esta reserva já encontra-se cancelada.');
+      }
+
+      // 4. Atualiza o banco (você precisará ter esse método no Repository)
+      await ReservationRepository.updateStatus(reservationId, 'CANCELED', connection);
+
+      // (Opcional) Log de auditoria
+      await ReservationRepository.createAuditLog(
+        'UPDATE', 'reservations', reservationId, userId, 
+        { status: reservation.status }, { status: 'CANCELED' }, 
+        connection
+      );
+
+      await connection.commit();
+      return true;
+
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
   }
 }
 

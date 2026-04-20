@@ -181,27 +181,27 @@ ADMIN lista usuários pendentes e pode aprovar ou rejeitar cadastros.
 **Entregáveis:**
 
 **1. UserRepository.js (adicionar métodos):**
-- [ ] `findPending()` → SELECT * FROM users WHERE status = 'PENDING' ORDER BY created_at
-- [ ] `updateStatus(id, status, rejectionReason = null)` → UPDATE users SET status = ?, rejection_reason = ? WHERE id = ?
-- [ ] `countByStatus(status)` → SELECT COUNT(*) FROM users WHERE status = ?
+- [x] `findPending()` → SELECT * FROM users WHERE status = 'PENDING' ORDER BY created_at
+- [x] `updateStatus(id, status, rejectionReason = null)` → UPDATE users SET status = ?, rejection_reason = ? WHERE id = ?
+- [x] `countByStatus(status)` → SELECT COUNT(*) FROM users WHERE status = ?
 
 **2. UserService.js:**
-- [ ] `listPendingUsers()` → retorna array de usuários pendentes
+- [x] `listPendingUsers()` → retorna array de usuários pendentes
   ```javascript
   async listPendingUsers() {
     return await UserRepository.findPending();
   }
   ```
 
-- [ ] `approveUser(userId, adminId)` → aprova usuário
+- [x] `approveUser(userId, adminId)` → aprova usuário
   **Lógica de Negócio:**
-  1. [ ] Buscar usuário por ID
+  1. [x] Buscar usuário por ID
      - Se não existir: erro "Usuário não encontrado"
-  2. [ ] Validar status atual:
+  2. [x] Validar status atual:
      - Se != PENDING: erro "Usuário já foi processado"
-  3. [ ] Atualizar status para 'APPROVED'
-  4. [ ] (Opcional) Enviar email: "Sua conta foi aprovada! Você já pode fazer login."
-  5. [ ] Registrar em audit_logs:
+  3. [x] Atualizar status para 'APPROVED'
+  4. [x] (Opcional) Enviar email: "Sua conta foi aprovada! Você já pode fazer login."
+  5. [x] Registrar em audit_logs:
      ```javascript
      AuditService.log(
        'APPROVE',
@@ -212,24 +212,24 @@ ADMIN lista usuários pendentes e pode aprovar ou rejeitar cadastros.
        { status: 'APPROVED' }
      );
      ```
-  6. [ ] Retornar usuário atualizado
+  6. [x] Retornar usuário atualizado
 
-- [ ] `rejectUser(userId, adminId, reason)` → rejeita usuário
+- [x] `rejectUser(userId, adminId, reason)` → rejeita usuário
   **Lógica de Negócio:**
-  1. [ ] Validar que reason não é vazio
+  1. [x] Validar que reason não é vazio
      - Se vazio: erro "Motivo da rejeição é obrigatório"
-  2. [ ] Buscar usuário e validar status = PENDING
-  3. [ ] Atualizar:
+  2. [x] Buscar usuário e validar status = PENDING
+  3. [x] Atualizar:
      ```javascript
      status = 'REJECTED',
      rejection_reason = reason
      ```
-  4. [ ] (Opcional) Enviar email: "Sua conta foi rejeitada. Motivo: [reason]"
-  5. [ ] Registrar em audit_logs
-  6. [ ] Retornar usuário atualizado
+  4. [x] (Opcional) Enviar email: "Sua conta foi rejeitada. Motivo: [reason]"
+  5. [x] Registrar em audit_logs
+  6. [x] Retornar usuário atualizado
 
 **3. UserController.js:**
-- [ ] `getPending(req, res)` → GET /api/users/pending
+- [x] `getPending(req, res)` → GET /api/users/pending
   ```javascript
   async getPending(req, res) {
     try {
@@ -241,7 +241,7 @@ ADMIN lista usuários pendentes e pode aprovar ou rejeitar cadastros.
   }
   ```
 
-- [ ] `approve(req, res)` → PUT /api/users/:id/approve
+- [x] `approve(req, res)` → PUT /api/users/:id/approve
   ```javascript
   async approve(req, res) {
     try {
@@ -256,7 +256,7 @@ ADMIN lista usuários pendentes e pode aprovar ou rejeitar cadastros.
   }
   ```
 
-- [ ] `reject(req, res)` → PUT /api/users/:id/reject
+- [x] `reject(req, res)` → PUT /api/users/:id/reject
   ```javascript
   async reject(req, res) {
     try {
@@ -295,17 +295,17 @@ function isValidUserStatusTransition(from, to) {
 ```
 
 **Critérios de Aceite:**
-- [ ] GET /api/users/pending retorna lista de usuários PENDING
-- [ ] PUT /api/users/:id/approve muda status para APPROVED
-- [ ] PUT /api/users/:id/reject requer reason obrigatório
-- [ ] Não pode aprovar usuário já aprovado (erro)
-- [ ] Não pode reverter aprovação/rejeição (erro)
-- [ ] Apenas ADMIN pode acessar estas rotas (403 se PROFESSOR)
-- [ ] Testado no Postman:
-  - [ ] Listar pendentes
-  - [ ] Aprovar usuário
-  - [ ] Tentar aprovar novamente (deve falhar)
-  - [ ] Rejeitar outro usuário com motivo
+- [x] GET /api/users/pending retorna lista de usuários PENDING
+- [x] PUT /api/users/:id/approve muda status para APPROVED
+- [x] PUT /api/users/:id/reject requer reason obrigatório
+- [x] Não pode aprovar usuário já aprovado (erro)
+- [x] Não pode reverter aprovação/rejeição (erro)
+- [x] Apenas ADMIN pode acessar estas rotas (403 se PROFESSOR)
+- [x] Testado no Postman:
+  - [x] Listar pendentes
+  - [x] Aprovar usuário
+  - [x] Tentar aprovar novamente (deve falhar)
+  - [x] Rejeitar outro usuário com motivo
 
 **Status:** ✅ Concluído  
 **Responsável:**  Vinicius
@@ -321,53 +321,53 @@ Gerenciamento completo de laboratórios (criar, listar, editar, inativar).
 **Entregáveis:**
 
 **1. LaboratoryRepository.js:**
-- [ ] `findAll(includeInactive = false)` → SELECT * FROM laboratories WHERE is_active = true (ou todos se includeInactive) ORDER BY name
-- [ ] `findById(id)` → SELECT * WHERE id = ? AND is_active = true
-- [ ] `findByName(name)` → SELECT * WHERE name = ?
-- [ ] `create(data)` → INSERT (name, location, capacity, description_lab, type)
-- [ ] `update(id, data)` → UPDATE SET ... WHERE id = ?
-- [ ] `softDelete(id)` → UPDATE is_active = false WHERE id = ?
-- [ ] `hasActiveReservations(labId)` → verifica se há reservation_items com date >= HOJE e status = ACTIVE
+- [x] `findAll(includeInactive = false)` → SELECT * FROM laboratories WHERE is_active = true (ou todos se includeInactive) ORDER BY name
+- [x] `findById(id)` → SELECT * WHERE id = ? AND is_active = true
+- [x] `findByName(name)` → SELECT * WHERE name = ?
+- [x] `create(data)` → INSERT (name, location, capacity, description_lab, type)
+- [x] `update(id, data)` → UPDATE SET ... WHERE id = ?
+- [x] `softDelete(id)` → UPDATE is_active = false WHERE id = ?
+- [x] `hasActiveReservations(labId)` → verifica se há reservation_items com date >= HOJE e status = ACTIVE
 
 **2. LaboratoryService.js:**
-- [ ] `listLaboratories(includeInactive = false)` → lista labs
+- [x] `listLaboratories(includeInactive = false)` → lista labs
   ```javascript
   async listLaboratories(includeInactive = false) {
     return await LaboratoryRepository.findAll(includeInactive);
   }
   ```
 
-- [ ] `getLaboratoryById(id)` → busca lab por ID
+- [x] `getLaboratoryById(id)` → busca lab por ID
   **Validação:**
   - Se não encontrado: erro "Laboratório não encontrado"
 
-- [ ] `createLaboratory(dto)` → cria lab
+- [x] `createLaboratory(dto)` → cria lab
   **Validações:**
-  1. [ ] name obrigatório
-  2. [ ] name único (verificar com findByName)
+  1. [x] name obrigatório
+  2. [x] name único (verificar com findByName)
      - Se existir: erro "Já existe laboratório com este nome"
-  3. [ ] capacity obrigatório e > 0
+  3. [x] capacity obrigatório e > 0
      - Se <= 0: erro "Capacidade deve ser maior que zero"
-  4. [ ] type obrigatório e válido
+  4. [x] type obrigatório e válido
      - Valores: 'LABORATORIO', 'SALA DE AULA', 'AUDITORIO'
      - Se inválido: erro "Tipo inválido"
-  5. [ ] location opcional mas recomendado
-  6. [ ] Criar no banco com is_active = true
-  7. [ ] Retornar laboratório criado
+  5. [x] location opcional mas recomendado
+  6. [x] Criar no banco com is_active = true
+  7. [x] Retornar laboratório criado
 
-- [ ] `updateLaboratory(id, dto)` → atualiza lab
+- [x] `updateLaboratory(id, dto)` → atualiza lab
   **Validações:**
-  1. [ ] Lab existe
-  2. [ ] Se mudar name: verificar se novo nome já existe (exceto próprio ID)
-  3. [ ] capacity > 0 se fornecido
-  4. [ ] type válido se fornecido
-  5. [ ] Atualizar campos fornecidos
-  6. [ ] Retornar lab atualizado
+  1. [x] Lab existe
+  2. [x] Se mudar name: verificar se novo nome já existe (exceto próprio ID)
+  3. [x] capacity > 0 se fornecido
+  4. [x] type válido se fornecido
+  5. [x] Atualizar campos fornecidos
+  6. [x] Retornar lab atualizado
 
-- [ ] `deleteLaboratory(id)` → inativa lab (soft-delete)
+- [x] `deleteLaboratory(id)` → inativa lab (soft-delete)
   **Regra de Negócio Crítica:**
-  1. [ ] Lab existe
-  2. [ ] Verificar se possui reservas futuras ativas:
+  1. [x] Lab existe
+  2. [x] Verificar se possui reservas futuras ativas:
      ```sql
      SELECT COUNT(*) FROM reservation_items
      WHERE lab_id = ?
@@ -375,17 +375,17 @@ Gerenciamento completo de laboratórios (criar, listar, editar, inativar).
        AND status = 'ACTIVE'
      ```
      - Se COUNT > 0: erro "Laboratório possui reservas futuras. Cancele-as primeiro."
-  3. [ ] Se sem reservas: UPDATE is_active = false
-  4. [ ] Retornar sucesso
+  3. [x] Se sem reservas: UPDATE is_active = false
+  4. [x] Retornar sucesso
 
 **3. LaboratoryController.js:**
-- [ ] `index(req, res)` → GET /api/laboratories
+- [x] `index(req, res)` → GET /api/laboratories
   - Query param: `?include_inactive=true` (opcional, só ADMIN)
   - Se PROFESSOR: sempre includeInactive = false
 
-- [ ] `show(req, res)` → GET /api/laboratories/:id
+- [x] `show(req, res)` → GET /api/laboratories/:id
 
-- [ ] `create(req, res)` → POST /api/laboratories
+- [x] `create(req, res)` → POST /api/laboratories
   **Body esperado:**
   ```json
   {
@@ -397,17 +397,9 @@ Gerenciamento completo de laboratórios (criar, listar, editar, inativar).
   }
   ```
 
-- [ ] `update(req, res)` → PUT /api/laboratories/:id
+- [x] `update(req, res)` → PUT /api/laboratories/:id
 
-- [ ] `destroy(req, res)` → DELETE /api/laboratories/:id
-
-**4. routes/laboratory.routes.js:**
-```javascript
-const { verifyToken, authorize } = require('../middlewares/auth.middleware');
-
-// Rotas públicas (autenticadas)
-router.get('/', verifyToken, LaboratoryController.index);
-router.get('/:id', verifyToken, LaboratoryController.show);
+- [x] `destroy(req, res)` → DELETE /api/laboratories/:id
 
 // Rotas de ADMIN
 router.post('/', verifyToken, authorize(['ADMIN']), LaboratoryController.create);
@@ -460,19 +452,19 @@ Configurar períodos de aula padrão (M1, M2, N1, etc).
 - [x] `listTimeSlots()` → lista horários ativos
 - [x] `createTimeSlot(dto)` → cria horário
   **Validações:**
-  1. [ ] name obrigatório (ex: "M1", "Vespertino 1")
-  2. [ ] start_time obrigatório, formato TIME válido (HH:MM:SS)
-  3. [ ] end_time obrigatório, formato TIME válido
-  4. [ ] start_time < end_time
+  1. [x] name obrigatório (ex: "M1", "Vespertino 1")
+  2. [x] start_time obrigatório, formato TIME válido (HH:MM:SS)
+  3. [x] end_time obrigatório, formato TIME válido
+  4. [x] start_time < end_time
      - Se start >= end: erro "Horário inicial deve ser anterior ao final"
-  5. [ ] Criar com is_active = true
-  6. [ ] Retornar time slot criado
+  5. [x] Criar com is_active = true
+  6. [x] Retornar time slot criado
 
 - [x] `updateTimeSlot(id, dto)` → atualiza horário
   **Validações:**
-  1. [ ] Time slot existe
-  2. [ ] Se atualizar horários: validar start < end
-  3. [ ] Atualizar campos fornecidos
+  1. [x] Time slot existe
+  2. [x] Se atualizar horários: validar start < end
+  3. [x] Atualizar campos fornecidos
 
 - [x] `deleteTimeSlot(id)` → inativa horário
   **Regra de Negócio:**
@@ -507,35 +499,17 @@ routes.delete('/:id', verifyToken, authorize(['ADMIN']), TimeSlotController.dest
 ```
 
 **Critérios de Aceite:**
-- [ ] GET /api/time-slots retorna lista ordenada por start_time
-- [ ] POST cria horário com validações
-- [ ] Não pode criar horário com start >= end (erro)
-- [ ] PUT atualiza campos
-- [ ] DELETE inativa se sem reservas futuras
-- [ ] PROFESSOR só pode listar (403 em create/update/delete)
-- [ ] Testado no Postman
-
-**Status:** ✅ Concluído 
-**Responsável:** Nicole  
-**Depende de:** F1-BE-04, F1-BE-05
-
----
-
-## 🔹 Frontend
-
-### [F2-FE-01] Tela de Aprovação de Cadastros
-
-**Descrição:**  
-Interface para ADMIN visualizar e gerenciar usuários pendentes.
-
-**Entregáveis:**
-- [ ] `src/pages/admin/PendingUsersPage.jsx`
-- [ ] `src/services/user.service.js` (métodos de API)
-
+- [x] GET /api/time-slots retorna lista ordenada por start_time
+- [x] POST cria horário com validações
+- [x] Não pode criar horário com start >= end (erro)
+- [x] PUT atualiza campos
+- [x] DELETE inativa se sem reservas futuras
+- [x] PROFESSOR só pode listar (403 em create/update/delete)
+- [x] Testado no Postman
 **Componentes:**
 
 **1. Lista de Usuários Pendentes:**
-- [ ] DataGrid do MUI com colunas:
+- [x] DataGrid do MUI com colunas:
   - Nome
   - Email
   - Departamento
@@ -569,13 +543,13 @@ useEffect(() => {
 ```
 
 **4. Ação: Aprovar**
-- [ ] Botão "Aprovar" (ícone check verde)
-- [ ] Ao clicar: Modal de confirmação
+- [x] Botão "Aprovar" (ícone check verde)
+- [x] Ao clicar: Modal de confirmação
   ```
   "Aprovar cadastro de [Nome]?"
   [Cancelar] [Confirmar]
   ```
-- [ ] Ao confirmar:
+- [x] Ao confirmar:
   ```javascript
   async function handleApprove(userId) {
     try {
@@ -590,8 +564,8 @@ useEffect(() => {
   ```
 
 **5. Ação: Rejeitar**
-- [ ] Botão "Rejeitar" (ícone X vermelho)
-- [ ] Ao clicar: Modal com formulário
+- [x] Botão "Rejeitar" (ícone X vermelho)
+- [x] Ao clicar: Modal com formulário
   ```
   "Rejeitar cadastro de [Nome]"
   
@@ -600,8 +574,8 @@ useEffect(() => {
   
   [Cancelar] [Rejeitar]
   ```
-- [ ] Validação: motivo não pode ser vazio
-- [ ] Ao confirmar:
+- [x] Validação: motivo não pode ser vazio
+- [x] Ao confirmar:
   ```javascript
   async function handleReject(userId, reason) {
     try {
@@ -616,12 +590,12 @@ useEffect(() => {
   ```
 
 **6. Filtros (opcional mas recomendado):**
-- [ ] Select: Filtrar por departamento
-- [ ] DatePicker: Filtrar por data de cadastro
-- [ ] TextField: Busca por nome ou email
+- [x] Select: Filtrar por departamento
+- [x] DatePicker: Filtrar por data de cadastro
+- [x] TextField: Busca por nome ou email
 
 **7. Estado Vazio:**
-- [ ] Se `users.length === 0`: exibir mensagem
+- [x] Se `users.length === 0`: exibir mensagem
   ```
   "Nenhum usuário aguardando aprovação 🎉"
   ```
@@ -670,14 +644,14 @@ export const userService = {
 CRUD completo de laboratórios com DataGrid e modal.
 
 **Entregáveis:**
-- [ ] `src/pages/admin/LaboratoriesPage.jsx`
-- [ ] `src/components/admin/LaboratoryFormModal.jsx`
-- [ ] `src/services/laboratory.service.js`
+- [x] `src/pages/admin/LaboratoriesPage.jsx`
+- [x] `src/components/admin/LaboratoryFormModal.jsx`
+- [x] `src/services/laboratory.service.js`
 
 **Componentes:**
 
 **1. Lista de Laboratórios:**
-- [ ] DataGrid com colunas:
+- [x] DataGrid com colunas:
   - Nome
   - Localização
   - Capacidade
@@ -686,19 +660,19 @@ CRUD completo de laboratórios com DataGrid e modal.
   - Ações (Editar, Deletar)
 
 **2. Botão "Novo Laboratório":**
-- [ ] Botão no topo da página (ícone +)
-- [ ] Ao clicar: abre modal de criação
+- [x] Botão no topo da página (ícone +)
+- [x] Ao clicar: abre modal de criação
 
 **3. Modal de Criação/Edição:**
-- [ ] Título dinâmico: "Novo Laboratório" ou "Editar [Nome]"
-- [ ] Formulário MUI com campos:
-  - [ ] TextField: Nome (obrigatório)
-  - [ ] TextField: Localização (opcional)
-  - [ ] TextField: Capacidade (number, obrigatório, min=1)
-  - [ ] TextField: Descrição (multiline, opcional)
-  - [ ] Select: Tipo
+- [x] Título dinâmico: "Novo Laboratório" ou "Editar [Nome]"
+- [x] Formulário MUI com campos:
+  - [x] TextField: Nome (obrigatório)
+  - [x] TextField: Localização (opcional)
+  - [x] TextField: Capacidade (number, obrigatório, min=1)
+  - [x] TextField: Descrição (multiline, opcional)
+  - [x] Select: Tipo
     - Opções: Laboratório, Sala de Aula, Auditório
-- [ ] Botões: [Cancelar] [Salvar]
+- [x] Botões: [Cancelar] [Salvar]
 
 **4. Validações do Formulário:**
 ```javascript
@@ -740,21 +714,21 @@ async function handleCreate(data) {
 ```
 
 **6. Ação: Editar**
-- [ ] Botão "Editar" (ícone lápis)
-- [ ] Abre modal preenchido com dados atuais
-- [ ] Submit atualiza no backend e na lista
+- [x] Botão "Editar" (ícone lápis)
+- [x] Abre modal preenchido com dados atuais
+- [x] Submit atualiza no backend e na lista
 
 **7. Ação: Deletar (Inativar)**
-- [ ] Botão "Deletar" (ícone lixeira)
-- [ ] Modal de confirmação:
+- [x] Botão "Deletar" (ícone lixeira)
+- [x] Modal de confirmação:
   ```
   "Tem certeza que deseja inativar o laboratório [Nome]?"
   "Laboratórios inativos não aparecem nas opções de reserva."
   
   [Cancelar] [Inativar]
   ```
-- [ ] Se sucesso: atualizar lista (marcar como inativo ou remover)
-- [ ] Se erro (reservas futuras):
+- [x] Se sucesso: atualizar lista (marcar como inativo ou remover)
+- [x] Se erro (reservas futuras):
   ```javascript
   catch (error) {
     if (error.response?.data?.error.includes('reservas futuras')) {
@@ -764,8 +738,8 @@ async function handleCreate(data) {
   ```
 
 **8. Filtros (opcional):**
-- [ ] Checkbox: "Mostrar inativos" (só ADMIN)
-- [ ] Select: Filtrar por tipo
+- [x] Checkbox: "Mostrar inativos" (só ADMIN)
+- [x] Select: Filtrar por tipo
 
 **src/services/laboratory.service.js:**
 ```javascript
@@ -817,26 +791,26 @@ export const laboratoryService = {
 Gerenciar períodos de aula (M1, M2, N1, etc).
 
 **Entregáveis:**
-- [ ] `src/pages/admin/TimeSlotsPage.jsx`
-- [ ] `src/components/admin/TimeSlotFormModal.jsx`
-- [ ] `src/services/timeSlot.service.js`
+- [x] `src/pages/admin/TimeSlotsPage.jsx`
+- [x] `src/components/admin/TimeSlotFormModal.jsx`
+- [x] `src/services/timeSlot.service.js`
 
 **Componentes:**
 
 **1. Lista de Horários:**
-- [ ] DataGrid com colunas:
+- [x] DataGrid com colunas:
   - Nome (ex: M1)
   - Horário Início
   - Horário Fim
   - Status (Ativo/Inativo)
   - Ações (Editar, Deletar)
-- [ ] Ordenado por horário de início
+- [x] Ordenado por horário de início
 
 **2. Modal de Criação/Edição:**
-- [ ] TextField: Nome (ex: "M5")
-- [ ] TimePicker: Horário Início (formato HH:MM)
-- [ ] TimePicker: Horário Fim (formato HH:MM)
-- [ ] Validação: início < fim
+- [x] TextField: Nome (ex: "M5")
+- [x] TimePicker: Horário Início (formato HH:MM)
+- [x] TimePicker: Horário Fim (formato HH:MM)
+- [x] Validação: início < fim
 
 **3. Validações:**
 ```javascript
@@ -857,8 +831,8 @@ const validateTimeSlot = () => {
 ```
 
 **4. Ação: Deletar**
-- [ ] Confirmação: "Inativar horário [Nome]?"
-- [ ] Se erro (reservas futuras): exibir mensagem clara
+- [x] Confirmação: "Inativar horário [Nome]?"
+- [x] Se erro (reservas futuras): exibir mensagem clara
 
 **src/services/timeSlot.service.js:**
 ```javascript
@@ -975,24 +949,24 @@ Criar e gerenciar semestres letivos. Um ciclo deve ser ativado para que reservas
 **Entregáveis:**
 
 **1. AcademicCycleRepository.js:**
-- [ ] `findAll()` → SELECT * FROM academic_cycles ORDER BY start_date DESC
-- [ ] `findById(id)` → SELECT * FROM academic_cycles WHERE id = ?
-- [ ] `findActive()` → SELECT * FROM academic_cycles WHERE is_active = true LIMIT 1
-- [ ] `findByName(name)` → SELECT * FROM academic_cycles WHERE name = ?
-- [ ] `create(data)` → INSERT (name, start_date, end_date, exclusive_admin_end_date)
-- [ ] `update(id, data)` → UPDATE SET ... WHERE id = ?
-- [ ] `deactivateAll()` → UPDATE academic_cycles SET is_active = false
-- [ ] `activate(id)` → UPDATE academic_cycles SET is_active = true WHERE id = ?
+- [x] `findAll()` → SELECT * FROM academic_cycles ORDER BY start_date DESC
+- [x] `findById(id)` → SELECT * FROM academic_cycles WHERE id = ?
+- [x] `findActive()` → SELECT * FROM academic_cycles WHERE is_active = true LIMIT 1
+- [x] `findByName(name)` → SELECT * FROM academic_cycles WHERE name = ?
+- [x] `create(data)` → INSERT (name, start_date, end_date, exclusive_admin_end_date)
+- [x] `update(id, data)` → UPDATE SET ... WHERE id = ?
+- [x] `deactivateAll()` → UPDATE academic_cycles SET is_active = false
+- [x] `activate(id)` → UPDATE academic_cycles SET is_active = true WHERE id = ?
 
 **2. AcademicCycleService.js:**
-- [ ] `listCycles()` → lista todos os ciclos
+- [x] `listCycles()` → lista todos os ciclos
   ```javascript
   async listCycles() {
     return await AcademicCycleRepository.findAll();
   }
   ```
 
-- [ ] `getActiveCycle()` → retorna ciclo ativo
+- [x] `getActiveCycle()` → retorna ciclo ativo
   ```javascript
   async getActiveCycle() {
     const cycle = await AcademicCycleRepository.findActive();
@@ -1001,38 +975,38 @@ Criar e gerenciar semestres letivos. Um ciclo deve ser ativado para que reservas
   }
   ```
 
-- [ ] `createCycle(dto)` → cria ciclo
+- [x] `createCycle(dto)` → cria ciclo
   **Lógica de Negócio:**
-  1. [ ] Validar `name` obrigatório (ex: "2026-1")
-  2. [ ] Verificar nome único:
+  1. [x] Validar `name` obrigatório (ex: "2026-1")
+  2. [x] Verificar nome único:
      - Se existir: erro "Já existe um ciclo com este nome"
-  3. [ ] Validar `start_date` obrigatório
-  4. [ ] Validar `end_date` obrigatório
-  5. [ ] Validar start_date < end_date:
+  3. [x] Validar `start_date` obrigatório
+  4. [x] Validar `end_date` obrigatório
+  5. [x] Validar start_date < end_date:
      - Se inválido: erro "Data de início deve ser anterior à data de fim"
-  6. [ ] Validar `exclusive_admin_end_date` obrigatório
-  7. [ ] Validar exclusive_admin_end_date <= start_date:
+  6. [x] Validar `exclusive_admin_end_date` obrigatório
+  7. [x] Validar exclusive_admin_end_date <= start_date:
      - Se inválido: erro "Período exclusivo admin deve terminar antes ou na data de início do ciclo"
-  8. [ ] Criar no banco com is_active = false
-  9. [ ] Retornar ciclo criado
+  8. [x] Criar no banco com is_active = false
+  9. [x] Retornar ciclo criado
 
-- [ ] `updateCycle(id, dto)` → atualiza ciclo
+- [x] `updateCycle(id, dto)` → atualiza ciclo
   **Lógica de Negócio:**
-  1. [ ] Ciclo existe
-  2. [ ] Se alterar `name`: verificar unicidade (exceto próprio ID)
-  3. [ ] Se alterar datas: revalidar start_date < end_date
-  4. [ ] Se alterar exclusive_admin_end_date: revalidar <= start_date
-  5. [ ] Não pode editar ciclo ativo (is_active = true):
+  1. [x] Ciclo existe
+  2. [x] Se alterar `name`: verificar unicidade (exceto próprio ID)
+  3. [x] Se alterar datas: revalidar start_date < end_date
+  4. [x] Se alterar exclusive_admin_end_date: revalidar <= start_date
+  5. [x] Não pode editar ciclo ativo (is_active = true):
      - Se ativo: erro "Não é possível editar um ciclo ativo. Desative-o primeiro."
-  6. [ ] Retornar ciclo atualizado
+  6. [x] Retornar ciclo atualizado
 
-- [ ] `activateCycle(id, adminId)` → ativa ciclo
+- [x] `activateCycle(id, adminId)` → ativa ciclo
   **Lógica de Negócio:**
-  1. [ ] Ciclo existe
-  2. [ ] Se já ativo: erro "Este ciclo já está ativo"
-  3. [ ] Desativar todos os outros ciclos (deactivateAll)
-  4. [ ] Ativar o ciclo solicitado
-  5. [ ] Registrar em audit_logs:
+  1. [x] Ciclo existe
+  2. [x] Se já ativo: erro "Este ciclo já está ativo"
+  3. [x] Desativar todos os outros ciclos (deactivateAll)
+  4. [x] Ativar o ciclo solicitado
+  5. [x] Registrar em audit_logs:
      ```javascript
      AuditService.log(
        'ACTIVATE',
@@ -1043,10 +1017,10 @@ Criar e gerenciar semestres letivos. Um ciclo deve ser ativado para que reservas
        { is_active: true }
      );
      ```
-  6. [ ] Retornar ciclo ativo
+  6. [x] Retornar ciclo ativo
 
 **3. AcademicCycleController.js:**
-- [ ] `index(req, res)` → GET /api/academic-cycles
+- [x] `index(req, res)` → GET /api/academic-cycles
   ```javascript
   async index(req, res) {
     try {
@@ -1058,7 +1032,7 @@ Criar e gerenciar semestres letivos. Um ciclo deve ser ativado para que reservas
   }
   ```
 
-- [ ] `active(req, res)` → GET /api/academic-cycles/active
+- [x] `active(req, res)` → GET /api/academic-cycles/active
   ```javascript
   async active(req, res) {
     try {
@@ -1070,7 +1044,7 @@ Criar e gerenciar semestres letivos. Um ciclo deve ser ativado para que reservas
   }
   ```
 
-- [ ] `create(req, res)` → POST /api/academic-cycles
+- [x] `create(req, res)` → POST /api/academic-cycles
   **Body esperado:**
   ```json
   {
@@ -1081,9 +1055,9 @@ Criar e gerenciar semestres letivos. Um ciclo deve ser ativado para que reservas
   }
   ```
 
-- [ ] `update(req, res)` → PUT /api/academic-cycles/:id
+- [x] `update(req, res)` → PUT /api/academic-cycles/:id
 
-- [ ] `activate(req, res)` → PUT /api/academic-cycles/:id/activate
+- [x] `activate(req, res)` → PUT /api/academic-cycles/:id/activate
   ```javascript
   async activate(req, res) {
     try {
@@ -1122,20 +1096,20 @@ router.put('/:id/activate', verifyToken, authorize(['ADMIN']), AcademicCycleCont
 | PUT /academic-cycles/:id/activate | ✓ | ✗ (403) | ✗ |
 
 **Critérios de Aceite:**
-- [ ] GET /api/academic-cycles retorna lista ordenada por data
-- [ ] GET /api/academic-cycles/active retorna o ciclo ativo (404 se nenhum)
-- [ ] POST cria ciclo com is_active = false por padrão
-- [ ] Não pode criar ciclo com nome duplicado (erro)
-- [ ] Não pode criar com start_date >= end_date (erro)
-- [ ] Não pode criar com exclusive_admin_end_date > start_date (erro)
-- [ ] PUT /activate desativa todos os outros e ativa o solicitado
-- [ ] Não pode ativar ciclo já ativo (erro claro)
-- [ ] PROFESSOR não consegue criar/editar/ativar (403)
-- [ ] Testado no Postman:
-  - [ ] Criar ciclo
-  - [ ] Ativar ciclo
-  - [ ] Tentar criar com datas inválidas (deve falhar)
-  - [ ] Tentar ativar ciclo já ativo (deve falhar)
+- [x] GET /api/academic-cycles retorna lista ordenada por data
+- [x] GET /api/academic-cycles/active retorna o ciclo ativo (404 se nenhum)
+- [x] POST cria ciclo com is_active = false por padrão
+- [x] Não pode criar ciclo com nome duplicado (erro)
+- [x] Não pode criar com start_date >= end_date (erro)
+- [x] Não pode criar com exclusive_admin_end_date > start_date (erro)
+- [x] PUT /activate desativa todos os outros e ativa o solicitado
+- [x] Não pode ativar ciclo já ativo (erro claro)
+- [x] PROFESSOR não consegue criar/editar/ativar (403)
+- [x] Testado no Postman:
+  - [x] Criar ciclo
+  - [x] Ativar ciclo
+  - [x] Tentar criar com datas inválidas (deve falhar)
+  - [x] Tentar ativar ciclo já ativo (deve falhar)
 
 **Status:** ✅ Concluído  
 **Responsável:** Kaique
@@ -1151,14 +1125,14 @@ Cadastrar feriados vinculados a um ciclo acadêmico. Dias marcados como feriado 
 **Entregáveis:**
 
 **1. HolidayRepository.js:**
-- [ ] `findByCycle(cycleId)` → SELECT * FROM holidays WHERE academic_cycle_id = ? ORDER BY date ASC
-- [ ] `findById(id)` → SELECT * FROM holidays WHERE id = ?
-- [ ] `findByDateAndCycle(date, cycleId)` → SELECT * FROM holidays WHERE date = ? AND academic_cycle_id = ?
-- [ ] `create(data)` → INSERT (academic_cycle_id, date, description)
-- [ ] `delete(id)` → DELETE FROM holidays WHERE id = ?
+- [x] `findByCycle(cycleId)` → SELECT * FROM holidays WHERE academic_cycle_id = ? ORDER BY date ASC
+- [x] `findById(id)` → SELECT * FROM holidays WHERE id = ?
+- [x] `findByDateAndCycle(date, cycleId)` → SELECT * FROM holidays WHERE date = ? AND academic_cycle_id = ?
+- [x] `create(data)` → INSERT (academic_cycle_id, date, description)
+- [x] `delete(id)` → DELETE FROM holidays WHERE id = ?
 
 **2. HolidayService.js:**
-- [ ] `listHolidays(cycleId)` → lista feriados de um ciclo
+- [x] `listHolidays(cycleId)` → lista feriados de um ciclo
   ```javascript
   async listHolidays(cycleId) {
     // Se cycleId não informado, usa o ciclo ativo
@@ -1168,27 +1142,27 @@ Cadastrar feriados vinculados a um ciclo acadêmico. Dias marcados como feriado 
   }
   ```
 
-- [ ] `createHoliday(dto)` → cria feriado
+- [x] `createHoliday(dto)` → cria feriado
   **Lógica de Negócio:**
-  1. [ ] Validar `date` obrigatório (formato YYYY-MM-DD)
-  2. [ ] Validar `academic_cycle_id` obrigatório
-  3. [ ] Verificar que o ciclo existe:
+  1. [x] Validar `date` obrigatório (formato YYYY-MM-DD)
+  2. [x] Validar `academic_cycle_id` obrigatório
+  3. [x] Verificar que o ciclo existe:
      - Se não existir: erro "Ciclo acadêmico não encontrado"
-  4. [ ] Validar que date está dentro do range do ciclo:
+  4. [x] Validar que date está dentro do range do ciclo:
      - Se fora: erro "A data não pertence ao período do ciclo acadêmico"
-  5. [ ] Verificar duplicidade de feriado na mesma data/ciclo:
+  5. [x] Verificar duplicidade de feriado na mesma data/ciclo:
      - Se existir: erro "Já existe um feriado cadastrado nesta data para este ciclo"
-  6. [ ] `description` opcional (ex: "Carnaval", "Feriado Municipal")
-  7. [ ] Inserir e retornar feriado criado
+  6. [x] `description` opcional (ex: "Carnaval", "Feriado Municipal")
+  7. [x] Inserir e retornar feriado criado
 
-- [ ] `deleteHoliday(id)` → remove feriado
+- [x] `deleteHoliday(id)` → remove feriado
   **Lógica de Negócio:**
-  1. [ ] Feriado existe
-  2. [ ] Verificar que a data do feriado é >= HOJE:
+  1. [x] Feriado existe
+  2. [x] Verificar que a data do feriado é >= HOJE:
      - Se já passou: erro "Não é possível remover um feriado de data passada"
-  3. [ ] Deletar e retornar sucesso
+  3. [x] Deletar e retornar sucesso
 
-- [ ] `isHoliday(date, cycleId)` → utility para verificar se uma data é feriado
+- [x] `isHoliday(date, cycleId)` → utility para verificar se uma data é feriado
   ```javascript
   async isHoliday(date, cycleId) {
     const holiday = await HolidayRepository.findByDateAndCycle(date, cycleId);
@@ -1197,7 +1171,7 @@ Cadastrar feriados vinculados a um ciclo acadêmico. Dias marcados como feriado 
   ```
 
 **3. HolidayController.js:**
-- [ ] `index(req, res)` → GET /api/holidays
+- [x] `index(req, res)` → GET /api/holidays
   - Query param: `?cycle_id=123` (opcional, usa ativo se omitido)
   ```javascript
   async index(req, res) {
@@ -1211,7 +1185,7 @@ Cadastrar feriados vinculados a um ciclo acadêmico. Dias marcados como feriado 
   }
   ```
 
-- [ ] `create(req, res)` → POST /api/holidays
+- [x] `create(req, res)` → POST /api/holidays
   **Body esperado:**
   ```json
   {
@@ -1221,7 +1195,7 @@ Cadastrar feriados vinculados a um ciclo acadêmico. Dias marcados como feriado 
   }
   ```
 
-- [ ] `destroy(req, res)` → DELETE /api/holidays/:id
+- [x] `destroy(req, res)` → DELETE /api/holidays/:id
   ```javascript
   async destroy(req, res) {
     try {
@@ -1255,20 +1229,20 @@ router.delete('/:id', verifyToken, authorize(['ADMIN']), HolidayController.destr
 | DELETE /holidays/:id | ✓ | ✗ (403) | ✗ |
 
 **Critérios de Aceite:**
-- [ ] GET /api/holidays retorna feriados do ciclo ativo (sem query param)
-- [ ] GET /api/holidays?cycle_id=1 retorna feriados de ciclo específico
-- [ ] POST cria feriado vinculado ao ciclo
-- [ ] Não pode criar feriado em data fora do range do ciclo (erro)
-- [ ] Não pode duplicar feriado na mesma data+ciclo (erro)
-- [ ] DELETE remove feriado de data futura
-- [ ] DELETE em feriado de data passada retorna erro
-- [ ] PROFESSOR não consegue criar/deletar (403)
-- [ ] Testado no Postman:
-  - [ ] Listar feriados do ciclo ativo
-  - [ ] Criar feriado com data válida
-  - [ ] Criar feriado em data fora do ciclo (deve falhar)
-  - [ ] Deletar feriado futuro
-  - [ ] Tentar deletar feriado passado (deve falhar)
+- [x] GET /api/holidays retorna feriados do ciclo ativo (sem query param)
+- [x] GET /api/holidays?cycle_id=1 retorna feriados de ciclo específico
+- [x] POST cria feriado vinculado ao ciclo
+- [x] Não pode criar feriado em data fora do range do ciclo (erro)
+- [x] Não pode duplicar feriado na mesma data+ciclo (erro)
+- [x] DELETE remove feriado de data futura
+- [x] DELETE em feriado de data passada retorna erro
+- [x] PROFESSOR não consegue criar/deletar (403)
+- [x] Testado no Postman:
+  - [x] Listar feriados do ciclo ativo
+  - [x] Criar feriado com data válida
+  - [x] Criar feriado em data fora do ciclo (deve falhar)
+  - [x] Deletar feriado futuro
+  - [x] Tentar deletar feriado passado (deve falhar)
 
 **Status:** ✅ Concluído  
 **Responsável:** Kaique
@@ -1284,14 +1258,14 @@ router.delete('/:id', verifyToken, authorize(['ADMIN']), HolidayController.destr
 Interface para ADMIN criar, visualizar e ativar ciclos letivos.
 
 **Entregáveis:**
-- [ ] `src/pages/admin/AcademicCyclesPage.jsx`
-- [ ] `src/components/admin/AcademicCycleFormModal.jsx`
-- [ ] `src/services/academicCycle.service.js`
+- [x] `src/pages/admin/AcademicCyclesPage.jsx`
+- [x] `src/components/admin/AcademicCycleFormModal.jsx`
+- [x] `src/services/academicCycle.service.js`
 
 **Componentes:**
 
 **1. Lista de Ciclos:**
-- [ ] DataGrid com colunas:
+- [x] DataGrid com colunas:
   - Nome (ex: 2026-1)
   - Data Início
   - Data Fim
@@ -1308,18 +1282,18 @@ const [editingCycle, setEditingCycle] = useState(null); // null = criação
 ```
 
 **3. Botão "Novo Ciclo":**
-- [ ] Botão no topo da página (ícone +)
-- [ ] Ao clicar: abre modal de criação
+- [x] Botão no topo da página (ícone +)
+- [x] Ao clicar: abre modal de criação
 
 **4. Modal de Criação/Edição:**
-- [ ] Título dinâmico: "Novo Ciclo Acadêmico" ou "Editar [Nome]"
-- [ ] Formulário MUI com campos:
-  - [ ] TextField: Nome do ciclo (ex: "2026-1") — obrigatório
-  - [ ] DatePicker: Data de Início — obrigatório
-  - [ ] DatePicker: Data de Fim — obrigatório
-  - [ ] DatePicker: Fim do período exclusivo ADMIN — obrigatório
-  - [ ] Tooltip de ajuda no campo exclusivo admin: "Após esta data, professores também podem fazer reservas"
-- [ ] Botões: [Cancelar] [Salvar]
+- [x] Título dinâmico: "Novo Ciclo Acadêmico" ou "Editar [Nome]"
+- [x] Formulário MUI com campos:
+  - [x] TextField: Nome do ciclo (ex: "2026-1") — obrigatório
+  - [x] DatePicker: Data de Início — obrigatório
+  - [x] DatePicker: Data de Fim — obrigatório
+  - [x] DatePicker: Fim do período exclusivo ADMIN — obrigatório
+  - [x] Tooltip de ajuda no campo exclusivo admin: "Após esta data, professores também podem fazer reservas"
+- [x] Botões: [Cancelar] [Salvar]
 
 **5. Validações do Formulário:**
 ```javascript
@@ -1347,14 +1321,14 @@ const validateForm = () => {
 ```
 
 **6. Ação: Ativar Ciclo**
-- [ ] Botão "Ativar" (ícone play) — visível apenas em ciclos inativos
-- [ ] Modal de confirmação:
+- [x] Botão "Ativar" (ícone play) — visível apenas em ciclos inativos
+- [x] Modal de confirmação:
   ```
   "Ativar ciclo [Nome]?"
   "O ciclo ativo atual será desativado automaticamente."
   [Cancelar] [Confirmar]
   ```
-- [ ] Ao confirmar:
+- [x] Ao confirmar:
   ```javascript
   async function handleActivate(cycleId) {
     try {
@@ -1372,7 +1346,7 @@ const validateForm = () => {
   ```
 
 **7. Estado Vazio:**
-- [ ] Se `cycles.length === 0`: exibir mensagem:
+- [x] Se `cycles.length === 0`: exibir mensagem:
   ```
   "Nenhum ciclo acadêmico cadastrado. Crie o primeiro!"
   ```
@@ -1432,25 +1406,25 @@ export const academicCycleService = {
 Interface para ADMIN adicionar e remover feriados vinculados ao ciclo ativo.
 
 **Entregáveis:**
-- [ ] `src/pages/admin/HolidaysPage.jsx`
-- [ ] `src/services/holiday.service.js`
+- [x] `src/pages/admin/HolidaysPage.jsx`
+- [x] `src/services/holiday.service.js`
 
 **Componentes:**
 
 **1. Header da Página:**
-- [ ] Exibir nome do ciclo ativo no topo: "Feriados — Ciclo 2026-1"
-- [ ] Se nenhum ciclo ativo: banner de alerta
+- [x] Exibir nome do ciclo ativo no topo: "Feriados — Ciclo 2026-1"
+- [x] Se nenhum ciclo ativo: banner de alerta
   ```
   "⚠️ Nenhum ciclo acadêmico ativo. Ative um ciclo antes de cadastrar feriados."
   ```
 
 **2. Lista de Feriados:**
-- [ ] DataGrid com colunas:
+- [x] DataGrid com colunas:
   - Data (formatada: ex. "03/03/2026")
   - Dia da Semana (ex. "Terça-feira") — calculado no frontend
   - Descrição (ex. "Carnaval")
   - Ações (Deletar)
-- [ ] Ordenado por data
+- [x] Ordenado por data
 
 **3. Estado do Componente:**
 ```javascript
@@ -1462,10 +1436,10 @@ const [newDescription, setNewDescription] = useState('');
 ```
 
 **4. Formulário Inline de Adição:**
-- [ ] DatePicker: Selecionar data
-- [ ] TextField: Descrição (opcional, ex: "Tiradentes")
-- [ ] Botão "+ Adicionar Feriado"
-- [ ] Ao adicionar:
+- [x] DatePicker: Selecionar data
+- [x] TextField: Descrição (opcional, ex: "Tiradentes")
+- [x] Botão "+ Adicionar Feriado"
+- [x] Ao adicionar:
   ```javascript
   async function handleAdd() {
     if (!newDate) return showError('Selecione uma data');
@@ -1488,9 +1462,9 @@ const [newDescription, setNewDescription] = useState('');
   ```
 
 **5. Ação: Deletar Feriado**
-- [ ] Botão "Deletar" (ícone lixeira)
-- [ ] Sem modal de confirmação (ação rápida)
-- [ ] Ao deletar:
+- [x] Botão "Deletar" (ícone lixeira)
+- [x] Sem modal de confirmação (ação rápida)
+- [x] Ao deletar:
   ```javascript
   async function handleDelete(id) {
     try {
@@ -1504,7 +1478,7 @@ const [newDescription, setNewDescription] = useState('');
   ```
 
 **6. Estado Vazio:**
-- [ ] Se `holidays.length === 0`: "Nenhum feriado cadastrado para este ciclo."
+- [x] Se `holidays.length === 0`: "Nenhum feriado cadastrado para este ciclo."
 
 **src/services/holiday.service.js:**
 ```javascript
@@ -1607,7 +1581,7 @@ Validar que ciclos e feriados funcionam end-to-end e estão prontos para suporta
 # 🔵 FASE 4 – Reservas Simples (Core Básico)
 
 **Requisitos:** RF10, RF14, RNF04, RNF05  
-**Status Geral:** 🔴 PENDENTE  
+**Status Geral:** 🟢 Concluído  
 **Meta:** Professores podem reservar um laboratório para um dia e horário específico
 
 ---
@@ -1685,18 +1659,19 @@ Verificar se um laboratório já está ocupado no horário solicitado antes de c
 
 **3. Endpoint de verificação prévia (opcional mas recomendado):**
 - [x] GET `/api/reservations/check-conflict?lab_id=1&date=2026-03-10&time_slots=1,2,3`
+- [x] GET `/api/reservations/check-conflict?lab_id=1&date=2026-03-10&time_slots=1,2,3`
   - Permite o frontend verificar disponibilidade antes de submeter o formulário
   - Retorna `{ hasConflict: boolean, conflictingSlots: number[] }`
 
 **Critérios de Aceite:**
-- [ ] `findConflicting` retorna apenas reservas ACTIVE na data+lab+timeslots solicitados
-- [ ] Não retorna reservas CANCELLED ou REJECTED como conflito
-- [ ] GET /check-conflict responde em tempo real (< 200ms) (RNF05)
-- [ ] Testado no Postman:
-  - [ ] Verificar lab livre → `{ hasConflict: false }`
-  - [ ] Verificar lab ocupado → `{ hasConflict: true, conflictingSlots: [...] }`
+- [x] `findConflicting` retorna apenas reservas ACTIVE na data+lab+timeslots solicitados
+- [x] Não retorna reservas CANCELLED ou REJECTED como conflito
+- [x] GET /check-conflict responde em tempo real (< 200ms) (RNF05)
+- [x] Testado no Postman:
+  - [x] Verificar lab livre → `{ hasConflict: false }`
+  - [x] Verificar lab ocupado → `{ hasConflict: true, conflictingSlots: [...] }`
 
-**Status:** 🔴 PENDENTE  
+**Status:** 🟢 concluído  
 **Responsável:** Nicole  
 **Depende de:** F2-BE-02, F3-BE-01
 
@@ -1710,7 +1685,7 @@ Endpoint para criar uma reserva de 1 dia com todos os validadores de negócio en
 **Entregáveis:**
 
 **1. ReservationRepository.js (adicionar métodos):**
-- [ ] `create(data)` → INSERT na tabela `reservations`
+- [x] `create(data)` → INSERT na tabela `reservations`
   ```javascript
   // data = { professor_id, academic_cycle_id, type: 'SIMPLE', status, notes }
   async create(data) {
@@ -1721,7 +1696,7 @@ Endpoint para criar uma reserva de 1 dia com todos os validadores de negócio en
   }
   ```
 
-- [ ] `createItem(data)` → INSERT na tabela `reservation_items`
+- [x] `createItem(data)` → INSERT na tabela `reservation_items`
   ```javascript
   // data = { reservation_id, lab_id, date, time_slot_id, status: 'ACTIVE' }
   async createItem(data) {
@@ -1732,7 +1707,7 @@ Endpoint para criar uma reserva de 1 dia com todos os validadores de negócio en
   }
   ```
 
-- [ ] `findById(id)` → SELECT reserva com seus items
+- [x] `findById(id)` → SELECT reserva com seus items
   ```javascript
   async findById(id) {
     const [reservation] = await db.query(
@@ -1746,20 +1721,20 @@ Endpoint para criar uma reserva de 1 dia com todos os validadores de negócio en
   }
   ```
 
-- [ ] `findByProfessor(professorId)` → SELECT todas as reservas de um professor com items
+- [x] `findByProfessor(professorId)` → SELECT todas as reservas de um professor com items
 
 **2. ReservationService.js:**
-- [ ] `createSimpleReservation(dto, requestingUser)` → cria reserva simples
+- [x] `createSimpleReservation(dto, requestingUser)` → cria reserva simples
   **Lógica de Negócio (em ordem):**
-  1. [ ] Validar campos obrigatórios:
+  1. [x] Validar campos obrigatórios:
      - `lab_id`, `date`, `time_slot_ids` (array, mínimo 1)
-  2. [ ] Buscar ciclo ativo:
+  2. [x] Buscar ciclo ativo:
      - Se nenhum ativo: erro "Nenhum ciclo acadêmico ativo. Não é possível criar reservas."
-  3. [ ] Validar que `date` está dentro do ciclo ativo (RF05):
+  3. [x] Validar que `date` está dentro do ciclo ativo (RF05):
      - Se fora: erro "A data não pertence ao ciclo acadêmico ativo"
-  4. [ ] Verificar se `date` é feriado (RF07 / RN03):
+  4. [x] Verificar se `date` é feriado (RF07 / RN03):
      - Se feriado: erro "Não é possível reservar em feriados"
-  5. [ ] Verificar período exclusivo ADMIN (RF19):
+  5. [x] Verificar período exclusivo ADMIN (RF19):
      ```javascript
      const today = new Date();
      const exclusiveEnd = new Date(activeCycle.exclusive_admin_end_date);
@@ -1771,24 +1746,24 @@ Endpoint para criar uma reserva de 1 dia com todos os validadores de negócio en
        );
      }
      ```
-  6. [ ] Validar que o laboratório existe e está ativo:
+  6. [x] Validar que o laboratório existe e está ativo:
      - Se não: erro "Laboratório não encontrado ou inativo"
-  7. [ ] Validar que todos os time_slots existem e estão ativos:
+  7. [x] Validar que todos os time_slots existem e estão ativos:
      - Se algum não: erro "Horário inválido: [id]"
-  8. [ ] Detectar conflito de horário (RF14):
+  8. [x] Detectar conflito de horário (RF14):
      ```javascript
      const { hasConflict, conflictingSlots } =
        await ConflictService.checkConflict(lab_id, date, time_slot_ids);
      ```
      - Se PROFESSOR e hasConflict: erro "Conflito de horário detectado nos seguintes períodos: [slots]"
      - Se ADMIN e hasConflict: log de aviso mas **não bloqueia**
-  9. [ ] Definir status da reserva:
+  9. [x] Definir status da reserva:
      ```javascript
      const status = requestingUser.role === 'ADMIN'
        ? 'APPROVED'
        : 'APPROVED'; // Reserva simples PROFESSOR = aprovação automática se sem conflito
      ```
-  10. [ ] Criar reserva (tabela `reservations`):
+  10. [x] Criar reserva (tabela `reservations`):
       ```javascript
       const reservation = await ReservationRepository.create({
         professor_id: requestingUser.id,
@@ -1798,7 +1773,7 @@ Endpoint para criar uma reserva de 1 dia com todos os validadores de negócio en
         notes: dto.notes || null
       });
       ```
-  11. [ ] Criar os items da reserva (tabela `reservation_items`) — 1 item por time_slot:
+  11. [x] Criar os items da reserva (tabela `reservation_items`) — 1 item por time_slot:
       ```javascript
       const items = await Promise.all(
         dto.time_slot_ids.map(tsId =>
@@ -1812,10 +1787,10 @@ Endpoint para criar uma reserva de 1 dia com todos os validadores de negócio en
         )
       );
       ```
-  12. [ ] Registrar em audit_logs
-  13. [ ] Retornar reserva completa com items
+  12. [x] Registrar em audit_logs
+  13. [x] Retornar reserva completa com items
 
-- [ ] `getMyReservations(professorId)` → lista reservas do professor
+- [x] `getMyReservations(professorId)` → lista reservas do professor
   ```javascript
   async getMyReservations(professorId) {
     return await ReservationRepository.findByProfessor(professorId);
@@ -1823,7 +1798,7 @@ Endpoint para criar uma reserva de 1 dia com todos os validadores de negócio en
   ```
 
 **3. ReservationController.js:**
-- [ ] `create(req, res)` → POST /api/reservations
+- [x] `create(req, res)` → POST /api/reservations
   **Body esperado:**
   ```json
   {
@@ -1834,7 +1809,7 @@ Endpoint para criar uma reserva de 1 dia com todos os validadores de negócio en
   }
   ```
 
-- [ ] `myReservations(req, res)` → GET /api/reservations/my
+- [x] `myReservations(req, res)` → GET /api/reservations/my
   ```javascript
   async myReservations(req, res) {
     try {
@@ -1872,22 +1847,22 @@ router.post('/', verifyToken, ReservationController.create);
 | Data fora do ciclo | ✗ ERRO | ✗ ERRO |
 
 **Critérios de Aceite:**
-- [ ] POST /api/reservations cria reserva + items na transação
-- [ ] Professor não pode reservar em feriado (erro claro)
-- [ ] Professor não pode reservar fora do ciclo ativo (erro claro)
-- [ ] Professor não pode reservar no período exclusivo ADMIN (erro com data)
-- [ ] Professor não pode reservar lab com conflito (erro com slots conflitantes)
-- [ ] ADMIN pode criar reserva com conflito (aprovação forçada)
-- [ ] Reserva criada com sucesso retorna objeto completo com items
-- [ ] Testado no Postman:
-  - [ ] Criar reserva em lab/data/horário livre → 201
-  - [ ] Criar reserva em mesmo lab/data/horário → conflito → erro
-  - [ ] Criar reserva em feriado → erro
-  - [ ] Criar reserva fora do ciclo → erro
-  - [ ] ADMIN cria reserva sobre conflito existente → 201
+- [x] POST /api/reservations cria reserva + items na transação
+- [x] Professor não pode reservar em feriado (erro claro)
+- [x] Professor não pode reservar fora do ciclo ativo (erro claro)
+- [x] Professor não pode reservar no período exclusivo ADMIN (erro com data)
+- [x] Professor não pode reservar lab com conflito (erro com slots conflitantes)
+- [x] ADMIN pode criar reserva com conflito (aprovação forçada)
+- [x] Reserva criada com sucesso retorna objeto completo com items
+- [x] Testado no Postman:
+  - [x] Criar reserva em lab/data/horário livre → 201
+  - [x] Criar reserva em mesmo lab/data/horário → conflito → erro
+  - [x] Criar reserva em feriado → erro
+  - [x] Criar reserva fora do ciclo → erro
+  - [x] ADMIN cria reserva sobre conflito existente → 201
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** 🟢 Concluído
+**Responsável:** Vinicius
 **Depende de:** F4-BE-01
 
 ---
@@ -1900,8 +1875,8 @@ router.post('/', verifyToken, ReservationController.create);
 Interface para professores solicitarem reserva de laboratório para um dia específico, com detecção visual de conflitos em tempo real.
 
 **Entregáveis:**
-- [ ] `src/pages/professor/CreateReservationPage.jsx`
-- [ ] `src/services/reservation.service.js`
+- [x] `src/pages/professor/CreateReservationPage.jsx`
+- [x] `src/services/reservation.service.js`
 
 **Componentes:**
 
@@ -1944,11 +1919,11 @@ useEffect(() => {
 ```
 
 **3. Campos do Formulário:**
-- [ ] **Select: Laboratório**
+- [x] **Select: Laboratório**
   - Opções: todos os labs ativos
   - Obrigatório
 
-- [ ] **DatePicker: Data**
+- [x] **DatePicker: Data**
   - Obrigatório
   - `minDate` = activeCycle.start_date
   - `maxDate` = activeCycle.end_date
@@ -1960,12 +1935,12 @@ useEffect(() => {
     }
     ```
 
-- [ ] **Checkboxes: Horários (Time Slots)**
+- [x] **Checkboxes: Horários (Time Slots)**
   - Grid de checkboxes (2 colunas): M1, M2, M3... N1, N2...
   - Cada checkbox mostra: nome + horário (ex: "M1 — 07:30 às 08:20")
   - Checkbox com conflito exibe ícone de alerta ⚠️ e cor laranja
 
-- [ ] **TextField: Observações** (multiline, opcional)
+- [x] **TextField: Observações** (multiline, opcional)
 
 **4. Verificação de Conflito em Tempo Real (RNF05):**
 ```javascript
@@ -2094,7 +2069,7 @@ export const reservationService = {
 Professor vê lista de todas as suas reservas com status e detalhes do laboratório.
 
 **Entregáveis:**
-- [ ] `src/pages/professor/MyReservationsPage.jsx`
+- [x] `src/pages/professor/MyReservationsPage.jsx`
 
 **Componentes:**
 
@@ -2123,7 +2098,7 @@ useEffect(() => {
 ```
 
 **3. DataGrid de Reservas:**
-- [ ] Colunas:
+- [x] Colunas:
   - Laboratório
   - Data (formatada: DD/MM/YYYY)
   - Horários (ex: "M1, M2")
@@ -2141,28 +2116,28 @@ const filteredReservations = filterStatus === 'ALL'
   ? reservations
   : reservations.filter(r => r.status === filterStatus);
 ```
-- [ ] Select no topo: Todos | Aprovadas | Pendentes | Canceladas | Rejeitadas
+- [x] Select no topo: Todos | Aprovadas | Pendentes | Canceladas | Rejeitadas
 
 **5. Botão "Nova Reserva":**
-- [ ] Botão no topo: navega para `/create-reservation`
+- [x] Botão no topo: navega para `/create-reservation`
 
 **6. Estado Vazio:**
-- [ ] Se `reservations.length === 0`:
+- [x] Se `reservations.length === 0`:
   ```
   "Você ainda não tem reservas."
   [+ Criar primeira reserva]
   ```
 
 **Critérios de Aceite:**
-- [ ] DataGrid carrega reservas do professor logado
-- [ ] Status com chip colorido correto
-- [ ] Filtro por status funciona
-- [ ] Botão "Nova Reserva" navega corretamente
-- [ ] Estado vazio com call-to-action
-- [ ] Responsivo
+- [x] DataGrid carrega reservas do professor logado
+- [x] Status com chip colorido correto
+- [x] Filtro por status funciona
+- [x] Botão "Nova Reserva" navega corretamente
+- [x] Estado vazio com call-to-action
+- [x] Responsivo
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** 🟢 Concluído  
+**Responsável:** kaique
 **Depende de:** F4-BE-02, F4-FE-01
 
 ---
@@ -2171,64 +2146,64 @@ const filteredReservations = filterStatus === 'ALL'
 
 ### [F4-INT-01] Teste de Integração da FASE 4
 
-**Descrição:**  
+**Descrição:**
 Validar o fluxo completo de criação de reservas com todos os validadores de negócio ativos e a lógica de conflito funcionando end-to-end.
 
 **Checklist de Testes:**
 
 **Cenário 1: Reserva Bem-Sucedida (Professor)**
-- [ ] 1. Garantir ciclo ativo com start_date no passado e exclusive_admin_end_date também no passado
-- [ ] 2. Professor faz login
-- [ ] 3. Acessa "Criar Reserva"
-- [ ] 4. Seleciona Lab 01, data válida dentro do ciclo, horários M1 e M2
-- [ ] 5. Banner de disponível aparece (sem conflito)
-- [ ] 6. Clica em "Criar Reserva"
-- [ ] 7. Redirecionado para "Minhas Reservas"
-- [ ] 8. Reserva aparece com status "APROVADA"
+- [x] 1. Garantir ciclo ativo com start_date no passado e exclusive_admin_end_date também no passado
+- [x] 2. Professor faz login
+- [x] 3. Acessa "Criar Reserva"
+- [x] 4. Seleciona Lab 01, data válida dentro do ciclo, horários M1 e M2
+- [x] 5. Banner de disponível aparece (sem conflito)
+- [x] 6. Clica em "Criar Reserva"
+- [x] 7. Redirecionado para "Minhas Reservas"
+- [x] 8. Reserva aparece com status "APROVADA"
 
 **Cenário 2: Detecção de Conflito**
-- [ ] 1. Com a reserva do Cenário 1 existente (Lab 01, mesma data, M1 e M2)
-- [ ] 2. Outro professor tenta reservar Lab 01, mesma data, M1
-- [ ] 3. Banner de conflito aparece imediatamente ao selecionar M1
-- [ ] 4. Checkbox M1 exibe ícone de alerta visual
-- [ ] 5. Botão "Criar Reserva" fica desabilitado
-- [ ] 6. Tentativa via API direta (Postman) também retorna erro 400 com mensagem
+- [x] 1. Com a reserva do Cenário 1 existente (Lab 01, mesma data, M1 e M2)
+- [x] 2. Outro professor tenta reservar Lab 01, mesma data, M1
+- [x] 3. Banner de conflito aparece imediatamente ao selecionar M1
+- [x] 4. Checkbox M1 exibe ícone de alerta visual
+- [x] 5. Botão "Criar Reserva" fica desabilitado
+- [x] 6. Tentativa via API direta (Postman) também retorna erro 400 com mensagem
 
 **Cenário 3: Validações de Negócio**
-- [ ] 1. Professor tenta reservar em feriado cadastrado → erro "Não é possível reservar em feriados"
-- [ ] 2. Professor tenta reservar em data fora do ciclo ativo → erro
-- [ ] 3. DatePicker bloqueia visualmente as datas fora do ciclo e feriados
-- [ ] 4. Professor tenta reservar durante período exclusivo ADMIN → erro com data de abertura
-- [ ] 5. Professor submete sem selecionar horário → validação frontend bloqueia
+- [x] 1. Professor tenta reservar em feriado cadastrado → erro "Não é possível reservar em feriados"
+- [x] 2. Professor tenta reservar em data fora do ciclo ativo → erro
+- [x] 3. DatePicker bloqueia visualmente as datas fora do ciclo e feriados
+- [x] 4. Professor tenta reservar durante período exclusivo ADMIN → erro com data de abertura
+- [x] 5. Professor submete sem selecionar horário → validação frontend bloqueia
 
 **Cenário 4: Reserva de ADMIN (com conflito)**
-- [ ] 1. Lab 01 já tem reserva em M1 no dia X (do Cenário 1)
-- [ ] 2. ADMIN loga e cria reserva no mesmo Lab 01, dia X, horário M1
-- [ ] 3. Reserva é criada com status APPROVED (sem bloquear por conflito)
-- [ ] 4. Ambas as reservas existem na base (log de conflito registrado)
+- [x] 1. Lab 01 já tem reserva em M1 no dia X (do Cenário 1)
+- [x] 2. ADMIN loga e cria reserva no mesmo Lab 01, dia X, horário M1
+- [x] 3. Reserva é criada com status APPROVED (sem bloquear por conflito)
+- [x] 4. Ambas as reservas existem na base (log de conflito registrado)
 
 **Cenário 5: Visualização de Minhas Reservas**
-- [ ] 1. Professor loga e acessa "Minhas Reservas"
-- [ ] 2. Todas as reservas do professor aparecem listadas
-- [ ] 3. Filtro "Aprovadas" exibe apenas reservas APPROVED
-- [ ] 4. Filtro "Pendentes" não retorna nada (reservas simples aprovam direto)
-- [ ] 5. Botão "Nova Reserva" redireciona para o formulário
+- [x] 1. Professor loga e acessa "Minhas Reservas"
+- [x] 2. Todas as reservas do professor aparecem listadas
+- [x] 3. Filtro "Aprovadas" exibe apenas reservas APPROVED
+- [x] 4. Filtro "Pendentes" não retorna nada (reservas simples aprovam direto)
+- [x] 5. Botão "Nova Reserva" redireciona para o formulário
 
 **Cenário 6: Proteção de Rotas e Dados**
-- [ ] 1. GET /api/reservations/my sem token → 401
-- [ ] 2. Professor A não consegue ver reservas do Professor B
-- [ ] 3. POST /api/reservations com token inválido → 401
-- [ ] 4. GET /api/reservations/check-conflict sem token → 401
+- [x] 1. GET /api/reservations/my sem token → 401
+- [x] 2. Professor A não consegue ver reservas do Professor B
+- [x] 3. POST /api/reservations com token inválido → 401
+- [x] 4. GET /api/reservations/check-conflict sem token → 401
 
 **Critérios de Aceite:**
-- [ ] Todos os 6 cenários passam sem bugs
-- [ ] Verificação de conflito responde em < 1s (RNF05)
-- [ ] Nenhum console.error no frontend
-- [ ] Nenhum erro 500 no backend
-- [ ] Base de dados consistente: toda reserva tem ao menos 1 reservation_item
-- [ ] Pronto para avançar para FASE 5
+- [x] Todos os 6 cenários passam sem bugs
+- [x] Verificação de conflito responde em < 1s (RNF05)
+- [x] Nenhum console.error no frontend
+- [x] Nenhum erro 500 no backend
+- [x] Base de dados consistente: toda reserva tem ao menos 1 reservation_item
+- [x] Pronto para avançar para FASE 5
 
-**Status:** 🔴 PENDENTE  
+**Status:** 🟢 Concluído  
 **Responsável:** Kaique  
 **Depende de:** Todas as tasks F4-* concluídas
 
@@ -6277,15 +6252,24 @@ Validar cobertura de testes, qualidade da documentação e executar rodada final
 ## 🎯 TOTAL DE TASKS
 
 - **Banco de Dados:** 1 task
-- **Backend:** 25 tasks
-- **Frontend:** 21 tasks
-- **Geral:** 3 tasks
-- **TOTAL:** **50 tasks**
+- **Backend:** 26 tasks
+- **Frontend:** 22 tasks
+- **Geral:** 11 tasks
+- **TOTAL:** **60 tasks**
 
 ---
 
 ## ✅ PROGRESSO GERAL
 
-- **Concluídas:** 9 tasks (18%)
-- **Em Andamento:** 0 tasks
-- **Pendentes:** 41 tasks (82%)
+- **Concluídas:** 31 tasks (48%)
+- **Em Andamento:** 1 task (2%)
+- **Pendentes:** 30 tasks (50%)
+
+---
+
+## 👥 RESPONSABILIDADE DE DEV
+
+- Kaique — 29 tasks
+- Luiz — 8 tasks
+- Nicole — 4 tasks
+- Vinicius — 3 tasks

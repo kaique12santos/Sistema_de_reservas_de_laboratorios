@@ -149,3 +149,9 @@ O endpoint agora bloqueia acessos de contas com status `PENDING` e `REJECTED` an
 - **Descrição:** Implementação de validação robusta no endpoint `GET /check-conflict` utilizando Zod. Inclui coerção de tipos, transformação de `time_slots` para array numérico e validação rigorosa de datas no formato `YYYY-MM-DD`. Refatoração do middleware `validateRequest` para suportar múltiplas fontes (`query`) e padronização de `req.validatedData`. Simplificação do Controller removendo validações manuais e ajuste da lógica de conflito com *early return* e eliminação de duplicidades.
 - **Autor:** Nicole Lisboa
 - **Impacto:** `src/dtos/CheckConflictDTO.js`, `src/middlewares/validateRequest.js`, `src/controllers/ReservationController.js`, `src/services/ConflictService.js`, `src/repositories/ReservationRepository.js`, `src/routes/reservation.routes.js`
+
+## [19/04/2026]
+### 1. Fluxo de Cancelamento, Override de Coordenador e Correções de Integração
+- **Descrição:** Implementação da rota `PATCH /api/reservations/:id/cancel` protegida por autenticação. Criação da função `overrideConflictingItems` no repositório e da lógica de "Override" no Service, permitindo que Coordenadores (ADMIN) sobrescrevam reservas conflitantes e recebam status `APPROVED` automático, enquanto professores recebem `PENDING`. Correção no middleware `validateRequest` do Zod para preservar corretamente o payload em `req.validatedData`. Resolução de bugs de fuso horário forçando a comparação de datas como strings no formato `YYYY-MM-DD`.
+- **Autor:** Kaique Caitano
+- **Impacto:** `src/routes/reservation.routes.js`, `src/controllers/ReservationController.js`, `src/services/ReservationService.js`, `src/repositories/ReservationRepository.js`, `src/middlewares/validateRequest.js`
