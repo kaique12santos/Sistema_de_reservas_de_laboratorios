@@ -1,10 +1,24 @@
 import db from '../config/Database.js';
 
 class ReservationRepository {
-  async findConflicting(labId, date, timeSlotIds) {
-    const placeholders = timeSlotIds.map(() => '?').join(',');
 
-    const query = `
+  /**
+   * 
+   * @param {number} labId refere-se ao laboratório para o qual se deseja verificar os conflitos de reserva
+   * @param {string} date  refere-se à data para a qual se deseja verificar os conflitos de reserva (formato 'YYYY-MM-DD')
+   * @param {Array<number>} timeSlotIds refere-se à lista de IDs dos horários para os quais se deseja verificar os conflitos de reserva
+   * @returns {Promise<Array>} retorna uma lista de itens de reserva que estão em conflito com os parâmetros fornecidos, ou seja, 
+   * itens que estão ativos e pertencem a reservas que estão aprovadas ou pendentes para o mesmo laboratório, 
+   * data e horários. Cada item de reserva retornado inclui informações sobre a reserva pai, como ID da reserva, ID do professor e status da reserva.
+   */
+ async findConflicting(labId, date, timeSlotIds, excludeReservationId = null) {
+    const placeholders = timeSlotIds.map(() => '?').join(',');
+    
+    // 1. Crie o array de parâmetros ANTES
+    const params = [labId, date, ...timeSlotIds];
+
+    // 2. Use LET para poder alterar a string depois
+    let query = `
       SELECT ri.*, r.id as reservation_id, r.user_id, r.status as reservation_status
       FROM reservation_items ri
       INNER JOIN reservations r ON r.id = ri.reservation_id
@@ -15,15 +29,24 @@ class ReservationRepository {
         AND r.status IN ('APPROVED', 'PENDING')
     `;
 
-    const [rows] = await db.connection.query(query, [
-      labId,
-      date,
-      ...timeSlotIds
-    ]);
+    if (excludeReservationId) {
+      query += ` AND r.id != ?`;
+      params.push(excludeReservationId); // Agora o push funciona!
+    }
+    
+    // 3. Passe o array de params que você montou
+    const [rows] = await db.connection.query(query, params);
 
     return rows;
   }
 
+  /**
+   * Encontra reservas por professor e intervalo de datas
+   * @param {number} professorId refere-se ao ID do professor para o qual se deseja buscar as reservas
+   * @param {string} startDate refere-se à data de início do intervalo de busca (formato 'YYYY-MM-DD')
+   * @param {string} endDate refere-se à data de término do intervalo de busca (formato 'YYYY-MM-DD')
+   * @returns {Promise<Array>} retorna uma lista de reservas que correspondem aos critérios de busca
+   */
   async findByProfessorAndDateRange(professorId, startDate, endDate) {
     const query = `
       SELECT r.*, ri.date, ri.time_slot_id, ri.lab_id, ri.status as item_status
@@ -43,6 +66,12 @@ class ReservationRepository {
     return rows;
   }
 
+  /**
+   * Cria uma nova reserva
+   * @param {Object} reservationData dados da reserva a ser criada
+   * @param {Object} connection conexão com o banco de dados
+   * @returns {Promise<number>} ID da reserva criada
+   */
   async create(reservationData, connection = null) {
     const conn = connection || db.connection;
     const query = `
@@ -58,6 +87,12 @@ class ReservationRepository {
     return result.insertId;
   }
 
+  /**
+   * Cria um novo item de reserva
+   * @param {Object} itemData dados do item de reserva a ser criado
+   * @param {Object} connection conexão com o banco de dados
+   * @returns {Promise<number>} ID do item de reserva criado
+   */
   async createItem(itemData, connection = null) {
     const conn = connection || db.connection;
     const query = `
@@ -76,6 +111,23 @@ class ReservationRepository {
     return result.insertId;
   }
 
+  /**
+   *  Encontra itens de reserva por ID da reserva
+   * @param {number} reservationId  refere-se ao ID da reserva para a qual se deseja buscar os itens de reserva associados
+   * @param {Object|null} connection refere-se à conexão com o banco de dados (opcional, para usar transação já existente)
+   * @returns {Promise<Array>} retorna uma lista de itens de reserva associados à reserva especificada
+   */
+  async findItemsByReservationId(reservationId, connection = null) {
+    const dbConn = connection || db.connection;
+    const [rows] = await dbConn.query('SELECT * FROM reservation_items WHERE reservation_id = ? AND status = "ACTIVE"', [reservationId]);
+    return rows;
+  }
+
+  /**
+   * Encontra uma reserva por ID
+   * @param {number} id - ID da reserva a ser encontrada
+   * @returns {Promise<Object|null>} - Retorna a reserva encontrada ou null se não existir
+   */
   async findById(id) {
     const query = `
       SELECT r.*, u.name as professor_name, l.name as lab_name, ac.name as cycle_name
@@ -89,6 +141,27 @@ class ReservationRepository {
     return rows[0];
   }
 
+  /**
+   *  Cancela uma reserva e seus itens associados
+   * @param {number} reservationId refere-se ao ID da reserva a ser cancelada
+   * @param {Object|null} connection refere-se à conexão com o banco de dados (opcional, para usar transação já existente)
+   * @returns {Promise<void>}
+   * @description Método para cancelar uma reserva e seus itens associados. A função atualiza o status da reserva para 'CANCELED' e também atualiza o status de todos os itens de reserva associados para 'CANCELED'. 
+   * Essa abordagem garante que a reserva e seus itens sejam marcados como cancelados no banco de dados, mantendo a integridade dos dados e permitindo rastrear o histórico de reservas canceladas.
+   */
+  async cancelItemsByReservationId(reservationId, connection = null) {
+    const dbConn = connection || db.connection;
+    await dbConn.query(
+      'UPDATE reservation_items SET status = ? WHERE reservation_id = ?',
+      ['CANCELED', reservationId]
+    );
+  }
+
+  /**
+   * Encontra reservas por ID do professor
+   * @param {number} professorId - ID do professor
+   * @returns {Promise<Array>} - Retorna uma lista de reservas encontradas
+   */
   async findByProfessor(professorId) {
     const query = `
       SELECT r.*, ri.date, ri.time_slot_id, ri.lab_id, ri.status as item_status, ri.note,
@@ -107,6 +180,16 @@ class ReservationRepository {
     return rows;
   }
 
+  /**
+   * Cria um novo registro de log de auditoria
+   * @param {string} action refere-se à ação realizada (ex: 'CREATE', 'UPDATE', 'DELETE')
+   * @param {string} tableName refere-se ao nome da tabela onde a ação ocorreu (ex: 'reservations', 'reservation_items')
+   * @param {number} recordId refere-se ao ID do registro que foi afetado pela ação
+   * @param {number} changedBy refere-se ao ID do usuário que realizou a ação
+   * @param {Object|null} oldValues refere-se aos valores antigos do registro antes da ação (apenas para ações de UPDATE, pode ser null para CREATE e DELETE)
+   * @param {Object|null} newValues refere-se aos valores novos do registro após a ação (apenas para ações de UPDATE, pode ser null para CREATE e DELETE)
+   * @param {Object|null} connection refere-se à conexão com o banco de dados (opcional, para usar transação já existente)
+   */
   async createAuditLog(action, tableName, recordId, changedBy, oldValues = null, newValues = null, connection = null) {
     const conn = connection || db.connection;
     const query = `
@@ -123,6 +206,12 @@ class ReservationRepository {
     ]);
   }
 
+  /**
+   * Atualiza o status de uma reserva
+   * @param {number} reservationId - ID da reserva a ser atualizada
+   * @param {string} newStatus - Novo status da reserva
+   * @param {object|null} connection - Conexão de banco de dados (opcional, para usar transação já existente)
+   */
   async updateStatus(reservationId, newStatus, connection) {
     const dbConn = connection || db;
     await dbConn.query(
@@ -131,6 +220,14 @@ class ReservationRepository {
     );
   }
 
+  /**
+   * Sobrescreve reservas conflitantes para liberar o laboratório, data e horários para uma nova reserva.
+   * Essa função cancela a reserva pai (do professor que perdeu a vaga) e os itens de reserva conflitantes para liberar a restrição UNIQUE do banco.
+   * @param {number} labId - ID do laboratório
+   * @param {string} date - Data da reserva
+   * @param {Array<number>} timeSlotIds - Lista de IDs dos horários
+   * @param {object|null} connection - Conexão de banco de dados (opcional, para usar transação já existente)
+   */
   async overrideConflictingItems(labId, date, timeSlotIds, connection) {
     const dbConn = connection || db;
     
@@ -151,6 +248,65 @@ class ReservationRepository {
     `;
     await dbConn.query(updateItemsQuery, [labId, date, timeSlotIds]);
   }
+
+  /**
+   * Atualiza o status de uma reserva
+   * @param {number} id - ID da reserva a ser atualizada
+   * @param {string} status - Novo status da reserva
+   * @param {object} extra - Valores extras a serem atualizados
+   * @param {object|null} connection - Conexão de banco de dados (opcional, para usar transação já existente)
+   */
+  async updateStatus(id, status, extra = {}, connection = null){
+    const dbConn = connection || db.connection;
+    const fields = { status, ...extra, updated_at: new Date() };
+
+    await dbConn.query(
+      'UPDATE reservations SET ? WHERE id = ?',
+      [fields, id]
+    );
+  }
+
+  /**
+   * Encontra todas as reservas pendentes
+   * @param {object|null} connection - Conexão de banco de dados (opcional, para usar transação já existente)
+   * @returns {Promise<Array>} - Retorna uma lista de reservas pendentes com informações do professor e laboratório, 
+   * ordenada da mais antiga para a mais recente
+   */
+  async findPending (connection = null){
+    const dbConn = connection || db.connection;
+    const query = `
+      SELECT r.*, u.name as professor_name, u.email as professor_email,
+             l.name as lab_name
+      FROM reservations r
+      INNER JOIN users u ON u.id = r.user_id
+      INNER JOIN reservation_items ri ON ri.reservation_id = r.id
+      INNER JOIN laboratories l ON l.id = ri.lab_id
+      WHERE r.status = 'PENDING'
+      GROUP BY r.id, u.name, u.email, l.name
+      ORDER BY r.created_at ASC
+    `;
+    const [rows] = await dbConn.query(query);
+    return rows;
+  }
+
+  /**
+   * 
+   * @param {number} reservationId - ID da reserva que teve o laboratório alterado
+   * @param {number} newLabId - Novo ID do laboratório para onde os itens devem ser redirecionados
+   * @param {object|null} connection - Conexão de banco de dados (opcional, para usar transação já existente)
+   * @returns {Promise<void>}
+   * @description Método para atualizar o lab_id dos itens de uma reserva quando o laboratório da reserva é alterado.  
+   */
+  async redirectItems(reservationId, newLabId, connection =null){
+    const dbConn = connection || db.connection;
+    const query = `
+      UPDATE reservation_items
+      SET lab_id = ?
+      WHERE reservation_id = ?
+    `;
+    await dbConn.query(query, [newLabId, reservationId]);
+  }
+
 }
 
 export default new ReservationRepository();

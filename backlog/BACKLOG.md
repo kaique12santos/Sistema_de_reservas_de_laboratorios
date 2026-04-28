@@ -2427,7 +2427,7 @@ ADMIN gerencia reservas com status PENDING. Pode aprovar, rejeitar com motivo, o
 **Entregáveis:**
 
 **1. ReservationRepository.js (adicionar métodos):**
-- [ ] `updateStatus(id, status, extra = {})` → atualiza status + campos extras
+- [x] `updateStatus(id, status, extra = {})` → atualiza status + campos extras
   ```javascript
   async updateStatus(id, status, extra = {}) {
     const fields = { status, ...extra };
@@ -2436,7 +2436,7 @@ ADMIN gerencia reservas com status PENDING. Pode aprovar, rejeitar com motivo, o
   }
   ```
 
-- [ ] `findPending(filters = {})` → lista reservas PENDING
+- [x] `findPending(filters = {})` → lista reservas PENDING
   ```javascript
   async findPending(filters = {}) {
     let query = `
@@ -2454,7 +2454,7 @@ ADMIN gerencia reservas com status PENDING. Pode aprovar, rejeitar com motivo, o
   }
   ```
 
-- [ ] `redirectItems(reservationId, newLabId)` → atualiza lab de todos os items
+- [x] `redirectItems(reservationId, newLabId)` → atualiza lab de todos os items
   ```javascript
   async redirectItems(reservationId, newLabId) {
     await db.query(
@@ -2465,29 +2465,29 @@ ADMIN gerencia reservas com status PENDING. Pode aprovar, rejeitar com motivo, o
   ```
 
 **2. ReservationService.js (adicionar métodos):**
-- [ ] `approveReservation(reservationId, adminId)` → aprova reserva
+- [x] `approveReservation(reservationId, adminId)` → aprova reserva
   **Lógica de Negócio:**
-  1. [ ] Reserva existe
-  2. [ ] Validar status = PENDING:
+  1. [x] Reserva existe
+  2. [x] Validar status = PENDING:
      - Se != PENDING: erro "Apenas reservas pendentes podem ser aprovadas"
-  3. [ ] Verificar novamente se não há conflitos nas datas (re-check no momento da aprovação):
+  3. [x] Verificar novamente se não há conflitos nas datas (re-check no momento da aprovação):
      - Se conflito surgiu desde a criação: erro "Conflito de horário identificado. Rejeite ou redirecione."
-  4. [ ] Atualizar:
+  4. [x] Atualizar:
      ```javascript
      await ReservationRepository.updateStatus(reservationId, 'APPROVED', {
        approved_by: adminId,
        approval_date: new Date()
      });
      ```
-  5. [ ] Registrar em audit_logs
-  6. [ ] Retornar reserva atualizada
+  5. [x] Registrar em audit_logs
+  6. [x] Retornar reserva atualizada
 
-- [ ] `rejectReservation(reservationId, adminId, reason)` → rejeita reserva
+- [x] `rejectReservation(reservationId, adminId, reason)` → rejeita reserva
   **Lógica de Negócio:**
-  1. [ ] Validar `reason` não vazio:
+  1. [x] Validar `reason` não vazio:
      - Se vazio: erro "Motivo da rejeição é obrigatório"
-  2. [ ] Reserva existe e status = PENDING
-  3. [ ] Atualizar:
+  2. [x] Reserva existe e status = PENDING
+  3. [x] Atualizar:
      ```javascript
      await ReservationRepository.updateStatus(reservationId, 'REJECTED', {
        approved_by: adminId,
@@ -2496,21 +2496,21 @@ ADMIN gerencia reservas com status PENDING. Pode aprovar, rejeitar com motivo, o
      });
      ```
      - Atualizar também todos os `reservation_items` para status = 'CANCELLED'
-  4. [ ] Registrar em audit_logs
-  5. [ ] Retornar reserva atualizada
+  4. [x] Registrar em audit_logs
+  5. [x] Retornar reserva atualizada
 
-- [ ] `redirectReservation(reservationId, adminId, newLabId, reason)` → redireciona para outro lab
+- [x] `redirectReservation(reservationId, adminId, newLabId, reason)` → redireciona para outro lab
   **Lógica de Negócio:**
-  1. [ ] Reserva existe e status = PENDING
-  2. [ ] `newLabId` existe e está ativo
-  3. [ ] `reason` obrigatório (ex: "Lab original em manutenção")
-  4. [ ] Verificar conflito no novo lab para todas as datas da reserva:
+  1. [x] Reserva existe e status = PENDING
+  2. [x] `newLabId` existe e está ativo
+  3. [x] `reason` obrigatório (ex: "Lab original em manutenção")
+  4. [x] Verificar conflito no novo lab para todas as datas da reserva:
      - Se conflito: erro "Novo laboratório também possui conflito nas datas da reserva"
-  5. [ ] Atualizar items para o novo lab:
+  5. [x] Atualizar items para o novo lab:
      ```javascript
      await ReservationRepository.redirectItems(reservationId, newLabId);
      ```
-  6. [ ] Aprovar a reserva:
+  6. [x] Aprovar a reserva:
      ```javascript
      await ReservationRepository.updateStatus(reservationId, 'APPROVED', {
        approved_by: adminId,
@@ -2519,18 +2519,18 @@ ADMIN gerencia reservas com status PENDING. Pode aprovar, rejeitar com motivo, o
        redirected_lab_id: newLabId
      });
      ```
-  7. [ ] Registrar em audit_logs com `oldValues = { lab_id: originalLabId }`
-  8. [ ] Retornar reserva atualizada
+  7. [x] Registrar em audit_logs com `oldValues = { lab_id: originalLabId }`
+  8. [x] Retornar reserva atualizada
 
-- [ ] `listPendingReservations()` → lista reservas pendentes com dados relacionados
+- [x] `listPendingReservations()` → lista reservas pendentes com dados relacionados
 
 **3. ReservationController.js (adicionar):**
-- [ ] `approve(req, res)` → PUT /api/reservations/:id/approve
-- [ ] `reject(req, res)` → PUT /api/reservations/:id/reject
+- [x] `approve(req, res)` → PUT /api/reservations/:id/approve
+- [x] `reject(req, res)` → PUT /api/reservations/:id/reject
   **Body:** `{ "reason": "Motivo" }`
-- [ ] `redirect(req, res)` → PUT /api/reservations/:id/redirect
+- [x] `redirect(req, res)` → PUT /api/reservations/:id/redirect
   **Body:** `{ "new_lab_id": 3, "reason": "Lab original em manutenção" }`
-- [ ] `pending(req, res)` → GET /api/reservations/pending (ADMIN only)
+- [x] `pending(req, res)` → GET /api/reservations/pending (ADMIN only)
 
 **4. routes/reservation.routes.js (adicionar):**
 ```javascript
@@ -2551,24 +2551,24 @@ router.put('/:id/redirect', verifyToken, authorize(['ADMIN']), ReservationContro
 | PUT /reservations/:id/redirect | ✓ | ✗ (403) | ✗ |
 
 **Critérios de Aceite:**
-- [ ] GET /pending retorna apenas reservas com status PENDING
-- [ ] Aprovar reserva → status muda para APPROVED, `approved_by` preenchido
-- [ ] Não pode aprovar reserva que não é PENDING (erro claro)
-- [ ] Rejeitar sem motivo → erro "Motivo obrigatório"
-- [ ] Rejeitar com motivo → status REJECTED + items CANCELLED
-- [ ] Redirecionar → verifica conflito no novo lab antes de aprovar
-- [ ] PROFESSOR não consegue acessar nenhuma rota de aprovação (403)
-- [ ] Testado no Postman:
-  - [ ] Criar reserva recorrente como professor → PENDING
-  - [ ] ADMIN lista pendentes → aparece na lista
-  - [ ] ADMIN aprova → status APPROVED
-  - [ ] Criar outra reserva recorrente → PENDING
-  - [ ] ADMIN rejeita sem motivo → erro
-  - [ ] ADMIN rejeita com motivo → REJECTED
-  - [ ] Criar terceira recorrente → ADMIN redireciona para outro lab → APPROVED
+- [x] GET /pending retorna apenas reservas com status PENDING
+- [x] Aprovar reserva → status muda para APPROVED, `approved_by` preenchido
+- [x] Não pode aprovar reserva que não é PENDING (erro claro)
+- [x] Rejeitar sem motivo → erro "Motivo obrigatório"
+- [x] Rejeitar com motivo → status REJECTED + items CANCELLED
+- [x] Redirecionar → verifica conflito no novo lab antes de aprovar
+- [x] PROFESSOR não consegue acessar nenhuma rota de aprovação (403)
+- [x] Testado no Postman:
+  - [x] Criar reserva recorrente como professor → PENDING
+  - [x] ADMIN lista pendentes → aparece na lista
+  - [x] ADMIN aprova → status APPROVED
+  - [x] Criar outra reserva recorrente → PENDING
+  - [x] ADMIN rejeita sem motivo → erro
+  - [x] ADMIN rejeita com motivo → REJECTED
+  - [x] Criar terceira recorrente → ADMIN redireciona para outro lab → APPROVED
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** 🟢 Concluído  
+**Responsável:** Kaique C.  
 **Depende de:** F5-BE-01
 
 ---

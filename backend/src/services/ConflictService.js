@@ -1,7 +1,7 @@
 import ReservationRepository from '../repositories/ReservationRepository.js';
 
 class ConflictService {
-  async checkConflict(labId, date, timeSlotIds) {
+  async checkConflict(labId, date, timeSlotIds, excludeReservationId = null) {
     // Early return (antes de bater no banco)
     if (!timeSlotIds || timeSlotIds.length === 0) {
       return {
@@ -15,7 +15,8 @@ class ConflictService {
     const conflicts = await ReservationRepository.findConflicting(
       labId,
       date,
-      timeSlotIds
+      timeSlotIds,
+      excludeReservationId
     );
 
     if (conflicts.length === 0) {

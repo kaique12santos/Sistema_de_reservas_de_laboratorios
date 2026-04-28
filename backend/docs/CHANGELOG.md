@@ -155,3 +155,9 @@ O endpoint agora bloqueia acessos de contas com status `PENDING` e `REJECTED` an
 - **Descrição:** Implementação da rota `PATCH /api/reservations/:id/cancel` protegida por autenticação. Criação da função `overrideConflictingItems` no repositório e da lógica de "Override" no Service, permitindo que Coordenadores (ADMIN) sobrescrevam reservas conflitantes e recebam status `APPROVED` automático, enquanto professores recebem `PENDING`. Correção no middleware `validateRequest` do Zod para preservar corretamente o payload em `req.validatedData`. Resolução de bugs de fuso horário forçando a comparação de datas como strings no formato `YYYY-MM-DD`.
 - **Autor:** Kaique Caitano
 - **Impacto:** `src/routes/reservation.routes.js`, `src/controllers/ReservationController.js`, `src/services/ReservationService.js`, `src/repositories/ReservationRepository.js`, `src/middlewares/validateRequest.js`
+
+## [28/04/2026]
+### 1. Fluxo de Gestão de Reservas (Aprovação, Rejeição e Redirecionamento)
+- **Descrição:** Implementação da lógica de gestão de reservas pendentes para coordenadores (ADMIN). Adição de métodos no repositório para listagem (`findPending`), atualização de status e redirecionamento de itens. No Service, foram criados fluxos com transações ACID para: aprovar reservas re-checando conflitos; rejeitar exigindo motivo e cancelando itens liberando a vaga; e redirecionar para um novo laboratório validando disponibilidade prévia. Criação do Controller e exposição das rotas `GET /api/reservations/pending` e `PATCH /api/reservations/:id/approve`, `reject` e `redirect`, todas blindadas para o perfil ADMIN. Lógica de negócio validada integralmente via testes unitários com mocks.
+- **Autor:** Kaique Caitano
+- **Impacto:** `src/repositories/ReservationRepository.js`, `src/services/ReservationService.js`, `src/controllers/ReservationController.js`, `src/routes/reservation.routes.js`

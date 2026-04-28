@@ -105,11 +105,11 @@ git commit -m "test(F10-BE-01): adiciona testes unitários de ReservationService
 **Meta:** Aprovação de cadastros + CRUD básico  
 **Tasks:**
 - [x] F1-BE-04: Middleware de autorização
-- [ ] F2-BE-01: Aprovação de cadastros (Backend)
-- [ ] F2-BE-02: CRUD de Laboratórios (Backend)
-- [ ] F2-BE-03: CRUD de Horários (Backend)
-- [ ] F2-FE-01: Tela de aprovação de cadastros
-- [ ] F2-FE-02: Tela de gestão de laboratórios
+- [x] F2-BE-01: Aprovação de cadastros (Backend)
+- [x] F2-BE-02: CRUD de Laboratórios (Backend)
+- [x] F2-BE-03: CRUD de Horários (Backend)
+- [x] F2-FE-01: Tela de aprovação de cadastros
+- [x] F2-FE-02: Tela de gestão de laboratórios
 
 **Responsáveis:**
 - Backend → F1-BE-04, F2-BE-01, F2-BE-02, F2-BE-03
@@ -121,10 +121,10 @@ git commit -m "test(F10-BE-01): adiciona testes unitários de ReservationService
 ### 📅 Semana 4 - FASE 3
 **Meta:** Ciclos acadêmicos e feriados  
 **Tasks:**
-- [ ] F3-BE-01: CRUD de Ciclos Acadêmicos
-- [ ] F3-BE-02: CRUD de Feriados
-- [ ] F3-FE-01: Tela de gestão de ciclos
-- [ ] F3-FE-02: Tela de cadastro de feriados
+- [x] F3-BE-01: CRUD de Ciclos Acadêmicos
+- [x] F3-BE-02: CRUD de Feriados
+- [x] F3-FE-01: Tela de gestão de ciclos
+- [x] F3-FE-02: Tela de cadastro de feriados
 
 **Responsáveis:**
 - Backend → F3-BE-01, F3-BE-02
@@ -135,10 +135,10 @@ git commit -m "test(F10-BE-01): adiciona testes unitários de ReservationService
 ### 📅 Semana 5-6 - FASE 4
 **Meta:** Reservas simples funcionando  
 **Tasks:**
-- [ ] F4-BE-01: Lógica de detecção de conflitos ⚡ CRÍTICO
-- [ ] F4-BE-02: Criação de reserva simples ⚡ CRÍTICO
-- [ ] F4-FE-01: Formulário de criação de reserva
-- [ ] F4-FE-02: Visualização de minhas reservas
+- [x] F4-BE-01: Lógica de detecção de conflitos ⚡ CRÍTICO
+- [x] F4-BE-02: Criação de reserva simples ⚡ CRÍTICO
+- [x] F4-FE-01: Formulário de criação de reserva
+- [x] F4-FE-02: Visualização de minhas reservas
 
 **Responsáveis:**
 - Backend → F4-BE-01, F4-BE-02 (par programming recomendado)
