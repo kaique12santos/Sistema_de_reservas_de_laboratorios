@@ -7,6 +7,13 @@ import ConflictService from './ConflictService.js';
 import db from '../config/Database.js';
 
 class ReservationService {
+  /**
+   * Cria uma nova reserva simples
+   * @param {number} userId - ID do usuário que está criando a reserva
+   * @param {string} userRole - Papel do usuário (PROFESSOR ou ADMIN)
+   * @param {Object} reservationData - Dados da reserva a ser criada
+   * @returns {Promise<number>} - Retorna o ID da reserva criada
+   */
   async createSimpleReservation(userId, userRole, reservationData) {
     const connection = await db.connection.getConnection();
     await connection.beginTransaction();
@@ -70,7 +77,6 @@ class ReservationService {
         } else if (userRole === 'ADMIN') {
           console.warn(`Admin override: Cancelando reservas conflitantes em ${reservationData.date}, lab ${reservationData.lab_id}`);
           
-          // 👇 A MÁGICA ACONTECE AQUI: O Admin "limpa" a agenda antes de inserir a dele!
           await ReservationRepository.overrideConflictingItems(
             reservationData.lab_id,
             reservationData.date,
@@ -150,10 +156,21 @@ class ReservationService {
     }
   }
 
+  /**
+   * Obtém todas as reservas de um professor específico
+   * @param {number} userId - ID do professor
+   * @returns {Promise<Array>} - Retorna uma lista de reservas encontradas
+   */
   async getMyReservations(userId) {
     return await ReservationRepository.findByProfessor(userId);
   }
 
+  /**
+   * Cancela uma reserva específica
+   * @param {number} reservationId - ID da reserva a ser cancelada
+   * @param {number} userId - ID do usuário que está cancelando a reserva
+   * @returns {Promise<boolean>} - Retorna true se a reserva for cancelada com sucesso
+   */
   async cancelReservation(reservationId, userId) {
     const connection = await db.connection.getConnection();
     await connection.beginTransaction();
@@ -196,6 +213,146 @@ class ReservationService {
       connection.release();
     }
   }
-}
 
+  // Apenas para Admin: Lista todas as reservas pendentes para aprovação
+  async listPendingReservations() {
+    return ReservationRepository.findPending();
+  }
+
+  /**
+   * Aprova uma reserva específica
+   * @param {number} reservationId 
+   * @param {number} adminId 
+   * @returns {Promise<{success: boolean, message: string}>} - Retorna um objeto indicando o sucesso da operação e uma mensagem descritiva 
+   */
+  async approveReservation(reservationId, adminId) {
+    const connection = await db.connection.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      const reservation = await ReservationRepository.findById(reservationId);
+      if (!reservation) {
+        throw new Error('Reserva não encontrada.');
+      }
+      if (reservation.status !== 'PENDING') {
+        throw new Error('Apenas reservas pendentes podem ser aprovadas.');
+      }
+
+      const items = await ReservationRepository.findItemsByReservationId(reservationId);
+      for (const item of items) {
+        const conflit = await ConflictService.checkConflict(
+          item.lab_id,
+          item.date,
+          [item.time_slot_id],
+          reservationId
+        );
+        if (conflit.hasConflict) {
+          throw new Error(`Conflito detectado para o item de reserva ID ${item.id}. O laboratório já está reservado para o horário selecionado.`);
+        }
+      }
+     
+      await ReservationRepository.updateStatus(reservationId, 'APPROVED',{approved_by: adminId}, connection);
+
+      await ReservationRepository.createAuditLog(
+        'UPDATE', 'reservations', reservationId, adminId, 
+        { status: reservation.status }, { status: 'APPROVED' }, 
+        connection
+      );
+
+      await connection.commit();
+      return { success: true, message: 'Reserva aprovada com sucesso.' };
+
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }
+
+  async rejectReservation(reservationId, adminId, reason) {
+    if (!reason || reason.trim() === '') {
+      throw new Error('Motivo de rejeição é obrigatório.');
+    }
+    
+    const connection = await db.connection.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      const reservation = await ReservationRepository.findById(reservationId,connection);
+      if (!reservation) {
+        throw new Error('Reserva não encontrada.');
+      }
+      if (reservation.status !== 'PENDING') {
+        throw new Error('Apenas reservas pendentes podem ser rejeitadas.');
+      }
+      await ReservationRepository.updateStatus(reservationId, 'REJECTED', {approved_by: adminId, reason: reason}, connection);
+
+      await ReservationRepository.createAuditLog(
+        'UPDATE', 'reservations', reservationId, adminId, 
+        { status: reservation.status }, { status: 'REJECTED', rejection_reason: reason }, 
+        connection
+      );
+
+      await ReservationRepository.cancelItemsByReservationId(reservationId, connection);
+
+      await connection.commit();
+      return { success: true, message: 'Reserva rejeitada com sucesso.' };
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }
+
+  async redirectReservation(reservationId, adminId, newLabId, reason) {
+    if (!reason || reason.trim() === '') throw new Error('Motivo de redirecionamento é obrigatório.');
+    if (!newLabId) throw new Error('O novo laboratório é obrigatório.');
+    const connection = await db.connection.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      const reservation = await ReservationRepository.findById(reservationId, connection);
+      if (!reservation) throw new Error('Reserva não encontrada.');
+      if (reservation.status !== 'PENDING') throw new Error('Apenas reservas pendentes podem ser redirecionadas.');
+
+      const items = await ReservationRepository.findItemsByReservationId(reservationId, connection);
+      for (const item of items) {
+        const conflit = await ConflictService.checkConflict(
+          newLabId,
+          item.date,
+          [item.time_slot_id],        
+          reservationId
+        );
+        if (conflit.hasConflict) {
+          throw new Error(`Conflito detectado para o item de reserva ID ${item.id}. O novo laboratório já está reservado para o horário selecionado.`);
+        }
+      }
+      
+      // APAGUEI AQUELA LINHA PERDIDA DO CONFLITO AQUI!
+
+      await ReservationRepository.redirectItems(reservationId, newLabId, connection);
+
+      // CORRIGIDO O STATUS PARA 'APPROVED'
+      await ReservationRepository.createAuditLog(
+        'UPDATE', 'reservations', reservationId, adminId, 
+        { status: reservation.status }, { status: 'APPROVED', reason: reason, lab_id: newLabId }, 
+        connection
+      );
+
+      // CORRIGIDO O STATUS PARA 'APPROVED'
+      await ReservationRepository.updateStatus(reservationId, 'APPROVED', {approved_by: adminId, reason: reason}, connection);
+
+      await connection.commit();
+      return { success: true, message: 'Reserva redirecionada com sucesso.' };
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }
+
+}
 export default new ReservationService();

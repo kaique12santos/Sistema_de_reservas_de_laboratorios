@@ -29,6 +29,40 @@ router.get(
   authMiddleware,
   ReservationController.getMyReservations
 );
+// Cancelar reserva
 router.patch('/:id/cancel', authMiddleware, ReservationController.cancel);
+
+// --- ROTAS DE APROVAÇÃO (Acesso Restrito a Admins) ---
+// Listar reservas pendentes para aprovação
+router.get(
+  '/pending',
+  authMiddleware,
+  requireRole(['ADMIN']),
+  ReservationController.pending
+);
+
+// Aprovar reserva específica
+router.patch(
+  '/:id/approve',
+  authMiddleware,
+  requireRole(['ADMIN']),
+  ReservationController.approve
+);
+
+// Rejeitar reserva específica
+router.patch(
+  '/:id/reject',
+  authMiddleware,
+  requireRole(['ADMIN']),
+  ReservationController.reject
+);
+
+// Redirecionar reserva aprovada para outro laboratório, data ou horário
+router.patch(
+  '/:id/redirect',
+  authMiddleware,
+  requireRole(['ADMIN']),
+  ReservationController.redirect
+);
 
 export default router;
