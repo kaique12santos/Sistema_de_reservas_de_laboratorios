@@ -34,6 +34,15 @@ class ReservationService {
   }
 
   /**
+   * Cria uma nova reserva recorrente
+   * @param {Object} data - { lab_id: number, start_date: string, end_date: string, weekdays: number[], time_slot_ids: number[], note: string }
+   */
+  async createRecurring(data) {
+    const response = await api.post('/reservations/recurring', data);
+    return response.data;
+  }
+
+  /**
    * Lista as reservas do professor logado
    */
   async getMyReservations() {
@@ -112,6 +121,44 @@ class ReservationService {
   }
   async cancelReservation(id) {
     const response = await api.patch(`/reservations/${id}/cancel`);
+    return response.data;
+  }
+
+  /**
+   * Lista reservas pendentes para aprovação (Admin/Coordenador)
+   */
+  async getPending() {
+    const response = await api.get('/reservations/pending');
+    return response.data;
+  }
+
+  /**
+   * Aprova uma reserva pendente
+   * @param {number} id - ID da reserva
+   */
+  async approve(id) {
+    const response = await api.patch(`/reservations/${id}/approve`);
+    return response.data;
+  }
+
+  /**
+   * Rejeita uma reserva pendente
+   * @param {number} id - ID da reserva
+   * @param {string} reason - Motivo da rejeição
+   */
+  async reject(id, reason) {
+    const response = await api.patch(`/reservations/${id}/reject`, { reason });
+    return response.data;
+  }
+
+  /**
+   * Redireciona uma reserva para outro laboratório
+   * @param {number} id - ID da reserva
+   * @param {number} newLabId - ID do novo laboratório
+   * @param {string} justification - Justificativa
+   */
+  async redirect(id, newLabId, justification) {
+    const response = await api.patch(`/reservations/${id}/redirect`, { new_lab_id: newLabId, justification });
     return response.data;
   }
 }

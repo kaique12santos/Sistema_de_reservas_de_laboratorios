@@ -66,16 +66,30 @@ const handlePreSubmit = (formData, hasConflict) => {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      await reservationService.create({
-        ...pendingFormData,
-        date: dayjs(pendingFormData.date).format('YYYY-MM-DD'),
-        note: pendingFormData.notes
-      });
+      let response;
+      if (pendingFormData.reservationType === 'RECURRING') {
+        response = await reservationService.createRecurring({
+          lab_id: pendingFormData.lab_id,
+          start_date: pendingFormData.recurringData.start_date,
+          end_date: pendingFormData.recurringData.end_date,
+          weekdays: pendingFormData.recurringData.weekdays,
+          time_slot_ids: pendingFormData.time_slot_ids,
+          note: pendingFormData.notes
+        });
+      } else {
+        response = await reservationService.create({
+          ...pendingFormData,
+          date: dayjs(pendingFormData.date).format('YYYY-MM-DD'),
+          note: pendingFormData.notes
+        });
+      }
       
       setConfirmOpen(false); // Fecha o modal de confirmação
       setNotify({ 
         open: true, 
-        message: 'Reserva solicitada com sucesso! Aguardando aprovação da coordenação.', 
+        message: pendingFormData.reservationType === 'RECURRING' 
+          ? `Reservas recorrentes solicitadas com sucesso! Total: ${response.total_occurrences} ocorrências. Aguardando aprovação da coordenação.` 
+          : 'Reserva solicitada com sucesso! Aguardando aprovação da coordenação.', 
         severity: 'success' 
       });
       
