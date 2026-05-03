@@ -142,14 +142,18 @@ class ReservationService {
     return response.data;
   }
 
-  /**
+/**
    * Redireciona uma reserva para outro laboratório
    * @param {number} id - ID da reserva
    * @param {number} newLabId - ID do novo laboratório
    * @param {string} justification - Justificativa
    */
   async redirect(id, newLabId, justification) {
-    const response = await api.patch(`/reservations/${id}/redirect`, { new_lab_id: newLabId, justification });
+    // 🐛 CORREÇÃO: O backend espera a chave 'reason', não 'justification'
+    const response = await api.patch(`/reservations/${id}/redirect`, { 
+      new_lab_id: newLabId, 
+      reason: justification 
+    });
     return response.data;
   }
 }
