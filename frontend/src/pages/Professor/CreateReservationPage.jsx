@@ -68,19 +68,21 @@ const handlePreSubmit = (formData, hasConflict) => {
     try {
       let response;
       if (pendingFormData.reservationType === 'RECURRING') {
-        response = await reservationService.createRecurring({
+     response = await reservationService.create({
+          type: 'RECURRING',
           lab_id: pendingFormData.lab_id,
-          start_date: pendingFormData.recurringData.start_date,
-          end_date: pendingFormData.recurringData.end_date,
-          weekdays: pendingFormData.recurringData.weekdays,
           time_slot_ids: pendingFormData.time_slot_ids,
-          note: pendingFormData.notes
+          start_date: dayjs(pendingFormData.recurringData.start_date).format('YYYY-MM-DD'),
+          end_date: dayjs(pendingFormData.recurringData.end_date).format('YYYY-MM-DD'),
+          weekdays: pendingFormData.recurringData.weekdays,
+          notes: pendingFormData.notes
         });
       } else {
         response = await reservationService.create({
           ...pendingFormData,
+          type: 'SIMPLE',
           date: dayjs(pendingFormData.date).format('YYYY-MM-DD'),
-          note: pendingFormData.notes
+          notes: pendingFormData.notes
         });
       }
       
