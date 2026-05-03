@@ -9,9 +9,13 @@ import RedirectReservationModal from '../common/RedirectReservationModal';
 const PendingReservationsPage = () => {
   const [pendingReservations, setPendingReservations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [notify, setNotify] = useState({ open: false, message: '', severity: 'success' });
+ const [notify, setNotify] = useState({ open: false, message: '', severity: 'success' });
   const [rejectModal, setRejectModal] = useState({ open: false, reservation: null });
   const [redirectModal, setRedirectModal] = useState({ open: false, reservation: null });
+
+  const showToast = (message, severity = 'success') => {
+    setNotify({ open: true, message, severity });
+  };
 
   useEffect(() => {
     loadPendingReservations();
@@ -22,7 +26,7 @@ const PendingReservationsPage = () => {
       const data = await reservationService.getPending();
       setPendingReservations(data);
     } catch (error) {
-      setNotify({ open: true, message: 'Erro ao carregar reservas pendentes.', severity: 'error' });
+      showToast('Erro ao carregar reservas pendentes.', 'error');
     } finally {
       setLoading(false);
     }
@@ -31,10 +35,11 @@ const PendingReservationsPage = () => {
   const handleApprove = async (id) => {
     try {
       await reservationService.approve(id);
-      setNotify({ open: true, message: 'Reserva aprovada com sucesso!', severity: 'success' });
+      showToast('Reserva aprovada com sucesso!', 'success');
       loadPendingReservations();
     } catch (error) {
-      setNotify({ open: true, message: 'Erro ao aprovar reserva.', severity: 'error' });
+      const errorMessage = error.response?.data?.error || 'Erro ao aprovar reserva.';
+      showToast(errorMessage, 'error');
     }
   };
 
