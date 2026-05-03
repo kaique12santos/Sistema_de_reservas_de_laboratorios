@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { reservationService } from '../../services/Reservation.service';
 
-const RedirectReservationModal = ({ open, reservation, onClose, onConfirm }) => {
+const RedirectReservationModal = ({ open, reservation, onClose, onConfirm, showToast }) => {
   const [justification, setJustification] = useState('');
   const [newLabId, setNewLabId] = useState('');
   const [labs, setLabs] = useState([]);
