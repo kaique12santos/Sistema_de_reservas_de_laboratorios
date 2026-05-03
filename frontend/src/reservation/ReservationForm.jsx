@@ -29,15 +29,16 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
   const [checkingConflict, setCheckingConflict] = useState(false);
 
   // Generate dates for recurring reservations
-  useEffect(() => {
+ useEffect(() => {
     if (reservationType === 'RECURRING' && recurringData.start_date && recurringData.end_date && recurringData.weekdays.length > 0) {
       const dates = [];
       let current = dayjs(recurringData.start_date);
       const end = dayjs(recurringData.end_date);
       
       while (current.isBefore(end) || current.isSame(end, 'day')) {
-        if (recurringData.weekdays.includes(current.day())) {
-          dates.push(current.format('YYYY-MM-DD'));
+        const dateStr = current.format('YYYY-MM-DD');
+        if (recurringData.weekdays.includes(current.day()) && !holidays.includes(dateStr)) {
+          dates.push(dateStr);
         }
         current = current.add(1, 'day');
       }
@@ -45,7 +46,7 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
     } else {
       setGeneratedDates([]);
     }
-  }, [reservationType, recurringData]);
+  }, [reservationType, recurringData, holidays]);
 
   // Validação de conflito em tempo real
   useEffect(() => {
