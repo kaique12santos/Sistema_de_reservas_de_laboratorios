@@ -114,6 +114,48 @@ class ReservationService {
     const response = await api.patch(`/reservations/${id}/cancel`);
     return response.data;
   }
+
+  /**
+   * Lista reservas pendentes para aprovação (Admin/Coordenador)
+   */
+  async getPending() {
+    const response = await api.get('/reservations/pending');
+    return response.data;
+  }
+
+  /**
+   * Aprova uma reserva pendente
+   * @param {number} id - ID da reserva
+   */
+  async approve(id) {
+    const response = await api.patch(`/reservations/${id}/approve`);
+    return response.data;
+  }
+
+  /**
+   * Rejeita uma reserva pendente
+   * @param {number} id - ID da reserva
+   * @param {string} reason - Motivo da rejeição
+   */
+  async reject(id, reason) {
+    const response = await api.patch(`/reservations/${id}/reject`, { reason });
+    return response.data;
+  }
+
+/**
+   * Redireciona uma reserva para outro laboratório
+   * @param {number} id - ID da reserva
+   * @param {number} newLabId - ID do novo laboratório
+   * @param {string} justification - Justificativa
+   */
+  async redirect(id, newLabId, justification) {
+    // 🐛 CORREÇÃO: O backend espera a chave 'reason', não 'justification'
+    const response = await api.patch(`/reservations/${id}/redirect`, { 
+      new_lab_id: newLabId, 
+      reason: justification 
+    });
+    return response.data;
+  }
 }
 
 export const reservationService = new ReservationService();
