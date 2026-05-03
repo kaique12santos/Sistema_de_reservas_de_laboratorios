@@ -33,18 +33,27 @@ const RedirectReservationModal = ({ open, reservation, onClose, onConfirm, showT
     }
   };
 
-  const handleSubmit = async () => {
+const handleSubmit = async () => {
     if (!newLabId || !justification.trim()) return;
 
     setSubmitting(true);
     try {
       await reservationService.redirect(reservation.id, newLabId, justification);
+      
+      // 1. Dispara o Toast de sucesso
+      showToast('Reserva redirecionada com sucesso!', 'success');
+      
+      // 2. Atualiza a lista no componente pai e fecha
       onConfirm();
       onClose();
+      
+      // 3. Limpa os campos
       setJustification('');
       setNewLabId('');
     } catch (error) {
-      console.error('Erro ao redirecionar reserva:', error);
+      const errorMessage = error.response?.data?.error || 'Erro ao redirecionar reserva.';
+      showToast(errorMessage, 'error');
+      console.error(error);
     } finally {
       setSubmitting(false);
     }
