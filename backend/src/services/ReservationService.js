@@ -4,6 +4,7 @@ import HolidayService from './HolidayService.js';
 import LaboratoryService from './LaboratoryService.js';
 import TimeSlotRepository from '../repositories/TimeSlotRepository.js';
 import ConflictService from './ConflictService.js';
+import RecurrenceHelper from '../utils/RecurrenceHelper.js';
 import db from '../config/Database.js';
 
 class ReservationService {
@@ -148,6 +149,176 @@ class ReservationService {
 
       return reservation;
 
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }
+
+  async createRecurringReservation(dto, requestingUser) {
+    const { lab_id, start_date, end_date, weekdays, time_slot_ids, note } = dto;
+    const { id: userId, role: userRole } = requestingUser;
+
+    if (!lab_id || !start_date || !end_date || !Array.isArray(weekdays) || weekdays.length === 0 || !Array.isArray(time_slot_ids) || time_slot_ids.length === 0) {
+      throw new Error('Os campos lab_id, start_date, end_date, weekdays e time_slot_ids são obrigatórios para reservas recorrentes.');
+    }
+
+    const normalizedWeekdays = [...new Set(weekdays.map((day) => Number(day)).filter((day) => Number.isInteger(day) && day >= 0 && day <= 6))];
+    const normalizedSlotIds = [...new Set(time_slot_ids.map((slotId) => Number(slotId)).filter((slotId) => Number.isInteger(slotId) && slotId > 0))];
+
+    if (normalizedWeekdays.length === 0) {
+      throw new Error('Pelo menos um dia da semana válido deve ser informado para reservas recorrentes.');
+    }
+    if (normalizedSlotIds.length === 0) {
+      throw new Error('Pelo menos um horário válido deve ser informado para reservas recorrentes.');
+    }
+    if (start_date >= end_date) {
+      throw new Error('A data de início deve ser anterior à data de término.');
+    }
+
+    const connection = await db.connection.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      const activeCycle = await AcademicCycleService.getActive();
+      if (!activeCycle) {
+        throw new Error('Nenhum ciclo acadêmico ativo encontrado.');
+      }
+
+      const cycleStartStr = activeCycle.start_date.toISOString().split('T')[0];
+      const cycleEndStr = activeCycle.end_date.toISOString().split('T')[0];
+      const todayStr = new Date().toISOString().split('T')[0];
+      const exclusiveEndStr = activeCycle.admin_exclusive_end_date
+        ? activeCycle.admin_exclusive_end_date.toISOString().split('T')[0]
+        : null;
+
+      if (exclusiveEndStr && todayStr <= exclusiveEndStr && userRole !== 'ADMIN') {
+        throw new Error('Período exclusivo para coordenadores. Professores não podem fazer reservas recorrentes neste momento.');
+      }
+
+      const lab = await LaboratoryService.getLaboratoryById(lab_id);
+      if (!lab || !lab.is_active) {
+        throw new Error('O laboratório selecionado não está ativo.');
+      }
+
+      const timeSlots = await TimeSlotRepository.findByIds(normalizedSlotIds);
+      if (timeSlots.length !== normalizedSlotIds.length) {
+        throw new Error('Um ou mais horários selecionados não existem ou não estão ativos.');
+      }
+
+      const holidays = await HolidayService.listHolidays(activeCycle.id);
+      const holidayDates = holidays.map((holiday) => {
+        if (holiday.date instanceof Date) return holiday.date.toISOString().split('T')[0];
+        return String(holiday.date).slice(0, 10);
+      });
+
+      const validDates = RecurrenceHelper.generateDates(
+        start_date,
+        end_date,
+        normalizedWeekdays,
+        holidayDates,
+        cycleStartStr,
+        cycleEndStr
+      );
+
+      if (validDates.length === 0) {
+        throw new Error('Não existem datas válidas para o período, dias e ciclo selecionados.');
+      }
+
+      const conflicts = await ReservationRepository.findConflictingBulk(
+        lab_id,
+        validDates,
+        normalizedSlotIds
+      );
+
+      if (conflicts.length > 0) {
+        const conflictDates = [...new Set(conflicts.map((conflict) => conflict.date))].slice(0, 3);
+        throw new Error(`Conflitos detectados nas datas: ${conflictDates.join(', ')}. Nenhuma reserva foi criada.`);
+      }
+
+      const status = userRole === 'ADMIN' ? 'APPROVED' : 'PENDING';
+      const reservationId = await ReservationRepository.create({
+        user_id: userId,
+        lab_id,
+        cycle_id: activeCycle.id,
+        type: 'RECURRING',
+        status
+      }, connection);
+
+      const batchItems = [];
+      for (const date of validDates) {
+        for (const timeSlotId of normalizedSlotIds) {
+          const timeSlot = timeSlots.find((ts) => ts.id === timeSlotId);
+          batchItems.push({
+            lab_id,
+            date,
+            time_slot_id: timeSlotId,
+            start_time: timeSlot.start_time,
+            end_time: timeSlot.end_time,
+            note: note || null
+          });
+        }
+      }
+
+      await ReservationRepository.createMany(reservationId, batchItems, connection);
+
+      await ReservationRepository.createAuditLog(
+        'CREATE',
+        'reservations',
+        reservationId,
+        userId,
+        null,
+        {
+          lab_id,
+          start_date,
+          end_date,
+          weekdays: normalizedWeekdays,
+          time_slot_ids: normalizedSlotIds,
+          total_occurrences: validDates.length,
+          status
+        },
+        connection
+      );
+
+      await ReservationRepository.createAuditLog(
+        'CREATE',
+        'reservation_items',
+        reservationId,
+        userId,
+        null,
+        {
+          reservation_id: reservationId,
+          lab_id,
+          dates: validDates,
+          time_slot_ids: normalizedSlotIds,
+          note: note || null
+        },
+        connection
+      );
+
+      await connection.commit();
+
+      const reservation = await ReservationRepository.findById(reservationId);
+      reservation.total_occurrences = validDates.length;
+      reservation.items = validDates.flatMap((date) =>
+        normalizedSlotIds.map((timeSlotId) => {
+          const timeSlot = timeSlots.find((ts) => ts.id === timeSlotId);
+          return {
+            reservation_id: reservationId,
+            lab_id,
+            date,
+            time_slot_id: timeSlotId,
+            start_time: timeSlot.start_time,
+            end_time: timeSlot.end_time,
+            note: note || null,
+            status: 'ACTIVE'
+          };
+        })
+      );
+
+      return reservation;
     } catch (error) {
       await connection.rollback();
       throw error;
