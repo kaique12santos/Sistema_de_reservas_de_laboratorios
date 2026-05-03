@@ -350,14 +350,7 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
           onClick={() => onSubmit({
             ...formData,
             reservationType,
-            ...(reservationType === 'RECURRING' && {
-              recurringData: {
-                ...recurringData,
-                start_date: dayjs(recurringData.start_date).format('YYYY-MM-DD'),
-                end_date: dayjs(recurringData.end_date).format('YYYY-MM-DD'),
-                dates: generatedDates
-              }
-            })
+            recurringData
           }, conflictInfo?.hasConflict)}
           disabled={isSubmitDisabled}
           sx={{ height: 56, fontWeight: 'bold' }}
