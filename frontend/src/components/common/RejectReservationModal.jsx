@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { reservationService } from '../../services/Reservation.service';
 
-const RejectReservationModal = ({ open, reservation, onClose, onConfirm }) => {
+const RejectReservationModal = ({ open, reservation, onClose, onConfirm, showToast }) => {
   const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -21,10 +21,17 @@ const RejectReservationModal = ({ open, reservation, onClose, onConfirm }) => {
     setSubmitting(true);
     try {
       await reservationService.reject(reservation.id, reason);
+      
+      // 1. Dispara o Toast de sucesso
+      showToast('Reserva rejeitada com sucesso.', 'success');
+      
+      // 2. Atualiza a lista no pai e fecha limpando o estado
       onConfirm();
-      onClose();
-      setReason('');
+      handleClose(); // Trocado onClose() por handleClose() para garantir a limpeza do text area
     } catch (error) {
+      // 3. Captura e exibe o erro real do backend
+      const errorMessage = error.response?.data?.error || 'Erro ao rejeitar reserva.';
+      showToast(errorMessage, 'error');
       console.error('Erro ao rejeitar reserva:', error);
     } finally {
       setSubmitting(false);
