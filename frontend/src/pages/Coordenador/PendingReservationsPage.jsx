@@ -101,13 +101,22 @@ const PendingReservationsPage = () => {
         Reservas Pendentes de Aprovação
       </Typography>
 
-      <Paper elevation={1} sx={{ height: 600, width: '100%' }}>
+     <Paper elevation={1} sx={{ height: 600, width: '100%' }}>
         <DataGrid
           rows={pendingReservations}
           columns={columns}
-          pageSize={10}
-          rowsPerPageOptions={[10]}
+          initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+          pageSizeOptions={[10]}
           disableSelectionOnClick
+          slots={{
+            noRowsOverlay: () => (
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                <Typography variant="h6" color="text.secondary">
+                  Nenhuma reserva aguardando aprovação 🎉
+                </Typography>
+              </Box>
+            ),
+          }}
         />
       </Paper>
 
@@ -123,6 +132,7 @@ const PendingReservationsPage = () => {
         reservation={rejectModal.reservation}
         onClose={() => setRejectModal({ open: false, reservation: null })}
         onConfirm={loadPendingReservations}
+        showToast={showToast}
       />
 
       <RedirectReservationModal
@@ -130,6 +140,7 @@ const PendingReservationsPage = () => {
         reservation={redirectModal.reservation}
         onClose={() => setRedirectModal({ open: false, reservation: null })}
         onConfirm={loadPendingReservations}
+        showToast={showToast}
       />
     </Box>
   );
