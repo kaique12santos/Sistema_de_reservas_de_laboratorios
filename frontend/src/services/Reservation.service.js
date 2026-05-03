@@ -34,15 +34,6 @@ class ReservationService {
   }
 
   /**
-   * Cria uma nova reserva recorrente
-   * @param {Object} data - { lab_id: number, start_date: string, end_date: string, weekdays: number[], time_slot_ids: number[], note: string }
-   */
-  async createRecurring(data) {
-    const response = await api.post('/reservations/recurring', data);
-    return response.data;
-  }
-
-  /**
    * Lista as reservas do professor logado
    */
   async getMyReservations() {
