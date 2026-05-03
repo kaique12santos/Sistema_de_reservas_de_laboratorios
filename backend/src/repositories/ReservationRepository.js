@@ -76,12 +76,13 @@ class ReservationRepository {
     const conn = connection || db.connection;
     const query = `
       INSERT INTO reservations (user_id, lab_id, cycle_id, type, status, created_at, updated_at)
-      VALUES (?, ?, ?, 'SINGLE', ?, NOW(), NOW())
+      VALUES (?, ?, ?, ?, ?, NOW(), NOW())
     `;
     const [result] = await conn.query(query, [
       reservationData.user_id,
       reservationData.lab_id,
       reservationData.cycle_id,
+      reservationData.type || 'SINGLE',
       reservationData.status || 'PENDING'
     ]);
     return result.insertId;
@@ -109,6 +110,82 @@ class ReservationRepository {
       itemData.note || null
     ]);
     return result.insertId;
+  }
+
+  /**
+   * Encontra conflitos de reserva em massa para um laboratório, conjunto de datas e horários
+   * @param {number} labId - ID do laboratório
+   * @param {Array<string>} dates - Datas no formato 'YYYY-MM-DD'
+   * @param {Array<number>} timeSlotIds - IDs de horários
+   * @param {number|null} excludeReservationId - ID de reserva a ser excluído da verificação (opcional)
+   * @returns {Promise<Array>} - Itens conflitantes encontrados
+   */
+  async findConflictingBulk(labId, dates, timeSlotIds, excludeReservationId = null) {
+    if (!dates || dates.length === 0 || !timeSlotIds || timeSlotIds.length === 0) {
+      return [];
+    }
+
+    const datePlaceholders = dates.map(() => '?').join(',');
+    const timeSlotPlaceholders = timeSlotIds.map(() => '?').join(',');
+    const params = [labId, ...dates, ...timeSlotIds];
+
+    let query = `
+      SELECT ri.*, r.id as reservation_id, r.user_id, r.status as reservation_status
+      FROM reservation_items ri
+      INNER JOIN reservations r ON r.id = ri.reservation_id
+      WHERE ri.lab_id = ?
+        AND ri.date IN (${datePlaceholders})
+        AND ri.time_slot_id IN (${timeSlotPlaceholders})
+        AND ri.status = 'ACTIVE'
+        AND r.status IN ('APPROVED', 'PENDING')
+    `;
+
+    if (excludeReservationId) {
+      query += ` AND r.id != ?`;
+      params.push(excludeReservationId);
+    }
+
+    const [rows] = await db.connection.query(query, params);
+    return rows;
+  }
+
+  /**
+   * Insere múltiplos itens de reserva em lote
+   * @param {number} reservationId - ID da reserva pai
+   * @param {Array<Object>} items - Array de itens de reserva a serem criados
+   * @param {Object|null} connection - Conexão com o banco de dados (opcional, para usar transação já existente)
+   * @returns {Promise<Object>} - Resultado do insert em lote
+   */
+  async createMany(reservationId, items, connection = null) {
+    if (!items || items.length === 0) return { insertId: null, affectedRows: 0 };
+
+    const conn = connection || db.connection;
+    const placeholders = items.map(() => '(?,?,?,?,?,?,?,?,?)').join(',');
+    const query = `
+      INSERT INTO reservation_items (reservation_id, lab_id, date, time_slot_id, start_time, end_time, note, status, created_at)
+      VALUES ${placeholders}
+    `;
+
+    const params = [];
+    for (const item of items) {
+      params.push(
+        reservationId,
+        item.lab_id,
+        item.date,
+        item.time_slot_id,
+        item.start_time,
+        item.end_time,
+        item.note || null,
+        'ACTIVE',
+        new Date()
+      );
+    }
+
+    const [result] = await conn.query(query, params);
+    return {
+      insertId: result.insertId,
+      affectedRows: result.affectedRows
+    };
   }
 
   /**

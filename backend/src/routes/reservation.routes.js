@@ -15,12 +15,12 @@ router.get(
   ReservationController.checkConflict
 );
 
-// Criar reserva simples
+// Criar reserva (simples ou recorrente)
 router.post(
   '/simple',
   authMiddleware,
   validateRequest(ReservationDTO.createSchema),
-  ReservationController.createSimpleReservation
+  ReservationController.create
 );
 
 // Listar minhas reservas

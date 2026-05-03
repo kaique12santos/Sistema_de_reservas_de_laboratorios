@@ -38,6 +38,32 @@ class ReservationController {
    * @body {Array<number>} time_slots - Lista de IDs dos horários a serem reservados
    * @returns {Promise<{message: string, reservation: Object}>} - Retorna uma mensagem de sucesso e os detalhes da reserva criada
    */
+  async create(req, res) {
+    try {
+      const validatedData = req.validatedData;
+      const userId = req.user.id;
+      const userRole = req.user.role;
+
+      const reservation = validatedData.type === 'RECURRING'
+        ? await ReservationService.createRecurringReservation(validatedData, req.user)
+        : await ReservationService.createSimpleReservation(
+            userId,
+            userRole,
+            validatedData
+          );
+
+      return res.status(201).json({
+        message: 'Reserva criada com sucesso',
+        reservation
+      });
+    } catch (error) {
+      console.error('Erro ao criar reserva:', error.message);
+      return res.status(400).json({
+        error: error.message
+      });
+    }
+  }
+
   async createSimpleReservation(req, res) {
     try {
       const validatedData = req.validatedData;
