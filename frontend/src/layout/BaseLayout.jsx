@@ -141,12 +141,12 @@ const BaseLayout = () => {
       path: "/gestao-reservas",
       roles: ["ADMIN"],
     },
-    {
-      text: "Equipamentos",
-      icon: <BuildIcon />,
-      path: "/equipamentos",
-      roles: ["SUPPORT", "ADMIN"],
-    },
+    // {
+    //   text: "Equipamentos",
+    //   icon: <BuildIcon />,
+    //   path: "/equipamentos",
+    //   roles: ["SUPPORT", "ADMIN"],
+    // },
     {
       text: "Gestão de horários",
       icon: <AccessTimeIcon />,
@@ -166,7 +166,7 @@ const BaseLayout = () => {
       roles: ["ADMIN"],
     },
     {
-      text: "Reservas Simples",
+      text: "Reservar laboratório",
       icon: <EditCalendarIcon />,
       path: "/reservas/nova",
       roles: ["PROFESSOR", "ADMIN"],

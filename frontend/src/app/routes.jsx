@@ -18,6 +18,7 @@ import AcademicCyclesPage from '../pages/Coordenador/AcademicCyclesPage';
 import HolidaysPage from '../pages/Coordenador/HolidaysPage';
 import CreateReservationPage from '../pages/Professor/CreateReservationPage';
 import SupportManagementPage from '../pages/Support/SupportManagementPage';
+import PendingReservationsPage from '../pages/Coordenador/PendingReservationsPage';
 import { CircularProgress } from '@mui/material';
 
 // Componente para proteger rotas privadas
@@ -105,7 +106,7 @@ const AppRoutes = () => {
           <Route path="/gestao-horarios" element={<TimeSlotsPage />} />
           <Route path="/gestao-ciclos" element={<AcademicCyclesPage />} />
           <Route path="/gestao-feriados" element={<HolidaysPage />} />
-          {/* Futura tela de aprovação de reservas */}
+          <Route path="/gestao-reservas" element={<PendingReservationsPage />} />
           {/* <Route path="/gestao-reservas" element={<AprovarReservasPage />} /> */}
         </Route>
 

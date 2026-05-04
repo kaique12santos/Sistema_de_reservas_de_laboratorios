@@ -242,16 +242,15 @@ class ReservationRepository {
   async findByProfessor(professorId) {
     const query = `
       SELECT r.*, ri.date, ri.time_slot_id, ri.lab_id, ri.status as item_status, ri.note,
-             ts.name as time_slot_name, ts.start_time, ts.end_time,
-             l.name as lab_name, ac.name as cycle_name
-      FROM reservations r
+       ts.name as time_slot_name, ts.start_time, ts.end_time,
+       l.name as lab_name, ac.name as cycle_name
+       FROM reservations r
       INNER JOIN reservation_items ri ON ri.reservation_id = r.id
       INNER JOIN time_slots ts ON ts.id = ri.time_slot_id
       INNER JOIN laboratories l ON l.id = r.lab_id
       INNER JOIN academic_cycles ac ON ac.id = r.cycle_id
       WHERE r.user_id = ?
-        AND ri.status = 'ACTIVE'
-      ORDER BY ri.date DESC, ts.start_time ASC
+      ORDER BY r.created_at DESC, ri.date DESC, ts.start_time ASC
     `;
     const [rows] = await db.connection.query(query, [professorId]);
     return rows;

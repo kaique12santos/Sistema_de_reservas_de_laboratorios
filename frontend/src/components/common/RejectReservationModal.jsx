@@ -22,14 +22,11 @@ const RejectReservationModal = ({ open, reservation, onClose, onConfirm, showToa
     try {
       await reservationService.reject(reservation.id, reason);
       
-      // 1. Dispara o Toast de sucesso
       showToast('Reserva rejeitada com sucesso.', 'success');
       
-      // 2. Atualiza a lista no pai e fecha limpando o estado
       onConfirm();
-      handleClose(); // Trocado onClose() por handleClose() para garantir a limpeza do text area
+      handleClose(); 
     } catch (error) {
-      // 3. Captura e exibe o erro real do backend
       const errorMessage = error.response?.data?.error || 'Erro ao rejeitar reserva.';
       showToast(errorMessage, 'error');
       console.error('Erro ao rejeitar reserva:', error);
@@ -44,21 +41,28 @@ const RejectReservationModal = ({ open, reservation, onClose, onConfirm, showToa
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Rejeitar Reserva</DialogTitle>
+    <Dialog 
+      open={open} 
+      onClose={handleClose} 
+      maxWidth="sm" 
+      fullWidth
+      PaperProps={{ sx: { borderRadius: 3, p: 1 } }}
+    >
+      <DialogTitle sx={{ fontWeight: 'bold', pb: 1 }}>Rejeitar Reserva</DialogTitle>
       <DialogContent>
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="body1">
-            Reserva de {reservation?.professor} - {reservation?.lab}
+        <Box sx={{ mb: 3, p: 2, bgcolor: 'background.default', borderRadius: 2 }}>
+          <Typography variant="body1" sx={{ fontWeight: 'bold', color: 'text.primary' }}>
+            Reserva de {reservation?.professor_name} - {reservation?.lab_name}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Tipo: {reservation?.type} | Ocorrências: {reservation?.total_occurrences}
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Tipo: {reservation?.type === 'SIMPLE' ? 'Simples' : 'Recorrente'} | Ocorrências: {reservation?.total_occurrences || 1}
           </Typography>
         </Box>
         <TextField
           autoFocus
           margin="dense"
           label="Motivo da Rejeição"
+          placeholder="Ex: O laboratório estará em manutenção neste período..."
           fullWidth
           multiline
           rows={4}
@@ -67,17 +71,19 @@ const RejectReservationModal = ({ open, reservation, onClose, onConfirm, showToa
           required
         />
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} disabled={submitting}>
+      <DialogActions sx={{ p: 2, px: 3 }}>
+        <Button onClick={handleClose} disabled={submitting} color="inherit" sx={{ fontWeight: 'bold' }}>
           Cancelar
         </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"
           color="error"
+          disableElevation
           disabled={!reason.trim() || submitting}
+          sx={{ fontWeight: 'bold' }}
         >
-          {submitting ? 'Rejeitando...' : 'Rejeitar'}
+          {submitting ? 'Rejeitando...' : 'Confirmar Rejeição'}
         </Button>
       </DialogActions>
     </Dialog>

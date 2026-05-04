@@ -186,7 +186,7 @@ const PendingUsersPage = () => {
         >
           <Typography
             variant="h5"
-            sx={{ fontWeight: "bold", color: "primary.main" }}
+            sx={{ fontWeight: "bold", color: "sectionTitle" }}
           >
             Aprovação de Cadastros
           </Typography>
@@ -242,12 +242,12 @@ const PendingUsersPage = () => {
           <Table sx={{ minWidth: 650 }}>
             <TableHead sx={{ bgcolor: "#fafafa" }}>
               <TableRow>
-                <TableCell sx={{ fontWeight: "bold" }}>Nome / E-mail</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Departamento</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>
+                <TableCell sx={{color:"text.secondary", fontWeight: "bold" }}>Nome / E-mail</TableCell>
+                <TableCell sx={{ color:"text.secondary", fontWeight: "bold" }}>Departamento</TableCell>
+                <TableCell sx={{ color:"text.secondary", fontWeight: "bold" }}>
                   Data de Cadastro
                 </TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                <TableCell align="center" sx={{ color:"text.secondary", fontWeight: "bold" }}>
                   Ações
                 </TableCell>
               </TableRow>

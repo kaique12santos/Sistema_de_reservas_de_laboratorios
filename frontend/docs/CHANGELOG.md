@@ -283,3 +283,9 @@
 **Descrição:** Integração da chamada de API de cancelamento na tela de "Minhas Reservas", com botões funcionais e tratamento de erros. Adaptação do componente `ReservationForm` para consumir a prop `userRole`, alterando o alerta de conflito para informativo e destravando o botão de submissão para administradores. Melhoria de performance e UX na listagem utilizando `useMemo` para filtrar e ocultar instantaneamente as reservas com status `CANCELED`.
 **Autor:** Kaique Caitano
 **Impacto:** `src/services/Reservation.service.js`, `src/pages/MinhasReservasPage.jsx`, `src/pages/CreateReservationPage.jsx`, `src/components/ReservationForm.jsx`
+
+
+## [04/05/2026]
+### 1. Sistema de Gestão de Reservas e Refatoração de UX
+**Descrição:** Implementação da interface de gestão para Coordenadores e Professores. No painel administrativo, foi criada a PendingReservationsPage utilizando DataGrid do MUI com paginação numerada customizada (centralizada) para evitar conflitos com o widget UserWay. Introdução de modais de Aprovação, Rejeição e Redirecionamento padronizados com o ConfirmDialog do sistema. Na visão do Professor, a MinhasReservasPage foi refatorada para suportar filtros bilíngues (Status em Inglês/Português) e lógica de visibilidade condicional para reservas canceladas. Adição de alertas dinâmicos de conflito no formulário de reserva utilizando dayjs para tratamento de timezones UTC.
+**Autor:** Kaique Caitano

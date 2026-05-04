@@ -2413,8 +2413,8 @@ Permitir reservas em múltiplas datas de uma vez, com dias da semana selecionado
   - [ ] Criar recorrente com conflito em 1 data → rollback, erro com datas
   - [ ] Verificar que nenhum item foi criado após rollback
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** 🟢 Concluído
+**Responsável:** Vinicius 
 **Depende de:** F4-BE-02
 
 ---
@@ -2708,8 +2708,8 @@ async function handleSubmit() {
 - [ ] Professor redirecionado para "Minhas Reservas" com status PENDING visível
 - [ ] Responsivo
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** 🟢 Concluído  
+**Responsável:** Vinicius
 **Depende de:** F5-BE-01, F4-FE-01
 
 ---
@@ -2860,8 +2860,8 @@ async redirect(id, newLabId, reason) {
 - [ ] Apenas ADMIN acessa (router protect)
 - [ ] Responsivo
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** 🟢 Concluído
+**Responsável:** Vinicius  
 **Depende de:** F5-BE-02, F3-FE-01
 
 ---
@@ -2876,60 +2876,60 @@ Validar o fluxo completo de reservas recorrentes, desde a solicitação até apr
 **Checklist de Testes:**
 
 **Cenário 1: Criação de Reserva Recorrente (Professor)**
-- [ ] 1. Professor loga e acessa "Criar Reserva"
-- [ ] 2. Seleciona modo "Reserva Recorrente"
-- [ ] 3. Banner informativo sobre status PENDING aparece
-- [ ] 4. Seleciona Lab 01, período 01/03 a 30/06, dias: Seg e Qua, horários M1 e M2
-- [ ] 5. Preview exibe "Serão geradas X ocorrências"
-- [ ] 6. Submete — toast com "X ocorrências criadas. Aguardando aprovação."
-- [ ] 7. Em "Minhas Reservas": reserva aparece com status PENDING
-- [ ] 8. POST direto no Postman → retorno inclui `total_occurrences`
+- [x] 1. Professor loga e acessa "Criar Reserva"
+- [x] 2. Seleciona modo "Reserva Recorrente"
+- [x] 3. Banner informativo sobre status PENDING aparece
+- [x] 4. Seleciona Lab 01, período 01/03 a 30/06, dias: Seg e Qua, horários M1 e M2
+- [x] 5. Preview exibe "Serão geradas X ocorrências"
+- [x] 6. Submete — toast com "X ocorrências criadas. Aguardando aprovação."
+- [x] 7. Em "Minhas Reservas": reserva aparece com status PENDING
+- [x] 8. POST direto no Postman → retorno inclui `total_occurrences`
 
 **Cenário 2: Rollback por Conflito**
-- [ ] 1. Com reserva do Cenário 1 existente (Lab 01, Seg M1)
-- [ ] 2. Outro professor tenta criar recorrente: Lab 01, Seg, M1, mesmo período
-- [ ] 3. Erro retornado com datas conflitantes
-- [ ] 4. Verificar no banco: nenhum `reservation_item` novo criado
+- [x] 1. Com reserva do Cenário 1 existente (Lab 01, Seg M1)
+- [x] 2. Outro professor tenta criar recorrente: Lab 01, Seg, M1, mesmo período
+- [x] 3. Erro retornado com datas conflitantes
+- [x] 4. Verificar no banco: nenhum `reservation_item` novo criado
 
 **Cenário 3: Aprovação pelo ADMIN**
-- [ ] 1. ADMIN loga e acessa painel de aprovações
-- [ ] 2. Reserva do Professor (Cenário 1) aparece na lista com tipo "RECORRENTE"
-- [ ] 3. ADMIN clica em "Aprovar"
-- [ ] 4. Confirmação → ADMIN confirma
-- [ ] 5. Reserva some da lista de pendentes
-- [ ] 6. Professor acessa "Minhas Reservas" → status agora APPROVED
+- [x] 1. ADMIN loga e acessa painel de aprovações
+- [x] 2. Reserva do Professor (Cenário 1) aparece na lista com tipo "RECORRENTE"
+- [x] 3. ADMIN clica em "Aprovar"
+- [x] 4. Confirmação → ADMIN confirma
+- [x] 5. Reserva some da lista de pendentes
+- [x] 6. Professor acessa "Minhas Reservas" → status agora APPROVED
 
 **Cenário 4: Rejeição pelo ADMIN**
-- [ ] 1. Professor cria nova reserva recorrente → PENDING
-- [ ] 2. ADMIN abre modal de rejeição
-- [ ] 3. Tenta rejeitar sem motivo → erro "Motivo obrigatório"
-- [ ] 4. Preenche motivo "Lab em reforma" → confirma
-- [ ] 5. Reserva some do painel de pendentes
-- [ ] 6. Professor acessa "Minhas Reservas" → status REJECTED com motivo visível
+- [x] 1. Professor cria nova reserva recorrente → PENDING
+- [x] 2. ADMIN abre modal de rejeição
+- [x] 3. Tenta rejeitar sem motivo → erro "Motivo obrigatório"
+- [x] 4. Preenche motivo "Lab em reforma" → confirma
+- [x] 5. Reserva some do painel de pendentes
+- [x] 6. Professor acessa "Minhas Reservas" → status REJECTED com motivo visível
 
 **Cenário 5: Redirecionamento pelo ADMIN**
-- [ ] 1. Professor cria reserva recorrente para Lab 01 → PENDING
-- [ ] 2. ADMIN abre modal de redirecionamento
-- [ ] 3. Seleciona Lab 02, motivo "Lab 01 em manutenção"
-- [ ] 4. Confirma → reserva some do painel de pendentes
-- [ ] 5. Professor acessa "Minhas Reservas" → status APPROVED, lab exibe "Lab 02"
-- [ ] 6. Tentar redirecionar para lab com conflito → erro claro no modal
+- [x] 1. Professor cria reserva recorrente para Lab 01 → PENDING
+- [x] 2. ADMIN abre modal de redirecionamento
+- [x] 3. Seleciona Lab 02, motivo "Lab 01 em manutenção"
+- [x] 4. Confirma → reserva some do painel de pendentes
+- [x] 5. Professor acessa "Minhas Reservas" → status APPROVED, lab exibe "Lab 02"
+- [x] 6. Tentar redirecionar para lab com conflito → erro claro no modal
 
 **Cenário 6: Proteção de Rotas**
-- [ ] 1. PROFESSOR tenta GET /api/reservations/pending → 403
-- [ ] 2. PROFESSOR tenta PUT /api/reservations/1/approve → 403
-- [ ] 3. PROFESSOR tenta PUT /api/reservations/1/reject → 403
-- [ ] 4. Sem token: todas as rotas → 401
+- [x] 1. PROFESSOR tenta GET /api/reservations/pending → 403
+- [x] 2. PROFESSOR tenta PUT /api/reservations/1/approve → 403
+- [x] 3. PROFESSOR tenta PUT /api/reservations/1/reject → 403
+- [x] 4. Sem token: todas as rotas → 401
 
 **Critérios de Aceite:**
-- [ ] Todos os 6 cenários passam sem bugs
-- [ ] Rollback de conflito é atômico — banco limpo após erro
-- [ ] `total_occurrences` bate com a quantidade de datas geradas
-- [ ] Nenhum console.error no frontend
-- [ ] Nenhum erro 500 no backend
-- [ ] Pronto para avançar para FASE 6
+- [x] Todos os 6 cenários passam sem bugs
+- [x] Rollback de conflito é atômico — banco limpo após erro
+- [x] `total_occurrences` bate com a quantidade de datas geradas
+- [x] Nenhum console.error no frontend
+- [x] Nenhum erro 500 no backend
+- [x] Pronto para avançar para FASE 6
 
-**Status:** 🔴 PENDENTE  
+**Status:** 🟢 Concluído  
 **Responsável:** Kaique  
 **Depende de:** Todas as tasks F5-* concluídas
 

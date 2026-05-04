@@ -8,18 +8,30 @@ class ReservationService {
 
   /**
    * Verifica conflito de horários antes da reserva
-   * @param {Object} params - { lab_id: number, date: string 'YYYY-MM-DD', time_slots: number[] }
+   * @param {Object} params - { lab_id: number, date: string 'YYYY-MM-DD', dates: string[], time_slots: number[] }
    */
-  async checkConflict({ lab_id, date, time_slots }) {
-    // O backend espera time_slots=1,2,3 na URL
-    const params = new URLSearchParams({
-      lab_id,
-      date,
-      time_slots: time_slots.join(',') 
-    });
+  async checkConflict({ lab_id, date, dates, time_slots }) {
+    const params = new URLSearchParams();
+    
+    params.append('lab_id', lab_id);
+    
+    // 1. Lida com os horários (transforma array em string separada por vírgula)
+    if (time_slots) {
+      params.append('time_slots', Array.isArray(time_slots) ? time_slots.join(',') : time_slots);
+    }
+
+    // 2. Lida com a data da Reserva Simples
+    if (date) {
+      params.append('date', date);
+    }
+
+    // 3. Lida com as datas da Reserva Recorrente
+    if (dates) {
+      params.append('dates', Array.isArray(dates) ? dates.join(',') : dates);
+    }
     
     // Rota: GET /api/reservations/check-conflict
-    const response = await api.get(`/reservations/check-conflict?${params}`);
+    const response = await api.get(`/reservations/check-conflict?${params.toString()}`);
     return response.data;
   }
 
@@ -27,9 +39,11 @@ class ReservationService {
    * Cria uma nova reserva simples
    * @param {Object} data - { lab_id: number, date: string 'YYYY-MM-DD', time_slot_ids: number[], note: string }
    */
-  async create(data) {
-    // ATENÇÃO: A rota configurada no backend é /simple e não apenas /reservations
-    const response = await api.post('/reservations/simple', data);
+  async create(payload) {
+    // Como o Controller é inteligente, mandamos tudo para a rota principal.
+    // O backend lê o payload.type ('SIMPLE' ou 'RECURRING') e se vira!
+    const response = await api.post('/reservations', payload); 
+    
     return response.data;
   }
 
@@ -84,7 +98,6 @@ class ReservationService {
           .map(lab => ({
             ...lab,
             nome: lab.name,
-            name: lab.name,
             description: lab.description_lab 
           })),
         
@@ -149,7 +162,6 @@ class ReservationService {
    * @param {string} justification - Justificativa
    */
   async redirect(id, newLabId, justification) {
-    // 🐛 CORREÇÃO: O backend espera a chave 'reason', não 'justification'
     const response = await api.patch(`/reservations/${id}/redirect`, { 
       new_lab_id: newLabId, 
       reason: justification 

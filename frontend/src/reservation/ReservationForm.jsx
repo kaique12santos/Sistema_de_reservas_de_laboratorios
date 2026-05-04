@@ -29,7 +29,8 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
   const [checkingConflict, setCheckingConflict] = useState(false);
 
   // Generate dates for recurring reservations
- useEffect(() => {
+ // 1. GERA AS DATAS PARA RESERVAS RECORRENTES
+  useEffect(() => {
     if (reservationType === 'RECURRING' && recurringData.start_date && recurringData.end_date && recurringData.weekdays.length > 0) {
       const dates = [];
       let current = dayjs(recurringData.start_date);
@@ -37,6 +38,7 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
       
       while (current.isBefore(end) || current.isSame(end, 'day')) {
         const dateStr = current.format('YYYY-MM-DD');
+        // Adiciona se for um dia da semana marcado e não for feriado
         if (recurringData.weekdays.includes(current.day()) && !holidays.includes(dateStr)) {
           dates.push(dateStr);
         }
@@ -48,24 +50,35 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
     }
   }, [reservationType, recurringData, holidays]);
 
-  // Validação de conflito em tempo real
+  // 2. VALIDAÇÃO DE CONFLITO EM TEMPO REAL (O que acabamos de criar)
   useEffect(() => {
     async function verifyConflict() {
-      if (!formData.lab_id || !formData.date || formData.time_slot_ids.length === 0) {
+      const isSimpleReady = reservationType === 'SIMPLE' && formData.lab_id && formData.date && formData.time_slot_ids.length > 0;
+      const isRecurringReady = reservationType === 'RECURRING' && formData.lab_id && generatedDates.length > 0 && formData.time_slot_ids.length > 0;
+
+      if (!isSimpleReady && !isRecurringReady) {
         setConflictInfo(null);
         return;
       }
       
       setCheckingConflict(true);
       try {
-        const result = await reservationService.checkConflict({
+        const payload = {
           lab_id: formData.lab_id,
-          date: dayjs(formData.date).format('YYYY-MM-DD'),
-          time_slots: formData.time_slot_ids
-        });
+          time_slots: formData.time_slot_ids,
+        };
+
+        if (reservationType === 'SIMPLE') {
+          payload.date = dayjs(formData.date).format('YYYY-MM-DD');
+        } else {
+          payload.dates = generatedDates;
+        }
+        
+        const result = await reservationService.checkConflict(payload);
+        
         setConflictInfo(result);
       } catch (error) {
-        console.error(error);
+        console.error("Erro na checagem de conflito:", error);
       } finally {
         setCheckingConflict(false);
       }
@@ -73,7 +86,7 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
     
     const debounce = setTimeout(verifyConflict, 500);
     return () => clearTimeout(debounce);
-  }, [formData.lab_id, formData.date, formData.time_slot_ids]);
+  }, [reservationType, formData.lab_id, formData.date, formData.time_slot_ids, generatedDates]);
 
   const handleSlotToggle = (slotId) => {
     setFormData(prev => {
@@ -94,17 +107,23 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
     }));
   };
 
-  const handleTypeChange = (event, newType) => {
-    if (newType) {
+ const handleTypeChange = (event, newType) => {
+    if (newType && newType !== reservationType) {
       setReservationType(newType);
-      if (newType === 'SIMPLE') {
-        setRecurringData({
-          start_date: null,
-          end_date: null,
-          weekdays: [1, 2, 3, 4, 5]
-        });
-        setGeneratedDates([]);
-      }
+      
+      // Limpa TODAS as seleções de tempo, datas e conflitos ao trocar de modo
+      setFormData(prev => ({
+        ...prev,
+        date: null, 
+        time_slot_ids: [] 
+      }));
+      setRecurringData({
+        start_date: null,
+        end_date: null,
+        weekdays: [1, 2, 3, 4, 5, 6] 
+      });
+      setGeneratedDates([]);
+      setConflictInfo(null); 
     }
   };
 
@@ -171,6 +190,7 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
               shouldDisableDate={(date) => 
                 holidays.includes(dayjs(date).format('YYYY-MM-DD')) || dayjs(date).day() === 0
               }
+              dayOfWeekFormatter={(date) => ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'][date.day()]}
               slotProps={{ textField: { fullWidth: true } }}
             />
           ) : (
@@ -184,6 +204,7 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
                 shouldDisableDate={(date) => 
                   holidays.includes(dayjs(date).format('YYYY-MM-DD')) || dayjs(date).day() === 0
                 }
+                dayOfWeekFormatter={(date) => ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'][date.day()]}
                 slotProps={{ textField: { fullWidth: true } }}
               />
               <DatePicker
@@ -195,6 +216,7 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
                 shouldDisableDate={(date) => 
                   holidays.includes(dayjs(date).format('YYYY-MM-DD')) || dayjs(date).day() === 0
                 }
+                dayOfWeekFormatter={(date) => ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'][date.day()]}
                 slotProps={{ textField: { fullWidth: true } }}
               />
               <FormControl component="fieldset">
@@ -206,7 +228,7 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
                     { label: 'Qua', value: 3 },
                     { label: 'Qui', value: 4 },
                     { label: 'Sex', value: 5 },
-                    { label: 'Sáb', value: 6, disabled: true },
+                    { label: 'Sáb', value: 6 },
                     { label: 'Dom', value: 0, disabled: true }
                   ].map(day => (
                     <FormControlLabel
@@ -229,19 +251,15 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
       </Grid>
 
       {/* COLUNA DIREITA: Observações */}
-      <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
+      <Grid item xs={12}>
         <TextField
           fullWidth
           multiline
-          rows={4}
+          rows={3}
           label="Observações / Motivo (Opcional)"
           placeholder="Ex: Instalar software X para a aula de Sistemas Operacionais"
           value={formData.notes}
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-          sx={{ 
-            flexGrow: 1,
-            minWidth: { xs: '100%', md: '35rem' }, 
-          }}
         />
       </Grid>
 
@@ -262,22 +280,7 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
         </Grid>
       )}
 
-      {/* COLUNA DIREITA: Observações */}
-     <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
-        <TextField
-          fullWidth
-          multiline
-          rows={4}
-          label="Observações / Motivo (Opcional)"
-          placeholder="Ex: Instalar software X para a aula de Sistemas Operacionais"
-          value={formData.notes}
-          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-          sx={{ 
-            flexGrow: 1,
-            minWidth: { xs: '100%', md: '35rem' }, 
-          }}
-        />
-      </Grid>
+    
 
       <Grid item xs={12} sx={{ mt: 1 }}>
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', borderBottom: '1px solid', borderColor: 'divider', pb: 1 }}>
@@ -294,10 +297,15 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
           {conflictInfo?.hasConflict && !checkingConflict && (
             <Alert severity={userRole === 'ADMIN' ? 'info' : 'warning'} icon={<WarningAmberIcon />}>
               {userRole === 'ADMIN' 
-                ? `Informação: Os horários ${conflictInfo.conflictingSlots.map(id => timeSlots.find(slot => slot.id === id)?.name).join(', ')} já possuem pedidos aguardando aprovação ou aprovados. Como Coordenador, você pode sobrescrever e alocar este laboratório.`
-                : <><strong>Atenção!</strong> Os horários <strong>{conflictInfo.conflictingSlots.map(id => timeSlots.find(slot => slot.id === id)?.name).join(', ')}</strong> já estão reservados para este dia.</>
+                ? <>Informação: Os horários da <strong>{conflictInfo.conflictingSlots.map(id => timeSlots.find(slot => slot.id === id)?.name).join(', ')}</strong> já possuem pedidos nas datas: <strong>{conflictInfo.conflictingDates?.map(d => dayjs(d).format('DD/MM/YYYY')).join(', ')}</strong>. Como Coordenador, você pode sobrescrever e alocar este laboratório.</>
+                : <>
+                    <strong>Atenção!</strong> Os horários da <strong>{conflictInfo.conflictingSlots.map(id => timeSlots.find(slot => slot.id === id)?.name).join(', ')}</strong> já estão reservados 
+                    {reservationType === 'SIMPLE' 
+                      ? ' neste dia.' 
+                      : <> nas datas: <strong>{conflictInfo.conflictingDates?.map(d => dayjs(d).format('DD/MM/YYYY')).join(', ')}</strong>.</>
+                    }
+                  </>
               }
-              
             </Alert>
           )}
         </Box>

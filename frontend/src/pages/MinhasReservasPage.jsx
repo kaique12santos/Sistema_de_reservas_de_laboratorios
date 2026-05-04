@@ -71,26 +71,37 @@ const MinhasReservasPage = () => {
     }
   };
 
- const reservasFiltradas = useMemo(() => {
-    // 1. LIMPEZA INICIAL: Esconde tudo que for cancelado (Atenção ao CANCELED em maiúsculo)
-    const reservasVisiveis = reservas.filter(
-      (res) => res.status.toUpperCase() !== "CANCELED" && res.status.toUpperCase() !== "CANCELADO"
-    );
-
-    // 2. Agora sim, aplicamos o filtro do Dropdown apenas na lista limpa!
-    if (statusFilter === "Todos") return reservasVisiveis;
-    
-    // Se o seu dropdown tem a opção "Recusado", a gente filtra pelo status REJECTED do banco
-    if (statusFilter === "Recusado") {
-      return reservasVisiveis.filter((res) => 
-        res.status.toUpperCase() === "REJECTED" || res.status.toUpperCase() === "RECUSADO"
+  // 1. A NOVA LÓGICA DE FILTRO INTELIGENTE
+  const reservasFiltradas = useMemo(() => {
+    // 1. Visão "Todos": Retorna tudo, EXCETO os Cancelados
+    if (statusFilter === "Todos") {
+      return reservas.filter(
+        (res) => res.status?.toUpperCase() !== "CANCELED" && res.status?.toUpperCase() !== "CANCELADO"
       );
     }
-    
-    // Para Aprovados e Pendentes
-    return reservasVisiveis.filter((res) => 
-      res.status.toUpperCase() === statusFilter.toUpperCase()
-    );
+
+    // 2. Visão "Cancelados": Traz SOMENTE os Cancelados
+    if (statusFilter === "Cancelado") {
+      return reservas.filter(
+        (res) => res.status?.toUpperCase() === "CANCELED" || res.status?.toUpperCase() === "CANCELADO"
+      );
+    }
+
+    // 3. Visão "Recusados": Mapeia o REJECTED do banco
+    if (statusFilter === "Recusado") {
+      return reservas.filter(
+        (res) => res.status?.toUpperCase() === "REJECTED" || res.status?.toUpperCase() === "RECUSADO"
+      );
+    }
+
+    // 4. Visão "Aprovado" ou "Pendente": Trata o inglês e o português
+    return reservas.filter((res) => {
+      const statusBanco = res.status?.toUpperCase();
+      if (statusFilter === "Aprovado") return statusBanco === "APPROVED" || statusBanco === "APROVADO";
+      if (statusFilter === "Pendente") return statusBanco === "PENDING" || statusBanco === "PENDENTE";
+      
+      return statusBanco === statusFilter.toUpperCase(); // Fallback
+    });
   }, [statusFilter, reservas]);
 
   // 3. Ações
@@ -175,8 +186,8 @@ const MinhasReservasPage = () => {
               <MenuItem value="Todos">Todos</MenuItem>
               <MenuItem value="Aprovado">Aprovados</MenuItem>
               <MenuItem value="Pendente">Pendentes</MenuItem>
-              <MenuItem value="canceled">Cancelados</MenuItem>
               <MenuItem value="Recusado">Recusados</MenuItem>
+              <MenuItem value="Cancelado">Cancelados</MenuItem> 
             </TextField>
 
             <Button
@@ -333,7 +344,7 @@ const MinhasReservasPage = () => {
                   }}
                 >
                   <Typography variant="body2">
-                    {reservaSelecionada.motivo}
+                    {reservaSelecionada.reason || "Nenhuma observação fornecida."}
                   </Typography>
                 </Paper>
               </Grid>

@@ -62,7 +62,8 @@ CREATE TABLE laboratories (
     is_active BOOLEAN DEFAULT TRUE COMMENT 'Soft delete: define se o lab está disponível para novas reservas',
     type ENUM('LABORATORIO', 'SALA DE AULA', 'AUDITORIO') NOT NULL DEFAULT 'LABORATORIO',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_lab_name (name)
 ) ENGINE=InnoDB COMMENT='Cadastro de espaços físicos reserváveis';
 
 CREATE TABLE academic_cycles (
