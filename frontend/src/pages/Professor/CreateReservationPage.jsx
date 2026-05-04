@@ -96,7 +96,6 @@ const handlePreSubmit = (dataFromForm, hasConflict) => {
         notes: pendingFormData.notes
       };
       
-      console.log("Corpo da Requisição (RECURRING):", payload);
       response = await reservationService.create(payload);
 
     } else {
@@ -108,7 +107,6 @@ const handlePreSubmit = (dataFromForm, hasConflict) => {
         notes: pendingFormData.notes
       };
 
-      console.log("Corpo da Requisição (SIMPLE):", payload);
       response = await reservationService.create(payload);
     }
 

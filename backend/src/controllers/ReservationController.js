@@ -62,7 +62,6 @@ class ReservationController {
   async create(req, res) {
     try {
 
-      console.log("📥 [BACKEND] Recebeu req.body:", JSON.stringify(req.body, null, 2));
       const validatedData = req.validatedData;
       const userId = req.user.id;
       const userRole = req.user.role;

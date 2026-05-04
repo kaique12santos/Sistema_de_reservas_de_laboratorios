@@ -74,9 +74,7 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
           payload.dates = generatedDates;
         }
         
-        console.log("📤 [FRONT] Payload GET:", payload);
         const result = await reservationService.checkConflict(payload);
-        console.log("📥 [FRONT] Resposta GET:", result);
         
         setConflictInfo(result);
       } catch (error) {
