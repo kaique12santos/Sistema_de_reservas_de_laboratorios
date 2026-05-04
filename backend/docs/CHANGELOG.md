@@ -161,3 +161,10 @@ O endpoint agora bloqueia acessos de contas com status `PENDING` e `REJECTED` an
 - **Descrição:** Implementação da lógica de gestão de reservas pendentes para coordenadores (ADMIN). Adição de métodos no repositório para listagem (`findPending`), atualização de status e redirecionamento de itens. No Service, foram criados fluxos com transações ACID para: aprovar reservas re-checando conflitos; rejeitar exigindo motivo e cancelando itens liberando a vaga; e redirecionar para um novo laboratório validando disponibilidade prévia. Criação do Controller e exposição das rotas `GET /api/reservations/pending` e `PATCH /api/reservations/:id/approve`, `reject` e `redirect`, todas blindadas para o perfil ADMIN. Lógica de negócio validada integralmente via testes unitários com mocks.
 - **Autor:** Kaique Caitano
 - **Impacto:** `src/repositories/ReservationRepository.js`, `src/services/ReservationService.js`, `src/controllers/ReservationController.js`, `src/routes/reservation.routes.js`
+
+
+## [04/05/2026]
+### 1. Expansão do Motor de Conflitos e Correção de Escopo de Consulta
+**Descrição:** Atualização do ConflictService para suportar validações em lote (reservas recorrentes), permitindo a identificação exata de datas conflitantes em um conjunto de solicitações. Refatoração do CheckConflictDTO com Zod para suportar entradas opcionais de data única ou arrays de datas via transformação de strings. Correção crítica na query de recuperação de reservas do usuário no ReservationRepository: removida a restrição ri.status = 'ACTIVE' que ocultava indevidamente o histórico de reservas rejeitadas e canceladas, garantindo integridade total na prestação de contas ao docente.
+**Autor:** Kaique Caitano
+**Impacto:** `src/services/ConflictService.js`, `src/dtos/CheckConflictDTO.js`, `src/repositories/ReservationRepository.js`
