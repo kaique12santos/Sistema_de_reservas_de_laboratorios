@@ -13,23 +13,44 @@ class ReservationController {
    */
   async checkConflict(req, res) {
     try {
-      const { lab_id, date, time_slots } = req.validatedData;
+      const payload = req.method === 'GET' ? req.query : req.body;
+      const { lab_id } = payload;
 
-      const result = await ConflictService.checkConflict(
-        lab_id,
-        date,
-        time_slots
-      ); 
+      // 1. Desfaz a vírgula dos horários
+      let time_slots = payload.time_slots || payload.time_slot_ids;
+      if (typeof time_slots === 'string') time_slots = time_slots.split(',');
+      if (!time_slots) return res.json({ hasConflict: false, conflictingSlots: [] });
+      
+      // Garante que é array de números
+      time_slots = Array.isArray(time_slots) ? time_slots.map(Number) : [Number(time_slots)];
 
-      return res.status(200).json(result);
-    } catch (error) {
-      console.error('Erro ao verificar conflito:', error.message);
-      return res.status(500).json({
-        error: 'Erro interno ao verificar conflito'
+      // 2. Desfaz a vírgula das datas
+      let datesToCheck = [];
+      if (payload.dates) {
+        datesToCheck = typeof payload.dates === 'string' ? payload.dates.split(',') : payload.dates;
+      } else if (payload.date) {
+        datesToCheck = [payload.date];
+      }
+
+      if (!lab_id || datesToCheck.length === 0 || time_slots.length === 0) {
+        return res.json({ hasConflict: false, conflictingSlots: [] });
+      }
+
+      // 3. Manda pro nosso novo ConflictService
+      const result = await ConflictService.checkConflict(lab_id, datesToCheck, time_slots);
+
+      return res.json({
+        hasConflict: result.hasConflict,
+        conflictingSlots: result.conflictingSlots,
+        conflictingDates: result.conflictingDates
       });
+
+    } catch (error) {
+      console.error('Erro na checagem de conflitos:', error.message);
+      return res.status(500).json({ error: 'Erro interno ao verificar conflitos.' });
     }
   }
-
+  
   /**
    * Cria uma nova reserva simples (sem itens de reserva detalhados)
    * @route POST /reservations/simple
@@ -40,6 +61,8 @@ class ReservationController {
    */
   async create(req, res) {
     try {
+
+      console.log("📥 [BACKEND] Recebeu req.body:", JSON.stringify(req.body, null, 2));
       const validatedData = req.validatedData;
       const userId = req.user.id;
       const userRole = req.user.role;
@@ -51,6 +74,7 @@ class ReservationController {
             userRole,
             validatedData
           );
+
 
       return res.status(201).json({
         message: 'Reserva criada com sucesso',

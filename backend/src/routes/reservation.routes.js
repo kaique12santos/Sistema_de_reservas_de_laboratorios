@@ -17,7 +17,7 @@ router.get(
 
 // Criar reserva (simples ou recorrente)
 router.post(
-  '/simple',
+  '/',
   authMiddleware,
   validateRequest(ReservationDTO.createSchema),
   ReservationController.create

@@ -48,67 +48,92 @@ const CreateReservationPage = () => {
     loadData();
   }, []);
 
-const handlePreSubmit = (formData, hasConflict) => {
-    // Validação
-    if (!formData.lab_id) return setNotify({ open: true, message: 'Selecione um laboratório.', severity: 'error' });
-    if (!formData.date) return setNotify({ open: true, message: 'Selecione a data da reserva.', severity: 'error' });
-    if (formData.time_slot_ids.length === 0) return setNotify({ open: true, message: 'Selecione ao menos um horário.', severity: 'error' });
-    if (hasConflict && user?.role !== 'ADMIN') {
-        return setNotify({ open: true, message: 'Resolva os conflitos antes de salvar.', severity: 'error' });
+const handlePreSubmit = (dataFromForm, hasConflict) => {
+    // Desestrutura os dados que o ReservationForm nos enviou
+    const { reservationType, recurringData, ...baseFormData } = dataFromForm;
+
+    // 1. Validações Comuns (Para ambos os tipos)
+    if (!baseFormData.lab_id) return setNotify({ open: true, message: 'Selecione um laboratório.', severity: 'error' });
+    if (baseFormData.time_slot_ids.length === 0) return setNotify({ open: true, message: 'Selecione ao menos um horário.', severity: 'error' });
+
+    // 2. Validações Específicas por Tipo
+    if (reservationType === 'SIMPLE') {
+      if (!baseFormData.date) return setNotify({ open: true, message: 'Selecione a data da reserva.', severity: 'error' });
+    } else {
+      if (!recurringData.start_date || !recurringData.end_date) {
+        return setNotify({ open: true, message: 'Selecione as datas de início e fim.', severity: 'error' });
+      }
+      if (recurringData.weekdays.length === 0) {
+        return setNotify({ open: true, message: 'Selecione pelo menos um dia da semana.', severity: 'error' });
+      }
     }
 
-    // Tudo válido! Salva no estado temporário e abre o Modal de Confirm
-    setPendingFormData(formData);
+    if (hasConflict && user?.role !== 'ADMIN') {
+      return setNotify({ open: true, message: 'Resolva os conflitos antes de salvar.', severity: 'error' });
+    }
+
+    // Tudo válido! Salva o objeto completo no estado temporário e abre o Modal de Confirmação
+    setPendingFormData(dataFromForm);
     setConfirmOpen(true);
   };
 
   // ETAPA 2: O Modal de Confirm chama isso ao clicar em "Sim"
   const handleSubmit = async () => {
-    setSubmitting(true);
-    try {
-      let response;
-      if (pendingFormData.reservationType === 'RECURRING') {
-     response = await reservationService.create({
-          type: 'RECURRING',
-          lab_id: pendingFormData.lab_id,
-          time_slot_ids: pendingFormData.time_slot_ids,
-          start_date: dayjs(pendingFormData.recurringData.start_date).format('YYYY-MM-DD'),
-          end_date: dayjs(pendingFormData.recurringData.end_date).format('YYYY-MM-DD'),
-          weekdays: pendingFormData.recurringData.weekdays,
-          notes: pendingFormData.notes
-        });
-      } else {
-        response = await reservationService.create({
-          ...pendingFormData,
-          type: 'SIMPLE',
-          date: dayjs(pendingFormData.date).format('YYYY-MM-DD'),
-          notes: pendingFormData.notes
-        });
-      }
-      
-      setConfirmOpen(false); // Fecha o modal de confirmação
-      setNotify({ 
-        open: true, 
-        message: pendingFormData.reservationType === 'RECURRING' 
-          ? `Reservas recorrentes solicitadas com sucesso! Total: ${response.total_occurrences} ocorrências. Aguardando aprovação da coordenação.` 
-          : 'Reserva solicitada com sucesso! Aguardando aprovação da coordenação.', 
-        severity: 'success' 
-      });
-      
-      setTimeout(() => navigate('/reservas'), 2500); 
+  setSubmitting(true);
+  try {
+    let response;
+    let payload; // Variável para armazenar o corpo da requisição
 
-    } catch (error) {
-      console.error(error);
-      setNotify({ 
-        open: true, 
-        message: error.response?.data?.error || 'Erro ao processar a solicitação.', 
-        severity: 'error' 
-      });
-      setConfirmOpen(false); // Fecha o modal em caso de erro também
-    } finally {
-      setSubmitting(false);
+    if (pendingFormData.reservationType === 'RECURRING') {
+      // Monta o objeto para RECURRING
+      payload = {
+        type: 'RECURRING',
+        lab_id: pendingFormData.lab_id,
+        time_slot_ids: pendingFormData.time_slot_ids,
+        start_date: dayjs(pendingFormData.recurringData.start_date).format('YYYY-MM-DD'),
+        end_date: dayjs(pendingFormData.recurringData.end_date).format('YYYY-MM-DD'),
+        weekdays: pendingFormData.recurringData.weekdays,
+        notes: pendingFormData.notes
+      };
+      
+      console.log("Corpo da Requisição (RECURRING):", payload);
+      response = await reservationService.create(payload);
+
+    } else {
+      // Monta o objeto para SIMPLE
+      payload = {
+        ...pendingFormData,
+        type: 'SIMPLE',
+        date: dayjs(pendingFormData.date).format('YYYY-MM-DD'),
+        notes: pendingFormData.notes
+      };
+
+      console.log("Corpo da Requisição (SIMPLE):", payload);
+      response = await reservationService.create(payload);
     }
-  };
+
+    setConfirmOpen(false);
+    setNotify({
+      open: true,
+      message: pendingFormData.reservationType === 'RECURRING'
+        ? `Reservas recorrentes solicitadas com sucesso! Total: ${response.total_occurrences} ocorrências. Aguardando aprovação da coordenação.`
+        : 'Reserva solicitada com sucesso! Aguardando aprovação da coordenação.',
+      severity: 'success'
+    });
+    setTimeout(() => navigate('/reservas'), 2500);
+
+  } catch (error) {
+    console.error("Erro na requisição:", error);
+    setNotify({
+      open: true,
+      message: error.response?.data?.error || 'Erro ao processar a solicitação.',
+      severity: 'error'
+    });
+    setConfirmOpen(false);
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   if (!initialData) return <CircularProgress sx={{ display: 'block', margin: 'auto', mt: 10 }} />;
 

@@ -33,23 +33,17 @@ const RedirectReservationModal = ({ open, reservation, onClose, onConfirm, showT
     }
   };
 
-const handleSubmit = async () => {
+  const handleSubmit = async () => {
     if (!newLabId || !justification.trim()) return;
 
     setSubmitting(true);
     try {
       await reservationService.redirect(reservation.id, newLabId, justification);
       
-      // 1. Dispara o Toast de sucesso
       showToast('Reserva redirecionada com sucesso!', 'success');
       
-      // 2. Atualiza a lista no componente pai e fecha
       onConfirm();
-      onClose();
-      
-      // 3. Limpa os campos
-      setJustification('');
-      setNewLabId('');
+      handleClose();
     } catch (error) {
       const errorMessage = error.response?.data?.error || 'Erro ao redirecionar reserva.';
       showToast(errorMessage, 'error');
@@ -66,25 +60,33 @@ const handleSubmit = async () => {
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Redirecionar Reserva</DialogTitle>
+    <Dialog 
+      open={open} 
+      onClose={handleClose} 
+      maxWidth="sm" 
+      fullWidth
+      PaperProps={{ sx: { borderRadius: 3, p: 1 } }}
+    >
+      <DialogTitle sx={{ fontWeight: 'bold', pb: 1 }}>Redirecionar Reserva</DialogTitle>
       <DialogContent>
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="body1">
-            Reserva de {reservation?.professor} - {reservation?.lab}
+        <Box sx={{ mb: 3, p: 2, bgcolor: 'background.default', borderRadius: 2 }}>
+          <Typography variant="body1" sx={{ fontWeight: 'bold', color: 'text.primary' }}>
+            {/* 🚀 Nomes corrigidos de acordo com o Backend */}
+            Reserva de {reservation?.professor_name} - {reservation?.lab_name}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Tipo: {reservation?.type} | Ocorrências: {reservation?.total_occurrences}
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Tipo: {reservation?.type === 'SIMPLE' ? 'Simples' : 'Recorrente'} | Ocorrências: {reservation?.total_occurrences || 1}
           </Typography>
         </Box>
         <TextField
           select
           margin="dense"
-          label="Novo Laboratório"
+          label="Selecione o Novo Laboratório"
           fullWidth
           value={newLabId}
           onChange={(e) => setNewLabId(e.target.value)}
           required
+          sx={{ mb: 2 }}
         >
           {labs.map(lab => (
             <MenuItem key={lab.id} value={lab.id}>
@@ -94,7 +96,8 @@ const handleSubmit = async () => {
         </TextField>
         <TextField
           margin="dense"
-          label="Justificativa"
+          label="Justificativa para o Professor"
+          placeholder="Ex: Laboratório original apresentou defeito elétrico..."
           fullWidth
           multiline
           rows={4}
@@ -103,17 +106,19 @@ const handleSubmit = async () => {
           required
         />
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} disabled={submitting}>
+      <DialogActions sx={{ p: 2, px: 3 }}>
+        <Button onClick={handleClose} disabled={submitting} color="inherit" sx={{ fontWeight: 'bold' }}>
           Cancelar
         </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"
           color="warning"
+          disableElevation
           disabled={!newLabId || !justification.trim() || submitting}
+          sx={{ fontWeight: 'bold' }}
         >
-          {submitting ? 'Redirecionando...' : 'Redirecionar'}
+          {submitting ? 'Processando...' : 'Confirmar Redirecionamento'}
         </Button>
       </DialogActions>
     </Dialog>
