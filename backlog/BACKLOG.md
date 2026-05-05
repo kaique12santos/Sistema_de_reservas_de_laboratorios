@@ -2212,7 +2212,7 @@ Validar o fluxo completo de criação de reservas com todos os validadores de ne
 # 🟣 FASE 5 – Reservas Recorrentes
 
 **Requisitos:** RF11, RF12, RF13  
-**Status Geral:** 🔴 PENDENTE  
+**Status Geral:** 🟢 Concluído  
 **Meta:** Professores solicitam reservas recorrentes (semanas) e ADMINs aprovam, rejeitam ou redirecionam
 
 ---
