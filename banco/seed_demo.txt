@@ -1,0 +1,23 @@
+-- 2. Reservas para o 'Professor Teste 1' (user_id: 1)
+
+-- -> Cenario A: Reserva PENDENTE (Recorrente) 
+-- Vai aparecer na tela do ADMIN para você Aprovar ou Redirecionar ao vivo
+INSERT INTO reservations (id, user_id, lab_id, cycle_id, type, status) VALUES 
+(1, 1, 6, 1, 'RECURRING', 'PENDING');
+INSERT INTO reservation_items (reservation_id, lab_id, date, time_slot_id, start_time, end_time, status) VALUES 
+(1, 6, '2026-05-11', 12, '19:20:00', '20:10:00', 'ACTIVE'),
+(1, 6, '2026-05-18', 12, '19:20:00', '20:10:00', 'ACTIVE');
+
+-- -> Cenario B: Reserva APROVADA (Simples)
+-- Vai aparecer no "Minhas Reservas" e renderizar no Calendário
+INSERT INTO reservations (id, user_id, lab_id, cycle_id, type, status, approved_by) VALUES 
+(2, 1, 1, 1, 'SINGLE', 'APPROVED', 4);
+INSERT INTO reservation_items (reservation_id, lab_id, date, time_slot_id, start_time, end_time, status) VALUES 
+(2, 1, '2026-05-12', 1, '07:30:00', '08:20:00', 'ACTIVE');
+
+-- -> Cenario C: Reserva REJEITADA (Com motivo)
+-- Para demonstrar a UX que você arrumou hoje (O botão de cancelar bloqueado e o motivo no modal)
+INSERT INTO reservations (id, user_id, lab_id, cycle_id, type, status, reason, approved_by) VALUES 
+(3, 1, 2, 1, 'RECURRING', 'REJECTED', 'Laboratório passará por manutenção elétrica neste período. Por favor, solicite a Sala 205.', 4);
+INSERT INTO reservation_items (reservation_id, lab_id, date, time_slot_id, start_time, end_time, status) VALUES 
+(3, 2, '2026-05-13', 6, '13:00:00', '13:50:00', 'CANCELED');
