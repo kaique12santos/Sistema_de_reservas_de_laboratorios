@@ -23,7 +23,12 @@ INSERT INTO users (name, email, password_hash, role, status, department_id) VALU
 ('Professor Teste 1', 'prof1@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'PROFESSOR', 'APPROVED', 1),
 ('Professor Teste 2', 'prof2@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'PROFESSOR', 'APPROVED', 1),
 ('Suporte Master', 'suporte@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'SUPPORT', 'APPROVED', 1),
-('Administrador Master', 'admin@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'ADMIN', 'APPROVED', 1);
+('Administrador Master', 'admin@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'ADMIN', 'APPROVED', 1),
+('Prof 3', 'prof3@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'PROFESSOR', 'PENDING', 1),
+('Prof 4 ', 'prof4@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'PROFESSOR', 'PENDING', 1),
+('Prof 5', 'prof5@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'PROFESSOR', 'REJECTED', 1),
+('Prof 6', 'prof6@fatec.sp.gov.br', '$2b$10$eItL1y/uCcSnDfR6PtEv3O9N3iGLU.7kcNIv68pkFW/UR0/lwYv5a', 'PROFESSOR', 'APPROVED', 1);
+
 
 INSERT INTO time_slots (name, start_time, end_time) VALUES 
 ('Manhã', '07:30:00', '08:20:00'),
@@ -43,10 +48,37 @@ INSERT INTO time_slots (name, start_time, end_time) VALUES
 ('Noite', '22:00:00', '22:50:00');
 
 
-INSERT INTO laboratories (name, capacity, type, location) VALUES 
-('Lab 01', 20, 'LABORATORIO', 'Bloco A'), 
-('Lab 02', 20, 'LABORATORIO', 'Bloco A'),
-('Auditório', 100, 'AUDITORIO', 'Bloco C');
+INSERT INTO laboratories (name, location, capacity, description_lab, type, is_active) VALUES
+-- AUDITÓRIO
+('Auditório Principal', 'Térreo - Bloco Central', 200, 'Auditório amplo com projetor e som', 'AUDITORIO', true),
+
+-- SALAS DE AULA - 1º andar
+('Sala 101', '1º Andar - Bloco A', 40, 'Sala equipada com projetor', 'SALA DE AULA', true),
+('Sala 102', '1º Andar - Bloco A', 35, 'Sala padrão com quadro branco', 'SALA DE AULA', true),
+('Sala 103', '1º Andar - Bloco B', 45, 'Sala ampla com ar condicionado', 'SALA DE AULA', true),
+('Sala 104', '1º Andar - Bloco B', 30, 'Sala pequena para turmas reduzidas', 'SALA DE AULA', true),
+
+-- LABORATÓRIOS - 1º andar
+('Lab 01', '1º Andar - Bloco A', 40, 'Computadores i5', 'LABORATORIO', true),
+('Lab 02', '1º Andar - Bloco A', 35, 'Laboratório de redes', 'LABORATORIO', true),
+('Lab 03', '1º Andar - Bloco B', 30, 'Laboratório de eletrônica', 'LABORATORIO', true),
+('Lab 04', '1º Andar - Bloco B', 25, 'Laboratório de física', 'LABORATORIO', true),
+
+-- SALAS DE AULA - 2º andar
+('Sala 201', '2º Andar - Bloco A', 40, 'Sala equipada com projetor', 'SALA DE AULA', true),
+('Sala 202', '2º Andar - Bloco A', 35, 'Sala padrão com quadro branco', 'SALA DE AULA', true),
+('Sala 203', '2º Andar - Bloco B', 45, 'Sala ampla com ar condicionado', 'SALA DE AULA', true),
+('Sala 204', '2º Andar - Bloco B', 30, 'Sala pequena para turmas reduzidas', 'SALA DE AULA', true),
+
+-- LABORATÓRIOS - 2º andar
+('Lab 05', '2º Andar - Bloco A', 40, 'Laboratório de programação avançada', 'LABORATORIO', true),
+('Lab 06', '2º Andar - Bloco A', 35, 'Laboratório de banco de dados', 'LABORATORIO', true),
+('Lab 07', '2º Andar - Bloco B', 30, 'Laboratório de automação', 'LABORATORIO', true),
+('Lab 08', '2º Andar - Bloco B', 25, 'Laboratório de química', 'LABORATORIO', true),
+
+-- SALAS EXTRAS para completar 20
+('Sala 205', '2º Andar - Bloco A', 40, 'Sala multimídia', 'SALA DE AULA', true),
+('Sala 206', '2º Andar - Bloco B', 35, 'Sala de apoio pedagógico', 'SALA DE AULA', true);
 
 
 USE fatecZL_lab_reservations;
