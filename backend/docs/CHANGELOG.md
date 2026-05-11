@@ -179,3 +179,21 @@ O endpoint agora bloqueia acessos de contas com status `PENDING` e `REJECTED` an
 - **Descrição:** Correção do erro crítico `TypeError: Cannot convert object to primitive value` que derrubava a API durante o cancelamento/update de status, causado pela injeção indevida do objeto de conexão na query SQL. Implementação do método `findByRole` que estava ausente, restaurando a comunicação com os administradores.
 - **Autor:** Kaique Caitano
 - **Impacto:** Alterações diretas no `repositories/ReservationRepository.js` (método `updateStatus`) e `repositories/UserRepository.js` (adição do `findByRole`).
+
+## [11/05/2026]
+### 1. Sobrescrita de Reserva (Fase 6 - ADMIN)
+- **Descrição:** Implementação da rota transacional de sobrescrita (Overwrite) exclusiva para Administradores. A funcionalidade cancela itens conflitantes em lote, cria a nova reserva, registra a operação no log de auditoria (relacionando os IDs novos e antigos) e emite o evento para notificação assíncrona do professor afetado.
+- **Autor:** Kaique Caitano
+- **Impacto:** Criação dos arquivos `services/OverwriteService.js` e `dtos/OverwriteReservationDTO.js`. Atualização no `repositories/ReservationRepository.js` (métodos `cancelItem` e `cancelReservationIfAllItemsCancelled`), `controllers/ReservationController.js` e `routes/reservation.routes.js`.
+
+### 2. Hotfix: Validação de Middleware Zod
+- **Descrição:** Correção no middleware `validateRequest` na rota de sobrescrita, passando explicitamente a propriedade `.schema` da classe DTO para evitar o erro `schema.parse is not a function`.
+- **Autor:** Kaique Caitano
+- **Impacto:** Alteração simples em `routes/reservation.routes.js`.
+
+## [11/05/2026]
+### 1. Sistema Centralizado de Auditoria (Fase 6 - ADMIN)
+- **Descrição:** Implementação de um sistema de auditoria (fail-safe) para registrar ações críticas no banco de dados (`audit_logs`) e garantir rastreabilidade (RF21). A lógica foi isolada para que falhas de log não afetem as transações principais. A auditoria foi aplicada retroativamente em ações vitais de usuários, ciclos acadêmicos e reservas. Também foram criadas rotas GET exclusivas para ADMINs consultarem os históricos.
+- **Autor:** Kaique Caitano
+- **Impacto:** - **Criados:** `repositories/AuditRepository.js`, `services/AuditService.js`, `controllers/AuditController.js`, e `routes/audit.routes.js`.
+  - **Alterados:** Atualização no `app.js` para incluir a nova rota `/api/audit`. Injeção de logs nos arquivos `UserService.js`, `AcademicCycleService.js` e `ReservationService.js` (criação, aprovação, rejeição, redirecionamento e sobrescrita).

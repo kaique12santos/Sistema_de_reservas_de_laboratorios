@@ -34,7 +34,8 @@ class AcademicCycleController {
   async activate(req, res) {
     try {
       const { id } = req.params;
-      const result = await AcademicCycleService.activateCycle(id);
+      const changedBy = req.user?.id || req.adminId; // ID do usuário autenticado (admin)
+      const result = await AcademicCycleService.activateCycle(id, changedBy);
       res.json(result);
     } catch (error) {
       res.status(400).json({ error: error.message });

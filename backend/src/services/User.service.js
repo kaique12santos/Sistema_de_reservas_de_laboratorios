@@ -1,5 +1,5 @@
 import UserRepository from '../repositories/UserRepository.js';
-// import AuditService from './AuditService.js'; // Descomentar quando o AuditService estiver pronto
+import AuditService from './AuditService.js';
 import EmailService from './EmailService.js';
 
 class UserService {
@@ -28,6 +28,9 @@ class UserService {
     // Passamos para o Repository aprovar (status), ativar (is_active) e definir o cargo (role)
     await UserRepository.approveAndActivate(userId, finalRole);
 
+    // Log de auditoria
+    await AuditService.log('APPROVE', 'users', userId, adminId, { status: 'PENDING' }, { status: 'APPROVED', role: finalRole });
+
     EmailService.sendApprovalNotification(user.email, user.name)
         .catch(err => console.error("Falha silenciosa ao enviar email de aprovação", err));
 
@@ -55,9 +58,11 @@ class UserService {
 
     await UserRepository.updateStatus(userId, 'REJECTED', reason);
 
+    // Log de auditoria
+    await AuditService.log('REJECT', 'users', userId, adminId, { status: 'PENDING' }, { status: 'REJECTED', rejection_reason: reason });
+
      EmailService.sendRejectionNotification(user.email, user.name, reason)
         .catch(err => console.error("Falha silenciosa ao enviar email de rejeição", err));
-    // await AuditService.log('REJECT', 'users', userId, adminId, { status: 'PENDING' }, { status: 'REJECTED', rejection_reason: reason });
 
     return { ...user, status: 'REJECTED', rejection_reason: reason };
   }

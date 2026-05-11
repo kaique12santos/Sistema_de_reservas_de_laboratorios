@@ -8,6 +8,7 @@ import timeSlotRoutes from './routes/timeSlot.routes.js';
 import AcademicCycleRouter from './routes/academicCycle.routes.js';
 import holidayRouter from './routes/holiday.routes.js';
 import reservationRoutes from './routes/reservation.routes.js';
+import auditRoutes from './routes/audit.routes.js';
 import './events/reservation.events.js';
 
 class App {
@@ -44,6 +45,7 @@ class App {
     this.server.use('/api/academic-cycles', AcademicCycleRouter);
     this.server.use('/api/holidays', holidayRouter);
     this.server.use('/api/reservations', reservationRoutes);
+    this.server.use('/api/audit', auditRoutes);
 
   }
 }

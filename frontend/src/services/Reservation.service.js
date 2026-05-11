@@ -168,6 +168,11 @@ class ReservationService {
     });
     return response.data;
   }
+
+  async overwrite(data) {
+    const response = await api.post('/reservations/overwrite', data);
+    return response.data;
+  }
 }
 
 export const reservationService = new ReservationService();

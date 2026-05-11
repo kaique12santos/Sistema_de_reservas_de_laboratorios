@@ -7,12 +7,14 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import 'dayjs/locale/pt-br';
 
-// Componente de Domínio e Serviço
 import ReservationForm from '../../reservation/ReservationForm';
 import { reservationService } from '../../services/Reservation.service'; 
 import { useNotification } from '../../context/NotificationContext';
 import ConfirmDialog from '../../utils/ConfirmDialog'; 
 import LoadingOverlay from "../../components/LoadingOverlay";
+
+// Ajuste o caminho do import caso tenha salvado em outra pasta
+import OverwriteConfirmModal from '../../components/OverwriteConfirmModal';
 
 const CreateReservationPage = () => {
   const navigate = useNavigate();
@@ -25,11 +27,10 @@ const CreateReservationPage = () => {
   const [initialData, setInitialData] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   
-  // eslint-disable-next-line no-unused-vars
-  const { showSuccess, showError, showWarning, showInfo } = useNotification();
+  const { showSuccess, showError } = useNotification();
 
-  // Estados para controle do Modal de Confirmação
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [showOverwriteModal, setShowOverwriteModal] = useState(false); // NOVO ESTADO
   const [pendingFormData, setPendingFormData] = useState(null);
 
   useEffect(() => {
@@ -44,84 +45,103 @@ const CreateReservationPage = () => {
     loadData();
   }, []);
 
-const handlePreSubmit = (dataFromForm, hasConflict) => {
-    // Desestrutura os dados que o ReservationForm nos enviou
+  const handlePreSubmit = (dataFromForm, hasConflict) => {
     const { reservationType, recurringData, ...baseFormData } = dataFromForm;
 
-    // 1. Validações Comuns (Para ambos os tipos)
     if (!baseFormData.lab_id) return showError('Selecione um laboratório.');
     if (baseFormData.time_slot_ids.length === 0) return showError('Selecione ao menos um horário.');
 
-    // 2. Validações Específicas por Tipo
     if (reservationType === 'SIMPLE') {
       if (!baseFormData.date) return showError('Selecione a data da reserva.');
     } else {
-      if (!recurringData.start_date || !recurringData.end_date) {
-        return showError('Selecione as datas de início e fim.');
-      }
-      if (recurringData.weekdays.length === 0) {
-        return showError('Selecione pelo menos um dia da semana.');
+      if (!recurringData.start_date || !recurringData.end_date) return showError('Selecione as datas de início e fim.');
+      if (recurringData.weekdays.length === 0) return showError('Selecione pelo menos um dia da semana.');
+    }
+
+    // 💡 A MÁGICA ACONTECE AQUI
+    if (hasConflict) {
+      if (user?.role !== 'ADMIN') {
+        return showError('Resolva os conflitos antes de salvar. Laboratório já ocupado.');
+      } else {
+        // Se é ADMIN e tem conflito -> Desvia para o fluxo de Sobrescrita
+        setPendingFormData(dataFromForm);
+        setShowOverwriteModal(true);
+        return; 
       }
     }
 
-    if (hasConflict && user?.role !== 'ADMIN') {
-      return showError('Resolva os conflitos antes de salvar.');
-    }
-
-    // Tudo válido! Salva o objeto completo no estado temporário e abre o Modal de Confirmação
+    // Sem conflito -> Fluxo de criação normal
     setPendingFormData(dataFromForm);
     setConfirmOpen(true);
   };
 
-  // ETAPA 2: O Modal de Confirm chama isso ao clicar em "Sim"
+  // FLUXO NORMAL (Criar Reserva)
   const handleSubmit = async () => {
-  setSubmitting(true);
-  try {
-    let response;
-    let payload; // Variável para armazenar o corpo da requisição
+    setSubmitting(true);
+    try {
+      let payload;
+      if (pendingFormData.reservationType === 'RECURRING') {
+        payload = {
+          type: 'RECURRING',
+          lab_id: pendingFormData.lab_id,
+          time_slot_ids: pendingFormData.time_slot_ids,
+          start_date: dayjs(pendingFormData.recurringData.start_date).format('YYYY-MM-DD'),
+          end_date: dayjs(pendingFormData.recurringData.end_date).format('YYYY-MM-DD'),
+          weekdays: pendingFormData.recurringData.weekdays,
+          notes: pendingFormData.notes
+        };
+      } else {
+        payload = {
+          ...pendingFormData,
+          type: 'SIMPLE',
+          date: dayjs(pendingFormData.date).format('YYYY-MM-DD'),
+          notes: pendingFormData.notes
+        };
+      }
 
-    if (pendingFormData.reservationType === 'RECURRING') {
-      // Monta o objeto para RECURRING
-      payload = {
-        type: 'RECURRING',
-        lab_id: pendingFormData.lab_id,
-        time_slot_ids: pendingFormData.time_slot_ids,
-        start_date: dayjs(pendingFormData.recurringData.start_date).format('YYYY-MM-DD'),
-        end_date: dayjs(pendingFormData.recurringData.end_date).format('YYYY-MM-DD'),
-        weekdays: pendingFormData.recurringData.weekdays,
-        notes: pendingFormData.notes
-      };
-      
-      response = await reservationService.create(payload);
+      const response = await reservationService.create(payload);
+      setConfirmOpen(false);
+      showSuccess(
+        pendingFormData.reservationType === 'RECURRING'
+          ? `Reservas solicitadas com sucesso! Total: ${response.total_occurrences} ocorrências.`
+          : 'Reserva solicitada com sucesso!'
+      );
+      setTimeout(() => navigate('/reservas'), 2500);
 
-    } else {
-      // Monta o objeto para SIMPLE
-      payload = {
-        ...pendingFormData,
-        type: 'SIMPLE',
-        date: dayjs(pendingFormData.date).format('YYYY-MM-DD'),
-        notes: pendingFormData.notes
-      };
-
-      response = await reservationService.create(payload);
+    } catch (error) {
+      showError(error.response?.data?.error || 'Erro ao processar a solicitação.');
+      setConfirmOpen(false);
+    } finally {
+      setSubmitting(false);
     }
+  };
 
-    setConfirmOpen(false);
-    showSuccess(
-      pendingFormData.reservationType === 'RECURRING'
-        ? `Reservas recorrentes solicitadas com sucesso! Total: ${response.total_occurrences} ocorrências. Aguardando aprovação da coordenação.`
-        : 'Reserva solicitada com sucesso! Aguardando aprovação da coordenação.'
-    );
-    setTimeout(() => navigate('/reservas'), 2500);
+  // FLUXO DE SOBRESCRITA (Fase 6)
+  const handleOverwrite = async () => {
+    setSubmitting(true);
+    try {
+      // Sobrescrita (por regra) é focada em datas únicas (SIMPLE)
+      const payload = {
+        lab_id: pendingFormData.lab_id,
+        date: dayjs(pendingFormData.date).format('YYYY-MM-DD'),
+        time_slot_ids: pendingFormData.time_slot_ids,
+        notes: pendingFormData.notes
+      };
 
-  } catch (error) {
-    console.error("Erro na requisição:", error);
-    showError(error.response?.data?.error || 'Erro ao processar a solicitação.');
-    setConfirmOpen(false);
-  } finally {
-    setSubmitting(false);
-  }
-};
+      const result = await reservationService.overwrite(payload);
+      
+      setShowOverwriteModal(false);
+      showSuccess(`Sobrescrita realizada! ${result.overwritten_count} reserva(s) anterior(es) cancelada(s).`);
+      
+      setTimeout(() => navigate('/reservas'), 2500);
+      
+    } catch (error) {
+      showError(error.response?.data?.error || 'Erro ao realizar sobrescrita.');
+      setShowOverwriteModal(false);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (!initialData) return <CircularProgress sx={{ display: 'block', margin: 'auto', mt: 10 }} />;
 
@@ -130,9 +150,7 @@ const handlePreSubmit = (dataFromForm, hasConflict) => {
       <Box sx={{ maxWidth: '100%', mx: 'auto' }}>
         <LoadingOverlay open={submitting} message="Processando..." />
         
-        {/* HEADER E BOTÃO VOLTAR BLINDADO */}
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, gap: 2 }}>
-          {/* Navegação explícita para evitar que o (-1) falhe se o usuário abrir o link direto */}
           <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/laboratories')} color="inherit">
             Voltar
           </Button>
@@ -154,7 +172,6 @@ const handlePreSubmit = (dataFromForm, hasConflict) => {
           />
         </Paper>
 
-        {/* DIALOG DE CONFIRMAÇÃO PADRONIZADO DO SISTEMA */}
         <ConfirmDialog
           open={confirmOpen}
           title="Confirmar Solicitação"
@@ -165,6 +182,14 @@ const handlePreSubmit = (dataFromForm, hasConflict) => {
           loading={submitting}
           onConfirm={handleSubmit}
           onCancel={() => setConfirmOpen(false)}
+        />
+
+        {/* NOVO MODAL DE SOBRESCRITA */}
+        <OverwriteConfirmModal 
+          open={showOverwriteModal}
+          onClose={() => setShowOverwriteModal(false)}
+          onConfirm={handleOverwrite}
+          submitting={submitting}
         />
 
       </Box>

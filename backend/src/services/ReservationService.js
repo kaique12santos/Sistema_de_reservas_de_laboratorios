@@ -8,6 +8,7 @@ import RecurrenceHelper from '../utils/RecurrenceHelper.js';
 import db from '../config/Database.js';
 import EventBus from '../events/EventBus.js';
 import UserRepository from '../repositories/UserRepository.js';
+import AuditService from './AuditService.js';
 
 class ReservationService {
   /**
@@ -120,8 +121,8 @@ class ReservationService {
         });
       }
 
-      // Audit log entries
-      await ReservationRepository.createAuditLog(
+      // Audit log entries (via centralizado AuditService)
+      await AuditService.log(
         'CREATE',
         'reservations',
         reservationId,
@@ -271,7 +272,7 @@ class ReservationService {
 
       await ReservationRepository.createMany(reservationId, batchItems, connection);
 
-      await ReservationRepository.createAuditLog(
+      await AuditService.log(
         'CREATE',
         'reservations',
         reservationId,
@@ -435,8 +436,9 @@ class ReservationService {
      
       await ReservationRepository.updateStatus(reservationId, 'APPROVED',{approved_by: adminId}, connection);
 
-      await ReservationRepository.createAuditLog(
-        'UPDATE', 'reservations', reservationId, adminId, 
+      // Log de auditoria
+      await AuditService.log(
+        'APPROVE', 'reservations', reservationId, adminId, 
         { status: reservation.status }, { status: 'APPROVED' }, 
         connection
       );
@@ -474,8 +476,9 @@ class ReservationService {
       }
       await ReservationRepository.updateStatus(reservationId, 'REJECTED', {approved_by: adminId, reason: reason}, connection);
 
-      await ReservationRepository.createAuditLog(
-        'UPDATE', 'reservations', reservationId, adminId, 
+      // Log de auditoria
+      await AuditService.log(
+        'REJECT', 'reservations', reservationId, adminId, 
         { status: reservation.status }, { status: 'REJECTED', rejection_reason: reason }, 
         connection
       );
@@ -520,18 +523,15 @@ class ReservationService {
         }
       }
       
-      // APAGUEI AQUELA LINHA PERDIDA DO CONFLITO AQUI!
-
       await ReservationRepository.redirectItems(reservationId, newLabId, connection);
 
-      // CORRIGIDO O STATUS PARA 'APPROVED'
-      await ReservationRepository.createAuditLog(
-        'UPDATE', 'reservations', reservationId, adminId, 
-        { status: reservation.status }, { status: 'APPROVED', reason: reason, lab_id: newLabId }, 
+      // Log de auditoria com redirecionamento
+      await AuditService.log(
+        'REDIRECT', 'reservations', reservationId, adminId, 
+        { lab_id: reservation.lab_id, status: reservation.status }, { lab_id: newLabId, status: 'APPROVED', reason: reason }, 
         connection
       );
 
-      // CORRIGIDO O STATUS PARA 'APPROVED'
       await ReservationRepository.updateStatus(reservationId, 'APPROVED', {approved_by: adminId, reason: reason}, connection);
 
       await connection.commit();

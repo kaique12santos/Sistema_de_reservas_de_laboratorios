@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import ReservationController from '../controllers/ReservationController.js';
 import validateRequest from '../middlewares/validateRequest.js';
+import OverwriteReservationDTO from '../dtos/OverwriteReservationDTO.js';
 import CheckConflictDTO from '../dtos/CheckConflictDTO.js';
 import ReservationDTO from '../dtos/ReservationDTO.js';
 import { authMiddleware, requireRole } from '../middlewares/auth.middleware.js';
@@ -63,6 +64,14 @@ router.patch(
   authMiddleware,
   requireRole(['ADMIN']),
   ReservationController.redirect
+);
+
+router.post(
+  '/overwrite', 
+  authMiddleware,
+  requireRole(['ADMIN']),
+  validateRequest(OverwriteReservationDTO.schema),
+  ReservationController.overwrite
 );
 
 export default router;

@@ -301,3 +301,9 @@
 - **Descrição:** Correção de bug no envio do payload para a rota de cancelamento, onde o ID da reserva não estava sendo mapeado corretamente para o modal, resultando em requisições para `/api/reservations/null/cancel`.
 - **Autor:** Kaique Caitano
 - **Impacto:** Ajustes de passagem de props/estado na `pages/MinhasReservasPage.jsx`.
+
+## [11/05/2026]
+### 1. Interface de Sobrescrita de Reserva (Fase 6 - ADMIN)
+- **Descrição:** Adição do fluxo visual de sobrescrita. O sistema agora intercepta conflitos durante a criação de reserva: se o usuário for ADMIN, exibe um alerta permitindo forçar a reserva. Inclui um modal de confirmação dedicado informando o cancelamento definitivo das reservas anteriores.
+- **Autor:** Kaique Caitano
+- **Impacto:** Criação do componente `components/OverwriteConfirmModal.jsx` (ou similar). Refatoração da lógica de `handlePreSubmit` na página `pages/professor/CreateReservationPage.jsx` e adição do endpoint `overwrite` no `services/Reservation.service.js`.
