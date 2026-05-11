@@ -3068,8 +3068,8 @@ router.post('/overwrite', verifyToken, authorize(['ADMIN']), ReservationControll
   - [ ] Tentar overwrite sem conflito → erro
   - [ ] Verificar audit_logs após overwrite
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** 💚 Concluído  
+**Responsável:** kaique
 **Depende de:** F5-BE-01
 
 ---
@@ -3343,8 +3343,8 @@ async overwrite(data) {
 - [ ] Após confirmação: toast com count de reservas sobrescritas
 - [ ] Apenas ADMIN acessa a funcionalidade
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** 🟢 Concluído 
+**Responsável:** Kaique 
 **Depende de:** F6-BE-01, F4-FE-01
 
 ---
@@ -3630,8 +3630,8 @@ require('./events/reservation.events');
 - [ ] Listeners registrados ao iniciar o servidor (log de confirmação no console)
 - [ ] Testado localmente (pode ser com `console.log` temporário nos listeners antes de integrar email)
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** 💚 Concluído  
+**Responsável:** kaique
 **Depende de:** F5-BE-01, F6-BE-01
 
 ---
@@ -3847,8 +3847,8 @@ module.exports = templates;
   - [ ] ADMIN rejeita → email para professor com motivo
   - [ ] Sobrescrever reserva → email para professor afetado
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** 💚 Concluído  
+**Responsável:** kaique
 **Depende de:** F7-BE-01
 
 ---
@@ -3983,8 +3983,8 @@ function MinhaPage() {
 - [ ] Nenhum `alert()` nativo permanece na aplicação
 - [ ] `useNotification()` fora do provider lança erro descritivo
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** 💚 Concluído  
+**Responsável:** kaique
 **Depende de:** F4-FE-01
 
 ---

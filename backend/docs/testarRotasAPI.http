@@ -50,3 +50,5 @@ Content-Type: application/json
     "token": "substitua_pelo_token_do_email",
     "newPassword": "novaSenha123"
 }
+
+

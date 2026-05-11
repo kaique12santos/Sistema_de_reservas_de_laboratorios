@@ -371,6 +371,34 @@ class ReservationRepository {
     await dbConn.query(query, [newLabId, reservationId]);
   }
 
+  /**
+   * Cancela/Sobrescreve um item de reserva específico
+   */
+  async cancelItem(itemId, connection = null) {
+    const dbConn = connection || db.connection;
+    await dbConn.query(
+      'UPDATE reservation_items SET status = ? WHERE id = ?',
+      ['OVERWRITTEN', itemId]
+    );
+  }
+
+  /**
+   * Verifica se todos os itens de uma reserva foram cancelados/sobrescritos.
+   * Se sim, cancela a reserva pai.
+   */
+  async cancelReservationIfAllItemsCancelled(reservationId, connection = null) {
+    const dbConn = connection || db.connection;
+    const queryCount = 'SELECT COUNT(*) as count FROM reservation_items WHERE reservation_id = ? AND status = ?';
+    const [rows] = await dbConn.query(queryCount, [reservationId, 'ACTIVE']);
+    
+    if (rows[0].count === 0) {
+      await dbConn.query(
+        'UPDATE reservations SET status = ?, updated_at = NOW() WHERE id = ?',
+        ['CANCELED', reservationId]
+      );
+    }
+  }
+
 }
 
 export default new ReservationRepository();

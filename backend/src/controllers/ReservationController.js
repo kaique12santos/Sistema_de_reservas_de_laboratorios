@@ -1,5 +1,6 @@
 import ConflictService from '../services/ConflictService.js';
 import ReservationService from '../services/ReservationService.js';
+import OverwriteService from '../services/OverwriteService.js';
 
 class ReservationController {
 
@@ -201,6 +202,19 @@ class ReservationController {
     } catch (error) {
       console.error('Erro ao redirecionar reserva:', error);
       return res.status(400).json({ error: error.message });
+    }
+  }
+
+  async overwrite(req, res) {
+    try {
+      const adminId = req.user.id;
+      // O body já vem sanitizado pelo middleware validateRequest
+      const result = await OverwriteService.overwriteReservation(req.body, adminId);
+      
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Erro ao sobrescrever reserva:', error);
+      return res.status(error.statusCode || 400).json({ error: error.message });
     }
   }
 

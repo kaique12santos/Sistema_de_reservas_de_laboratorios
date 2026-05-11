@@ -1,5 +1,6 @@
 import AcademicCycleRepository from '../repositories/AcademicCycleRepository.js';
 import HolidayService from './HolidayService.js';
+import AuditService from './AuditService.js';
 
 class AcademicCycleService {
   async listAll() {
@@ -10,8 +11,15 @@ class AcademicCycleService {
     return await AcademicCycleRepository.findActive();
   }
 
-  async activateCycle(id) {
+  async activateCycle(id, changedBy) {
+    // Buscar o ciclo anterior para registrar o status anterior
+    const previousCycle = await AcademicCycleRepository.findAll().then(cycles => cycles.find(c => c.status === 'ACTIVE'));
+    
     await AcademicCycleRepository.activate(id);
+    
+    // Log de auditoria
+    await AuditService.log('ACTIVATE', 'academic_cycles', id, changedBy, { status: 'INACTIVE' }, { status: 'ACTIVE' });
+    
     return { message: 'Ciclo ativado com sucesso. Todas as reservas agora seguirão este calendário.' };
   }
 
