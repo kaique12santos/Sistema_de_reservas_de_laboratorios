@@ -6,6 +6,8 @@ import TimeSlotRepository from '../repositories/TimeSlotRepository.js';
 import ConflictService from './ConflictService.js';
 import RecurrenceHelper from '../utils/RecurrenceHelper.js';
 import db from '../config/Database.js';
+import EventBus from '../events/EventBus.js';
+import UserRepository from '../repositories/UserRepository.js';
 
 class ReservationService {
   /**
@@ -146,6 +148,11 @@ class ReservationService {
       // 5. Return: Full reservation object including its items
       const reservation = await ReservationRepository.findById(reservationId);
       reservation.items = reservationItems;
+
+      if (status === 'PENDING'){
+        const professor = await UserRepository.findById(userId);
+        EventBus.emit('reservation:created:pending', { reservation, professor });
+      }
 
       return reservation;
 
@@ -317,6 +324,10 @@ class ReservationService {
           };
         })
       );
+      if (status === 'PENDING'){
+        const professor = await UserRepository.findById(userId); // Usa o userId que você já extraiu lá no topo
+        EventBus.emit('reservation:created:pending', { reservation, professor });
+      }
 
       return reservation;
     } catch (error) {
@@ -365,7 +376,7 @@ class ReservationService {
       }
 
       // 4. Atualiza o banco (você precisará ter esse método no Repository)
-      await ReservationRepository.updateStatus(reservationId, 'CANCELED', connection);
+      await ReservationRepository.updateStatus(reservationId, 'CANCELED',{}, connection);
 
       // (Opcional) Log de auditoria
       await ReservationRepository.createAuditLog(
@@ -431,6 +442,10 @@ class ReservationService {
       );
 
       await connection.commit();
+
+      const professor = await UserRepository.findById(reservation.user_id);
+      EventBus.emit('reservation:approved', { reservation, professor });
+
       return { success: true, message: 'Reserva aprovada com sucesso.' };
 
     } catch (error) {
@@ -468,6 +483,10 @@ class ReservationService {
       await ReservationRepository.cancelItemsByReservationId(reservationId, connection);
 
       await connection.commit();
+
+      const professor = await UserRepository.findById(reservation.user_id);
+      EventBus.emit('reservation:rejected', { reservation, professor, reason });
+
       return { success: true, message: 'Reserva rejeitada com sucesso.' };
     } catch (error) {
       await connection.rollback();
@@ -516,6 +535,23 @@ class ReservationService {
       await ReservationRepository.updateStatus(reservationId, 'APPROVED', {approved_by: adminId, reason: reason}, connection);
 
       await connection.commit();
+
+      try {
+        const professor = await UserRepository.findById(reservation.user_id);
+        
+        // Puxamos os nomes dos labs para o e-mail ficar amigável
+        const oldLab = await LaboratoryService.getLaboratoryById(reservation.lab_id);
+        const newLab = await LaboratoryService.getLaboratoryById(newLabId);
+
+       
+        EventBus.emit('reservation:redirected', { 
+          professor, 
+          oldLabName: oldLab.name, 
+          newLabName: newLab.name 
+        });
+      } catch (eventError) {
+        console.error('Falha silenciosa ao disparar evento de redirecionamento:', eventError);
+      }
       return { success: true, message: 'Reserva redirecionada com sucesso.' };
     } catch (error) {
       await connection.rollback();

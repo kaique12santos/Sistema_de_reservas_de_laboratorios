@@ -17,7 +17,7 @@ import SyncIcon from "@mui/icons-material/Sync";
 
 import StaggerItem from "../../utils/StaggerItem";
 import LoadingOverlay from "../../components/LoadingOverlay";
-import Toast from "../../utils/Toast";
+import { useNotification } from "../../context/NotificationContext";
 
 import { holidayService } from "../../services/holiday.service";
 import { academicCycleService } from "../../services/academicCycle.service";
@@ -46,21 +46,7 @@ export default function HolidaysPage() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const [notify, setNotify] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
-
-  const handleCloseNotify = (_, reason) => {
-    if (reason === "clickaway") return;
-    setNotify((n) => ({ ...n, open: false }));
-  };
-
-  const showSuccess = (message) =>
-    setNotify({ open: true, message, severity: "success" });
-  const showError = (message) =>
-    setNotify({ open: true, message, severity: "error" });
+  const { showSuccess, showError, showWarning, showInfo } = useNotification();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -217,12 +203,6 @@ export default function HolidaysPage() {
       </StaggerItem>
 
       {/* TOAST */}
-      <Toast
-        open={notify.open}
-        handleClose={handleCloseNotify}
-        message={notify.message}
-        severity={notify.severity}
-      />
     </Box>
   );
 }

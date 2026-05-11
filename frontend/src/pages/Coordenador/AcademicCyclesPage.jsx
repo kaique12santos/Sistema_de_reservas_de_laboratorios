@@ -25,7 +25,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
 import StaggerItem from "../../utils/StaggerItem";
 import LoadingOverlay from "../../components/LoadingOverlay";
-import Toast from "../../utils/Toast";
+import { useNotification } from "../../context/NotificationContext";
 
 import { academicCycleService } from "../../services/academicCycle.service";
 
@@ -94,15 +94,8 @@ export default function AcademicCyclesPage() {
     cycle: null,
   });
 
-  const [notify, setNotify] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
-  const handleCloseNotify = (_, reason) => {
-    if (reason === "clickaway") return;
-    setNotify((n) => ({ ...n, open: false }));
-  };
+  // eslint-disable-next-line no-unused-vars
+  const { showSuccess, showError, showWarning, showInfo } = useNotification();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -110,11 +103,7 @@ export default function AcademicCyclesPage() {
       const data = await academicCycleService.getAll();
       setCycles(data);
     } catch {
-      setNotify({
-        open: true,
-        message: "Erro ao carregar ciclos acadêmicos.",
-        severity: "error",
-      });
+      showError("Erro ao carregar ciclos acadêmicos.");
     } finally {
       setLoading(false);
     }
@@ -128,18 +117,10 @@ export default function AcademicCyclesPage() {
     setActionLoading(true);
     try {
       const response = await academicCycleService.generate();
-      setNotify({
-        open: true,
-        message: `${response.message} (${response.holidays_synced} feriados sincronizados)`,
-        severity: "success",
-      });
+      showSuccess(`${response.message} (${response.holidays_synced} feriados sincronizados)`);
       await load();
     } catch (err) {
-      setNotify({
-        open: true,
-        message: err?.response?.data?.error || "Erro ao gerar o próximo ciclo.",
-        severity: "error",
-      });
+      showError(err?.response?.data?.error || "Erro ao gerar o próximo ciclo.");
     } finally {
       setActionLoading(false);
     }
@@ -150,18 +131,10 @@ export default function AcademicCyclesPage() {
     try {
       await academicCycleService.activate(activateDialog.cycle.id);
       setActivateDialog({ open: false, cycle: null });
-      setNotify({
-        open: true,
-        message: `Ciclo ${activateDialog.cycle.name} ativado com sucesso!`,
-        severity: "success",
-      });
+      showSuccess(`Ciclo ${activateDialog.cycle.name} ativado com sucesso!`);
       await load();
     } catch (err) {
-      setNotify({
-        open: true,
-        message: err?.response?.data?.error || "Erro ao ativar ciclo.",
-        severity: "error",
-      });
+      showError(err?.response?.data?.error || "Erro ao ativar ciclo.");
     } finally {
       setActionLoading(false);
     }
@@ -319,12 +292,6 @@ export default function AcademicCyclesPage() {
         loading={actionLoading}
       />
 
-      <Toast
-        open={notify.open}
-        handleClose={handleCloseNotify}
-        message={notify.message}
-        severity={notify.severity}
-      />
     </Box>
   );
 }

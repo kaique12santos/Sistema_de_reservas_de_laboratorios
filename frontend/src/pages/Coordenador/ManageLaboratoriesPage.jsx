@@ -31,7 +31,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import StaggerItem from "../../utils/StaggerItem";
 import LoadingOverlay from "../../components/LoadingOverlay";
-import Toast from "../../utils/Toast";
+import { useNotification } from "../../context/NotificationContext";
 
 import { laboratoryService } from "../../services/laboratory.service";
 import LaboratoryFormModal from "../../components/LaboratoryFormModal";
@@ -52,14 +52,13 @@ const ManageLaboratoriesPage = () => {
   const [toggleModalOpen, setToggleModalOpen] = useState(false);
   const [labToToggle, setLabToToggle] = useState(null);
 
-  // Toast Global
-  const [notify, setNotify] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
-  const showToast = (message, severity = "success") =>
-    setNotify({ open: true, message, severity });
+  const { showSuccess, showError, showWarning, showInfo } = useNotification();
+  const showToast = (message, severity = "success") => {
+    if (severity === "error") return showError(message);
+    if (severity === "warning") return showWarning(message);
+    if (severity === "info") return showInfo(message);
+    return showSuccess(message);
+  };
 
   // Carrega os dados
   const loadLabs = async () => {
@@ -163,14 +162,6 @@ const ManageLaboratoriesPage = () => {
   return (
     <Box>
       <LoadingOverlay open={actionLoading} message="Processando..." />
-      <Toast
-        open={notify.open}
-        handleClose={(e, r) =>
-          r !== "clickaway" && setNotify({ ...notify, open: false })
-        }
-        message={notify.message}
-        severity={notify.severity}
-      />
 
       {/* HEADER & ACTIONS */}
       <StaggerItem index={0}>

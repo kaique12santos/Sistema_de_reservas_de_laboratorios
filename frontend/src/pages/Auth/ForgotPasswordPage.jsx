@@ -1,5 +1,3 @@
-import Toast from "../../utils/Toast.jsx";
-
 import { useState } from "react";
 import {
   Box,
@@ -11,6 +9,7 @@ import {
 } from "@mui/material";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import LoadingOverlay from "../../components/LoadingOverlay.jsx";
+import { useNotification } from "../../context/NotificationContext";
 
 import LogoFatec from "../../public/images/LogoFatec.png";
 import FotoFatec from "../../public/images/FOTOFATEC.jpeg";
@@ -22,17 +21,7 @@ const ForgotPasswordPage = () => {
   const [status] = useState("idle");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  const [notify, setNotify] = useState({
-    open: false,
-    message: "",
-    severity: "error",
-  });
-
-  const handleCloseToast = (event, reason) => {
-    if (reason === "clickaway") return;
-    setNotify({ ...notify, open: false });
-  };
+  const { showSuccess, showError, showWarning, showInfo } = useNotification();
 
   const validarEmail = (value) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -43,11 +32,7 @@ const ForgotPasswordPage = () => {
     e.preventDefault();
 
     if (!validarEmail(email)) {
-      setNotify({
-        open: true,
-        message: "Por favor, informe um endereço de e-mail válido.",
-        severity: "error",
-      });
+      showError("Por favor, informe um endereço de e-mail válido.");
       return;
     }
     setLoading(true);
@@ -57,25 +42,19 @@ const ForgotPasswordPage = () => {
       await AuthService.forgotPassword({ email });
       setLoading(false);
 
-      setNotify({
-        open: true,
-        message:
-          "Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha em instantes.",
-        severity: "success",
-      });
+      showSuccess(
+        "Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha em instantes."
+      );
 
       setTimeout(() => {
         navigate("/login");
       }, 3500);
     } catch (err) {
       setLoading(false);
-      setNotify({
-        open: true,
-        message:
-          err?.message ||
-          "Não foi possível solicitar a redefinição no momento. Tente novamente mais tarde.",
-        severity: "error",
-      });
+      showError(
+        err?.message ||
+          "Não foi possível solicitar a redefinição no momento. Tente novamente mais tarde."
+      );
     }
   };
 
@@ -229,13 +208,6 @@ const ForgotPasswordPage = () => {
         </Box>
       </Paper>
 
-      {/* TOAST */}
-      <Toast
-        open={notify.open}
-        handleClose={handleCloseToast}
-        message={notify.message}
-        severity={notify.severity}
-      />
       <LoadingOverlay open={loading} message="Enviando solicitação..." />
     </Box>
   );

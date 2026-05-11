@@ -289,3 +289,15 @@
 ### 1. Sistema de Gestão de Reservas e Refatoração de UX
 **Descrição:** Implementação da interface de gestão para Coordenadores e Professores. No painel administrativo, foi criada a PendingReservationsPage utilizando DataGrid do MUI com paginação numerada customizada (centralizada) para evitar conflitos com o widget UserWay. Introdução de modais de Aprovação, Rejeição e Redirecionamento padronizados com o ConfirmDialog do sistema. Na visão do Professor, a MinhasReservasPage foi refatorada para suportar filtros bilíngues (Status em Inglês/Português) e lógica de visibilidade condicional para reservas canceladas. Adição de alertas dinâmicos de conflito no formulário de reserva utilizando dayjs para tratamento de timezones UTC.
 **Autor:** Kaique Caitano
+
+
+## [11/05/2026]
+### 1. Contexto Global de Notificações (Toast Global)
+- **Descrição:** Elevação do componente de Toast para um Contexto Global (`NotificationContext`). Remoção da redundância de código (`useState` locais para abrir/fechar alertas) em favor de hooks padronizados (`showSuccess`, `showError`, `showWarning`, `showInfo`). A aplicação agora possui um feedback efêmero centralizado e sobreposto a modais (`z-index: 9999`).
+- **Autor:** Kaique Caitano
+- **Impacto:** Criação de `contexts/NotificationContext.jsx`. Atualização no `App.jsx` (Provider) e limpeza massiva de boilerplate de estado no `LoginPage.jsx` e demais páginas da aplicação. Atualização do componente base `Toast.jsx`.
+
+### 2. Hotfix: Payload "#null" no Cancelamento de Reservas
+- **Descrição:** Correção de bug no envio do payload para a rota de cancelamento, onde o ID da reserva não estava sendo mapeado corretamente para o modal, resultando em requisições para `/api/reservations/null/cancel`.
+- **Autor:** Kaique Caitano
+- **Impacto:** Ajustes de passagem de props/estado na `pages/MinhasReservasPage.jsx`.

@@ -13,7 +13,7 @@ import {
   Link as MuiLink,
 } from "@mui/material";
 
-import Toast from "../../utils/Toast.jsx";
+import { useNotification } from "../../context/NotificationContext";
 
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
@@ -37,6 +37,8 @@ const RegisterPage = () => {
 
   const { register } = useAuth();
   const navigate = useNavigate();
+  // eslint-disable-next-line no-unused-vars
+  const { showSuccess, showError, showWarning, showInfo } = useNotification();
 
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -59,13 +61,6 @@ const RegisterPage = () => {
     });
   };
 
-  // --- ESTADO DO TOAST ---
-  const [notify, setNotify] = useState({
-    open: false,
-    message: "",
-    severity: "error",
-  });
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -73,49 +68,28 @@ const RegisterPage = () => {
     });
   };
 
-  const handleCloseToast = (event, reason) => {
-    if (reason === "clickaway") return;
-    setNotify({ ...notify, open: false });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // --- VALIDAÇÕES DO FRONT-END (Paridade com o Zod) ---
     if (!formData.name || formData.name.length < 3) {
-      setNotify({
-        open: true,
-        message: "Por favor, informe um nome válido (mín. 3 caracteres).",
-        severity: "error",
-      });
+      showError("Por favor, informe um nome válido (mín. 3 caracteres).");
       return;
     }
 
     if (!formData.email) {
-      setNotify({
-        open: true,
-        message: "Por favor, informe um email válido.",
-        severity: "error",
-      });
+      showError("Por favor, informe um email válido.");
       return;
     }
 
     if (!formData.department_id) {
-      setNotify({
-        open: true,
-        message: "Por favor, selecione um curso.",
-        severity: "error",
-      });
+      showError("Por favor, selecione um curso.");
       return;
     }
 
     // A MUDANÇA AQUI: Checando o tamanho da senha no front!
     if (!formData.password || formData.password.length < 6) {
-      setNotify({
-        open: true,
-        message: "A senha deve ter no mínimo 6 caracteres.",
-        severity: "error",
-      });
+      showError("A senha deve ter no mínimo 6 caracteres.");
       return;
     }
 
@@ -127,11 +101,7 @@ const RegisterPage = () => {
       await register(formData);
 
       setLoading(false);
-      setNotify({
-        open: true,
-        message: "Verifique o seu Email para validar o cadastro.",
-        severity: "success",
-      });
+      showSuccess("Verifique o seu Email para validar o cadastro.");
 
       setTimeout(() => {
         navigate("/");
@@ -149,11 +119,7 @@ const RegisterPage = () => {
         "Erro ao cadastrar.";
 
       // --- DISPARANDO O TOAST NO ERRO ---
-      setNotify({
-        open: true,
-        message: errorMessage,
-        severity: "error",
-      });
+      showError(errorMessage);
     }
   };
 
@@ -418,12 +384,6 @@ const RegisterPage = () => {
         </Box>
       </Paper>
 
-      <Toast
-        open={notify.open}
-        handleClose={handleCloseToast}
-        message={notify.message}
-        severity={notify.severity}
-      />
       <LoadingOverlay open={loading} message="Enviando solicitação..." />
     </Box>
   );
