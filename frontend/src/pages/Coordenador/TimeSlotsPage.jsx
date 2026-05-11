@@ -29,7 +29,7 @@ import {
 
 import StaggerItem from "../../utils/StaggerItem";
 import LoadingOverlay from "../../components/LoadingOverlay";
-import Toast from "../../utils/Toast";
+import { useNotification } from "../../context/NotificationContext";
 
 import TimeSlotFormModal from "../../components/TimeSlotFormModal";
 import { timeSlotService } from "../../services/timeSlot.service";
@@ -105,15 +105,8 @@ export default function TimeSlotsPage() {
   const [deleteDialog, setDeleteDialog] = useState({ open: false, slot: null });
   const [deleteError, setDeleteError] = useState("");
 
-  const [notify, setNotify] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
-  const handleCloseNotify = (_, reason) => {
-    if (reason === "clickaway") return;
-    setNotify((n) => ({ ...n, open: false }));
-  };
+  // eslint-disable-next-line no-unused-vars
+  const { showSuccess, showError, showWarning, showInfo } = useNotification();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -133,11 +126,11 @@ export default function TimeSlotsPage() {
     } catch (error) {
       const errMsg =
         error.response?.data?.error || "Erro ao carregar horários.";
-      setNotify({ open: true, message: errMsg, severity: "error" });
+      showError(errMsg);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showError]);
 
   useEffect(() => {
     load();
@@ -148,18 +141,10 @@ export default function TimeSlotsPage() {
     try {
       if (editingSlot) {
         await timeSlotService.update(editingSlot.id, data);
-        setNotify({
-          open: true,
-          message: `Horário ${data.name} atualizado!`,
-          severity: "success",
-        });
+        showSuccess(`Horário ${data.name} atualizado!`);
       } else {
         await timeSlotService.create(data);
-        setNotify({
-          open: true,
-          message: `Horário ${data.name} criado!`,
-          severity: "success",
-        });
+        showSuccess(`Horário ${data.name} criado!`);
       }
       await load();
       setFormOpen(false); // Fecha o modal se o componente filho não fechar sozinho
@@ -169,7 +154,7 @@ export default function TimeSlotsPage() {
         error.response?.data?.error ||
         error.response?.data?.errors?.[0]?.message ||
         "Erro ao salvar horário.";
-      setNotify({ open: true, message: errMsg, severity: "error" });
+      showError(errMsg);
       throw error; // Lança o erro para o TimeSlotFormModal saber que falhou e parar o loading spinner dele
     }
   };
@@ -193,11 +178,7 @@ export default function TimeSlotsPage() {
     try {
       await timeSlotService.delete(deleteDialog.slot.id);
       setDeleteDialog({ open: false, slot: null });
-      setNotify({
-        open: true,
-        message: `Horário ${deleteDialog.slot.name} inativado.`,
-        severity: "info",
-      });
+      showInfo(`Horário ${deleteDialog.slot.name} inativado.`);
       await load();
     } catch (err) {
       // AJUSTE 3: Lendo o '.error' padrão da nossa API
@@ -360,12 +341,6 @@ export default function TimeSlotsPage() {
       />
 
       {/* TOAST */}
-      <Toast
-        open={notify.open}
-        handleClose={handleCloseNotify}
-        message={notify.message}
-        severity={notify.severity}
-      />
     </Box>
   );
 }

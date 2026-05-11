@@ -3,14 +3,15 @@ import { Box, Typography, MenuItem, TextField, CircularProgress } from "@mui/mat
 import StaggerItem from "../../utils/StaggerItem";
 import SupportTable from "../../components/support/SupportTable";
 import ConfirmDialog from "../../utils/ConfirmDialog";
-import Toast from "../../utils/Toast";
+import { useNotification } from "../../context/NotificationContext";
 import { userService } from "../../services/user.service";
 
 const SupportManagementPage = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("TODOS");
-  const [notify, setNotify] = useState({ open: false, message: '', severity: 'success' });
+  // eslint-disable-next-line no-unused-vars
+  const { showSuccess, showError, showWarning, showInfo } = useNotification();
 
   // Estados dos Modais
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -29,7 +30,7 @@ const SupportManagementPage = () => {
       const data = await userService.getAllUsers();
       setUsers(data);
     } catch (error) {
-      setNotify({ open: true, message: 'Erro ao carregar usuários.', severity: 'error' });
+      showError('Erro ao carregar usuários.');
     } finally {
       setLoading(false);
     }
@@ -56,18 +57,18 @@ const SupportManagementPage = () => {
     try {
       if (dialogAction === 'APPROVE') {
         await userService.approve(selectedUser.id, selectedRole);
-        setNotify({ open: true, message: 'Usuário aprovado com sucesso!', severity: 'success' });
+        showSuccess('Usuário aprovado com sucesso!');
       } else if (dialogAction === 'ROLE') {
         await userService.changeUserRole(selectedUser.id, selectedRole);
-        setNotify({ open: true, message: 'Cargo alterado com sucesso!', severity: 'success' });
+        showSuccess('Cargo alterado com sucesso!');
       } else if (dialogAction === 'STATUS') {
         await userService.toggleUserStatus(selectedUser.id);
-        setNotify({ open: true, message: 'Status alterado com sucesso!', severity: 'success' });
+        showSuccess('Status alterado com sucesso!');
       }
       setConfirmOpen(false);
       loadUsers(); // Recarrega a tabela
     } catch (error) {
-      setNotify({ open: true, message: 'Erro ao processar ação.', severity: 'error' });
+      showError('Erro ao processar ação.');
     } finally {
       setProcessing(false);
     }
@@ -132,7 +133,6 @@ const SupportManagementPage = () => {
         onConfirm={executeAction}
         onCancel={() => setConfirmOpen(false)}
       />
-      <Toast open={notify.open} handleClose={() => setNotify({ ...notify, open: false })} message={notify.message} severity={notify.severity} />
     </Box>
   );
 };

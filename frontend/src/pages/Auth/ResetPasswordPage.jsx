@@ -17,9 +17,9 @@ import LogoFatec from "../../public/images/LogoFatec.png";
 import FotoFatec from "../../public/images/FOTOFATEC.jpeg";
 
 import LoadingOverlay from "../../components/LoadingOverlay.jsx";
+import { useNotification } from "../../context/NotificationContext";
 
 import AuthService from "../../services/auth.service.js";
-import Toast from "../../utils/Toast.jsx";
 
 const ResetPasswordPage = () => {
   const navigate = useNavigate();
@@ -32,17 +32,8 @@ const ResetPasswordPage = () => {
 
   const [status, setStatus] = useState("idle");
   const [loading, setLoading] = useState(false);
-
-  const [notify, setNotify] = useState({
-    open: false,
-    message: "",
-    severity: "error",
-  });
-
-  const handleCloseToast = (event, reason) => {
-    if (reason === "clickaway") return;
-    setNotify({ ...notify, open: false });
-  };
+  // eslint-disable-next-line no-unused-vars
+  const { showSuccess, showError, showWarning, showInfo } = useNotification();
 
   const hasChecked = useRef(false);
 
@@ -53,12 +44,7 @@ const ResetPasswordPage = () => {
     if (!token) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus("error");
-      setNotify({
-        open: true,
-        message:
-          "Token não encontrado na URL. Verifique o link recebido no e-mail.",
-        severity: "error",
-      });
+      showError("Token não encontrado na URL. Verifique o link recebido no e-mail.");
     }
   }, [token]);
 
@@ -67,41 +53,25 @@ const ResetPasswordPage = () => {
 
     if (!token) {
       setStatus("error");
-      setNotify({
-        open: true,
-        message: "Token não encontrado na URL.",
-        severity: "error",
-      });
+      showError("Token não encontrado na URL.");
       return;
     }
 
     if (!password || !confirmPassword) {
       setStatus("error");
-      setNotify({
-        open: true,
-        message: "Preencha a nova senha e a confirmação.",
-        severity: "error",
-      });
+      showError("Preencha a nova senha e a confirmação.");
       return;
     }
 
     if (password !== confirmPassword) {
       setStatus("error");
-      setNotify({
-        open: true,
-        message: "As senhas não conferem.",
-        severity: "error",
-      });
+      showError("As senhas não conferem.");
       return;
     }
 
     if (password.length < 6) {
       setStatus("error");
-      setNotify({
-        open: true,
-        message: "A senha deve ter pelo menos 6 caracteres.",
-        severity: "error",
-      });
+      showError("A senha deve ter pelo menos 6 caracteres.");
       return;
     }
     setLoading(true);
@@ -109,25 +79,19 @@ const ResetPasswordPage = () => {
       const response = await AuthService.resetPassword({ token, password });
 
       setLoading(false);
-      setNotify({
-        open: true,
-        message:
-          response?.message ||
-          "Senha redefinida com sucesso! Você será redirecionado para o login.",
-        severity: "success",
-      });
+      showSuccess(
+        response?.message ||
+          "Senha redefinida com sucesso! Você será redirecionado para o login."
+      );
 
       setTimeout(() => navigate("/login"), 1200);
     } catch (err) {
       setLoading(false);
 
-      setNotify({
-        open: true,
-        message:
-          err?.message ||
-          "Não foi possível redefinir a senha. Tente novamente.",
-        severity: "error",
-      });
+      showError(
+        err?.message ||
+          "Não foi possível redefinir a senha. Tente novamente."
+      );
     }
   };
 
@@ -290,12 +254,6 @@ const ResetPasswordPage = () => {
         </Box>
       </Paper>
 
-      <Toast
-        open={notify.open}
-        handleClose={handleCloseToast}
-        message={notify.message}
-        severity={notify.severity}
-      />
       <LoadingOverlay open={loading} message="Redefinindo senha..." />
     </Box>
   );

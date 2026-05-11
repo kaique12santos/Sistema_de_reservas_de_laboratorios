@@ -30,7 +30,7 @@ import CloseIcon from "@mui/icons-material/Close";
 // Utilitários de UX
 import StaggerItem from "../../utils/StaggerItem";
 import LoadingOverlay from "../../components/LoadingOverlay";
-import Toast from "../../utils/Toast";
+import { useNotification } from "../../context/NotificationContext";
 
 // Serviço
 import { userService } from "../../services/user.service";
@@ -46,22 +46,12 @@ const PendingUsersPage = () => {
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+  // eslint-disable-next-line no-unused-vars
+  const { showSuccess, showError, showWarning, showInfo } = useNotification();
 
   // --- ESTADOS DE FILTRO ---
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("Todos");
-
-  // --- ESTADO DO TOAST REAL ---
-  const [notify, setNotify] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
-
-  const handleCloseNotify = (event, reason) => {
-    if (reason === "clickaway") return;
-    setNotify({ ...notify, open: false });
-  };
 
   // --- EFEITO: CARREGAR USUÁRIOS ---
   useEffect(() => {
@@ -73,13 +63,13 @@ const PendingUsersPage = () => {
         // AJUSTE: Pegando o erro real do backend
         const errMsg =
           error.response?.data?.error || "Erro ao carregar usuários pendentes";
-        setNotify({ open: true, message: errMsg, severity: "error" });
+        showError(errMsg);
       } finally {
         setLoading(false);
       }
     }
     loadPendingUsers();
-  }, []);
+  }, [showError]);
 
   // --- LÓGICA DE FILTRAGEM ---
   const filteredUsers = useMemo(() => {
@@ -106,11 +96,7 @@ const PendingUsersPage = () => {
     setActionLoading(true);
     try {
       await userService.approve(selectedUser.id);
-      setNotify({
-        open: true,
-        message: "Usuário aprovado com sucesso!",
-        severity: "success",
-      });
+      showSuccess("Usuário aprovado com sucesso!");
       setUsers((prevUsers) =>
         prevUsers.filter((u) => u.id !== selectedUser.id),
       );
@@ -118,7 +104,7 @@ const PendingUsersPage = () => {
     } catch (error) {
       // AJUSTE: Capturando a mensagem do Service (ex: "Usuário já foi processado")
       const errMsg = error.response?.data?.error || "Erro ao aprovar usuário";
-      setNotify({ open: true, message: errMsg, severity: "error" });
+      showError(errMsg);
     } finally {
       setActionLoading(false);
       setSelectedUser(null);
@@ -135,22 +121,14 @@ const PendingUsersPage = () => {
   const handleReject = async () => {
     // AJUSTE: Espelhando a regra do Zod (mínimo de 5 caracteres)
     if (rejectionReason.trim().length < 5) {
-      setNotify({
-        open: true,
-        message: "O motivo da rejeição deve ter pelo menos 5 caracteres.",
-        severity: "warning",
-      });
+      showWarning("O motivo da rejeição deve ter pelo menos 5 caracteres.");
       return;
     }
 
     setActionLoading(true);
     try {
       await userService.reject(selectedUser.id, rejectionReason.trim());
-      setNotify({
-        open: true,
-        message: "Usuário rejeitado com sucesso.",
-        severity: "success",
-      });
+      showSuccess("Usuário rejeitado com sucesso.");
       setUsers((prevUsers) =>
         prevUsers.filter((u) => u.id !== selectedUser.id),
       );
@@ -161,7 +139,7 @@ const PendingUsersPage = () => {
       const serviceError = error.response?.data?.error;
       const errMsg = zodError || serviceError || "Erro ao rejeitar usuário";
 
-      setNotify({ open: true, message: errMsg, severity: "error" });
+      showError(errMsg);
     } finally {
       setActionLoading(false);
       setSelectedUser(null);
@@ -443,12 +421,6 @@ const PendingUsersPage = () => {
         </DialogActions>
       </Dialog>
 
-      <Toast
-        open={notify.open}
-        handleClose={handleCloseNotify}
-        message={notify.message}
-        severity={notify.severity}
-      />
     </Box>
   );
 };

@@ -168,3 +168,14 @@ O endpoint agora bloqueia acessos de contas com status `PENDING` e `REJECTED` an
 **Descrição:** Atualização do ConflictService para suportar validações em lote (reservas recorrentes), permitindo a identificação exata de datas conflitantes em um conjunto de solicitações. Refatoração do CheckConflictDTO com Zod para suportar entradas opcionais de data única ou arrays de datas via transformação de strings. Correção crítica na query de recuperação de reservas do usuário no ReservationRepository: removida a restrição ri.status = 'ACTIVE' que ocultava indevidamente o histórico de reservas rejeitadas e canceladas, garantindo integridade total na prestação de contas ao docente.
 **Autor:** Kaique Caitano
 **Impacto:** `src/services/ConflictService.js`, `src/dtos/CheckConflictDTO.js`, `src/repositories/ReservationRepository.js`
+
+## [11/05/2026]
+### 1. Sistema de Eventos e Notificações por E-mail (Fase 7)
+- **Descrição:** Implementação do padrão Observer (EventBus) para desacoplar a lógica de negócio do envio assíncrono de e-mails. Refatoração completa do serviço de e-mail e criação de templates HTML padronizados com a identidade visual da instituição. Integração de gatilhos de disparo nas ações de criação de reserva recorrente, aprovação, rejeição e redirecionamento.
+- **Autor:** Kaique Caitano
+- **Impacto:** Criação de `events/EventBus.js`, `events/reservation.events.js`, `emails/templates.js`. Alterações nos arquivos `services/EmailService.js`, `services/ReservationService.js` e inicialização no `app.js`.
+
+### 2. Hotfix: Crash Fatal no MySQL e Métodos de Repositório
+- **Descrição:** Correção do erro crítico `TypeError: Cannot convert object to primitive value` que derrubava a API durante o cancelamento/update de status, causado pela injeção indevida do objeto de conexão na query SQL. Implementação do método `findByRole` que estava ausente, restaurando a comunicação com os administradores.
+- **Autor:** Kaique Caitano
+- **Impacto:** Alterações diretas no `repositories/ReservationRepository.js` (método `updateStatus`) e `repositories/UserRepository.js` (adição do `findByRole`).

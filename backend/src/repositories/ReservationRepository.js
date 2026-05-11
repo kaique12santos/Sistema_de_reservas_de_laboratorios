@@ -282,17 +282,20 @@ class ReservationRepository {
     ]);
   }
 
-  /**
+/**
    * Atualiza o status de uma reserva
-   * @param {number} reservationId - ID da reserva a ser atualizada
-   * @param {string} newStatus - Novo status da reserva
-   * @param {object|null} connection - Conexão de banco de dados (opcional, para usar transação já existente)
+   * @param {number} id - ID da reserva a ser atualizada
+   * @param {string} status - Novo status da reserva
+   * @param {object} extra - Valores extras a serem atualizados (opcional)
+   * @param {object|null} connection - Conexão de banco de dados (opcional)
    */
-  async updateStatus(reservationId, newStatus, connection) {
-    const dbConn = connection || db;
+  async updateStatus(id, status, extra = {}, connection = null) {
+    const dbConn = connection || db.connection;
+    const fields = { status, ...extra, updated_at: new Date() };
+
     await dbConn.query(
-      'UPDATE reservations SET status = ? WHERE id = ?',
-      [newStatus, reservationId]
+      'UPDATE reservations SET ? WHERE id = ?',
+      [fields, id]
     );
   }
 
@@ -325,22 +328,7 @@ class ReservationRepository {
     await dbConn.query(updateItemsQuery, [labId, date, timeSlotIds]);
   }
 
-  /**
-   * Atualiza o status de uma reserva
-   * @param {number} id - ID da reserva a ser atualizada
-   * @param {string} status - Novo status da reserva
-   * @param {object} extra - Valores extras a serem atualizados
-   * @param {object|null} connection - Conexão de banco de dados (opcional, para usar transação já existente)
-   */
-  async updateStatus(id, status, extra = {}, connection = null){
-    const dbConn = connection || db.connection;
-    const fields = { status, ...extra, updated_at: new Date() };
 
-    await dbConn.query(
-      'UPDATE reservations SET ? WHERE id = ?',
-      [fields, id]
-    );
-  }
 
   /**
    * Encontra todas as reservas pendentes

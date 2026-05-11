@@ -10,7 +10,7 @@ import 'dayjs/locale/pt-br';
 // Componente de Domínio e Serviço
 import ReservationForm from '../../reservation/ReservationForm';
 import { reservationService } from '../../services/Reservation.service'; 
-import Toast from '../../utils/Toast'; 
+import { useNotification } from '../../context/NotificationContext';
 import ConfirmDialog from '../../utils/ConfirmDialog'; 
 import LoadingOverlay from "../../components/LoadingOverlay";
 
@@ -25,16 +25,12 @@ const CreateReservationPage = () => {
   const [initialData, setInitialData] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   
-  // Estado no padrão do seu Toast utilitário
-  const [notify, setNotify] = useState({ open: false, message: '', severity: 'success' });
+  // eslint-disable-next-line no-unused-vars
+  const { showSuccess, showError, showWarning, showInfo } = useNotification();
 
   // Estados para controle do Modal de Confirmação
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingFormData, setPendingFormData] = useState(null);
-
-  const handleCloseNotify = () => {
-    setNotify({ ...notify, open: false });
-  };
 
   useEffect(() => {
     async function loadData() {
@@ -42,7 +38,7 @@ const CreateReservationPage = () => {
         const data = await reservationService.getInitialData();
         setInitialData(data);
       } catch (error) {
-        setNotify({ open: true, message: 'Erro ao carregar dados do sistema.', severity: 'error' });
+        showError('Erro ao carregar dados do sistema.');
       }
     }
     loadData();
@@ -53,23 +49,23 @@ const handlePreSubmit = (dataFromForm, hasConflict) => {
     const { reservationType, recurringData, ...baseFormData } = dataFromForm;
 
     // 1. Validações Comuns (Para ambos os tipos)
-    if (!baseFormData.lab_id) return setNotify({ open: true, message: 'Selecione um laboratório.', severity: 'error' });
-    if (baseFormData.time_slot_ids.length === 0) return setNotify({ open: true, message: 'Selecione ao menos um horário.', severity: 'error' });
+    if (!baseFormData.lab_id) return showError('Selecione um laboratório.');
+    if (baseFormData.time_slot_ids.length === 0) return showError('Selecione ao menos um horário.');
 
     // 2. Validações Específicas por Tipo
     if (reservationType === 'SIMPLE') {
-      if (!baseFormData.date) return setNotify({ open: true, message: 'Selecione a data da reserva.', severity: 'error' });
+      if (!baseFormData.date) return showError('Selecione a data da reserva.');
     } else {
       if (!recurringData.start_date || !recurringData.end_date) {
-        return setNotify({ open: true, message: 'Selecione as datas de início e fim.', severity: 'error' });
+        return showError('Selecione as datas de início e fim.');
       }
       if (recurringData.weekdays.length === 0) {
-        return setNotify({ open: true, message: 'Selecione pelo menos um dia da semana.', severity: 'error' });
+        return showError('Selecione pelo menos um dia da semana.');
       }
     }
 
     if (hasConflict && user?.role !== 'ADMIN') {
-      return setNotify({ open: true, message: 'Resolva os conflitos antes de salvar.', severity: 'error' });
+      return showError('Resolva os conflitos antes de salvar.');
     }
 
     // Tudo válido! Salva o objeto completo no estado temporário e abre o Modal de Confirmação
@@ -111,22 +107,16 @@ const handlePreSubmit = (dataFromForm, hasConflict) => {
     }
 
     setConfirmOpen(false);
-    setNotify({
-      open: true,
-      message: pendingFormData.reservationType === 'RECURRING'
+    showSuccess(
+      pendingFormData.reservationType === 'RECURRING'
         ? `Reservas recorrentes solicitadas com sucesso! Total: ${response.total_occurrences} ocorrências. Aguardando aprovação da coordenação.`
-        : 'Reserva solicitada com sucesso! Aguardando aprovação da coordenação.',
-      severity: 'success'
-    });
+        : 'Reserva solicitada com sucesso! Aguardando aprovação da coordenação.'
+    );
     setTimeout(() => navigate('/reservas'), 2500);
 
   } catch (error) {
     console.error("Erro na requisição:", error);
-    setNotify({
-      open: true,
-      message: error.response?.data?.error || 'Erro ao processar a solicitação.',
-      severity: 'error'
-    });
+    showError(error.response?.data?.error || 'Erro ao processar a solicitação.');
     setConfirmOpen(false);
   } finally {
     setSubmitting(false);
@@ -164,13 +154,6 @@ const handlePreSubmit = (dataFromForm, hasConflict) => {
           />
         </Paper>
 
-        {/* TOAST PADRONIZADO DO SISTEMA */}
-        <Toast
-          open={notify.open}
-          handleClose={handleCloseNotify}
-          message={notify.message}
-          severity={notify.severity}
-        />
         {/* DIALOG DE CONFIRMAÇÃO PADRONIZADO DO SISTEMA */}
         <ConfirmDialog
           open={confirmOpen}

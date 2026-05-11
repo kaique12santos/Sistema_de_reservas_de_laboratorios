@@ -5,38 +5,30 @@ import {
   Typography,
   TextField,
   Button,
-  Alert,
   Link as MuiLink,
 } from "@mui/material";
-
-import Toast from "../../utils/Toast";
 
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { useAuth } from "../../context/AuthContext";
 
+// 1. IMPORTAMOS O NOVO HOOK GLOBAL
+import { useNotification } from "../../context/NotificationContext";
+
 import LogoFatec from "../../public/images/LogoFatec.png";
 import FotoFatec from "../../public/images/FOTOFATEC.jpeg";
-
-
-
 
 const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  // 1. O Estado de Loading
-  const [loading, setLoading] = useState(false);
+  
+  // 2. CHAMAMOS AS FUNÇÕES DE SUCESSO E ERRO
+  const { showSuccess, showError } = useNotification();
 
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-  });
-
-  // --- ESTADO DO TOAST ---
-  const [notify, setNotify] = useState({
-    open: false,
-    message: "",
-    severity: "error",
   });
 
   const handleChange = (e) => {
@@ -46,36 +38,26 @@ const LoginPage = () => {
     });
   };
 
-  const handleCloseToast = (event, reason) => {
-    if (reason === "clickaway") return;
-    setNotify({ ...notify, open: false });
-  };
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setLoading(true);
 
     try {
       await login(formData);
       setLoading(false);
-      setNotify({
-        open: true,
-        message: "Login Realizado com sucesso.",
-        severity: "success",
-      });
+      
+      // 3. USO SIMPLIFICADO PARA SUCESSO
+      showSuccess("Login realizado com sucesso.");
 
       setTimeout(() => {
-      navigate("/Dashboard");
-       }, 3500);
+        navigate("/Dashboard");
+      }, 3500);
+      
     } catch (err) {
       setLoading(false);
-      // --- DISPARANDO O TOAST NO ERRO ---
-      setNotify({
-        open: true,
-        message: err.response?.data?.error || "Erro ao fazer login.",
-        severity: "error",
-      });
+      
+      // 4. USO SIMPLIFICADO PARA ERRO
+      showError(err.response?.data?.error || "Erro ao fazer login.");
     }
   };
 
@@ -165,8 +147,6 @@ const LoginPage = () => {
             Login
           </Typography>
 
-          
-
           {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
             {/* EMAIL */}
@@ -243,36 +223,32 @@ const LoginPage = () => {
               ENTRAR
             </Button>
 
-            
-
             {/* LINKS */}
             <Box
-  sx={{
-    display: "flex",
-    justifyContent: "space-between",
-    mt: 2,
-  }}
->
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                mt: 2,
+              }}
+            >
+              <MuiLink
+                component={RouterLink}
+                to="/forgot-password"
+                underline="hover"
+                sx={{ color: "primary.main", fontSize: "14px" }}
+              >
+                Esqueci minha senha
+              </MuiLink>
 
-  <MuiLink
-    component={RouterLink}
-    to="/forgot-password"
-    underline="hover"
-    sx={{ color: "primary.main", fontSize: "14px" }}
-  >
-    Esqueci minha senha
-  </MuiLink>
-
-  <MuiLink
-    component={RouterLink}
-    to="/register"
-    underline="hover"
-    sx={{ color: "primary.main", fontSize: "14px" }}
-  >
-    Criar conta
-  </MuiLink>
-
-</Box>
+              <MuiLink
+                component={RouterLink}
+                to="/register"
+                underline="hover"
+                sx={{ color: "primary.main", fontSize: "14px" }}
+              >
+                Criar conta
+              </MuiLink>
+            </Box>
 
             {/* RODAPÉ */}
             <Box
@@ -296,12 +272,7 @@ const LoginPage = () => {
         </Box>
       </Paper>
 
-      <Toast 
-        open={notify.open} 
-        handleClose={handleCloseToast} 
-        message={notify.message} 
-        severity={notify.severity} 
-      />
+      {/* O componente <Toast /> foi removido daqui pois agora é renderizado pelo App.jsx (NotificationProvider) */}
       
       <LoadingOverlay open={loading} message="Autenticando..." />
     </Box>

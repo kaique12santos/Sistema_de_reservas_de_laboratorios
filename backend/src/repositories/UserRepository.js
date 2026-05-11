@@ -294,6 +294,13 @@ class UserRepository {
       [isActive, id]
     );
   }
+
+  async findByRole(role) {
+    // Busca os usuários pela role e que já estejam aprovados no sistema
+    const query = `SELECT id, name, email, role FROM users WHERE role = ? AND status = 'APPROVED'`;
+    const [rows] = await db.connection.query(query, [role]); // Ajuste 'db.connection' conforme o seu arquivo de DB
+    return rows;
+  }
 }
 
 export default new UserRepository();

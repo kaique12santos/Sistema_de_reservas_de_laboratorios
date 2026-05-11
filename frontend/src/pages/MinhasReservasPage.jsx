@@ -23,9 +23,9 @@ import StaggerItem from "../utils/StaggerItem";
 // Componentes da Arquitetura
 import ReservationTable from "../reservation/ReservationTable";
 import ConfirmDialog from "../utils/ConfirmDialog";
-import Toast from "../utils/Toast";
 import { reservationService } from "../services/reservation.service";
 import LoadingOverlay from "../components/LoadingOverlay";
+import { useNotification } from "../context/NotificationContext";
 
 const MinhasReservasPage = () => {
   const navigate = useNavigate();
@@ -42,13 +42,7 @@ const MinhasReservasPage = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [idParaCancelar, setIdParaCancelar] = useState(null);
   const [canceling, setCanceling] = useState(false);
-
-  // Estado do Toast
-  const [notify, setNotify] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
+  const { showSuccess, showError, showWarning, showInfo } = useNotification();
 
   // 1. Carregar Dados
   useEffect(() => {
@@ -61,11 +55,7 @@ const MinhasReservasPage = () => {
       const data = await reservationService.getMyReservations();
       setReservas(data);
     } catch (error) {
-      setNotify({
-        open: true,
-        message: "Erro ao carregar reservas.",
-        severity: "error",
-      });
+      showError("Erro ao carregar reservas.");
     } finally {
       setLoading(false);
     }
@@ -119,19 +109,11 @@ const MinhasReservasPage = () => {
     setCanceling(true);
     try {
       await reservationService.cancelReservation(idParaCancelar);
-      setNotify({
-        open: true,
-        message: "Reserva cancelada com sucesso.",
-        severity: "success",
-      });
+      showSuccess("Reserva cancelada com sucesso.");
       setConfirmOpen(false);
       carregarReservas(); // Recarrega a lista para atualizar o status
     } catch (error) {
-      setNotify({
-        open: true,
-        message: "Erro ao cancelar reserva.",
-        severity: "error",
-      });
+      showError("Erro ao cancelar reserva.");
     } finally {
       setCanceling(false);
       setIdParaCancelar(null);
@@ -375,14 +357,6 @@ const MinhasReservasPage = () => {
         loading={canceling}
         onConfirm={handleConfirmarCancelamento}
         onCancel={() => setConfirmOpen(false)}
-      />
-
-      {/* TOAST DO SISTEMA */}
-      <Toast
-        open={notify.open}
-        handleClose={() => setNotify({ ...notify, open: false })}
-        message={notify.message}
-        severity={notify.severity}
       />
     </Box>
   );

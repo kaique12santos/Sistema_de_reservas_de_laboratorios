@@ -8,7 +8,7 @@ import {
   useGridSelector 
 } from '@mui/x-data-grid';
 import { reservationService } from '../../services/Reservation.service';
-import Toast from '../../utils/Toast';
+import { useNotification } from '../../context/NotificationContext';
 import ConfirmDialog from '../../utils/ConfirmDialog';
 import RejectReservationModal from '../../components/common/RejectReservationModal';
 import RedirectReservationModal from '../../components/common/RedirectReservationModal';
@@ -39,13 +39,15 @@ function CustomPagination() {
 const PendingReservationsPage = () => {
   const [pendingReservations, setPendingReservations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [notify, setNotify] = useState({ open: false, message: '', severity: 'success' });
   const [rejectModal, setRejectModal] = useState({ open: false, reservation: null });
   const [redirectModal, setRedirectModal] = useState({ open: false, reservation: null });
   const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
-
+  const { showSuccess, showError, showWarning, showInfo } = useNotification();
   const showToast = (message, severity = 'success') => {
-    setNotify({ open: true, message, severity });
+    if (severity === 'error') return showError(message);
+    if (severity === 'warning') return showWarning(message);
+    if (severity === 'info') return showInfo(message);
+    return showSuccess(message);
   };
 
   useEffect(() => {
@@ -57,7 +59,7 @@ const PendingReservationsPage = () => {
       const data = await reservationService.getPending();
       const rows = data.pendingReservations || data || [];
       setPendingReservations(rows);
-    } catch (error) {
+    } catch (_error) {
       showToast('Erro ao carregar reservas pendentes.', 'error');
     } finally {
       setLoading(false);
@@ -74,7 +76,7 @@ const PendingReservationsPage = () => {
       await reservationService.approve(confirmDialog.id);
       showToast('Reserva aprovada com sucesso!');
       loadPendingReservations();
-    } catch (error) {
+    } catch (_error) {
       showToast('Erro ao aprovar reserva.', 'error');
     } finally {
       setConfirmDialog({ open: false, id: null, loading: false });
@@ -89,9 +91,6 @@ const PendingReservationsPage = () => {
     setRedirectModal({ open: true, reservation });
   };
 
-  const handleCloseNotify = () => {
-    setNotify({ ...notify, open: false });
-  };
 
   const columns = [
     { field: 'professor_name', headerName: 'Professor', flex: 1, minWidth: 150 },
@@ -197,13 +196,6 @@ const PendingReservationsPage = () => {
           }}
         />
       </Paper>
-
-      <Toast
-        open={notify.open}
-        handleClose={handleCloseNotify}
-        message={notify.message}
-        severity={notify.severity}
-      />
 
       <ConfirmDialog 
         open={confirmDialog.open}

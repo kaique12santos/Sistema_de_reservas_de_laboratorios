@@ -8,6 +8,7 @@ import timeSlotRoutes from './routes/timeSlot.routes.js';
 import AcademicCycleRouter from './routes/academicCycle.routes.js';
 import holidayRouter from './routes/holiday.routes.js';
 import reservationRoutes from './routes/reservation.routes.js';
+import './events/reservation.events.js';
 
 class App {
   constructor() {
