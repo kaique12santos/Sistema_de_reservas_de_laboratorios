@@ -218,6 +218,16 @@ class ReservationController {
     }
   }
 
+  async bulkDelete(req, res) {
+    try {
+      const { ids } = req.body;
+      const result = await ReservationService.bulkDeleteReservations(ids, req.user);
+      res.json({ message: `${result.cancelled_count} reserva(s) cancelada(s)`, ...result });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
 }
 
 export default new ReservationController();

@@ -561,5 +561,73 @@ class ReservationService {
     }
   }
 
+  async bulkDeleteReservations(ids, requestingUser) {
+    if (!Array.isArray(ids) || ids.length === 0) {
+      throw new Error('Selecione ao menos uma reserva para cancelar.');
+    }
+
+    const connection = await db.connection.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      const reservations = await ReservationRepository.findManyByIds(ids);
+
+      if (reservations.length !== ids.length) {
+        const foundIds = reservations.map(r => r.id);
+        const notFound = ids.filter(id => !foundIds.includes(id));
+        throw new Error(`Reservas não encontradas: ${notFound.join(', ')}`);
+      }
+
+      if (requestingUser.role !== 'ADMIN') {
+        const unauthorized = reservations.filter(r => r.user_id !== requestingUser.id);
+        if (unauthorized.length > 0) {
+          throw new Error('Você não tem permissão para cancelar reservas de outros professores.');
+        }
+      }
+
+      const alreadyCanceled = reservations.filter(r => r.status === 'CANCELED');
+      if (alreadyCanceled.length > 0) {
+        const canceledIds = alreadyCanceled.map(r => r.id);
+        throw new Error(`Reservas já canceladas: ${canceledIds.join(', ')}. Remova-as da seleção.`);
+      }
+
+      if (requestingUser.role !== 'ADMIN') {
+        const todayStr = new Date().toISOString().split('T')[0];
+        for (const reservation of reservations) {
+          const items = await ReservationRepository.findItemsByReservationId(reservation.id);
+          const hasPastItem = items.some(item => {
+            const itemDate = item.date instanceof Date
+              ? item.date.toISOString().split('T')[0]
+              : String(item.date).slice(0, 10);
+            return itemDate < todayStr;
+          });
+          if (hasPastItem) {
+            throw new Error(`A reserva ID ${reservation.id} possui itens com data passada e não pode ser cancelada.`);
+          }
+        }
+      }
+
+      await ReservationRepository.cancelManyWithItems(ids, connection);
+
+      for (const reservation of reservations) {
+        await AuditService.log(
+          'BULK_CANCEL', 'reservations', reservation.id, requestingUser.id,
+          { status: reservation.status }, { status: 'CANCELED' },
+          connection
+        );
+      }
+
+      await connection.commit();
+
+      return { cancelled_count: ids.length, ids };
+
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }
+
 }
 export default new ReservationService();

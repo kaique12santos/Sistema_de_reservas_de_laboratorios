@@ -197,3 +197,13 @@ O endpoint agora bloqueia acessos de contas com status `PENDING` e `REJECTED` an
 - **Autor:** Kaique Caitano
 - **Impacto:** - **Criados:** `repositories/AuditRepository.js`, `services/AuditService.js`, `controllers/AuditController.js`, e `routes/audit.routes.js`.
   - **Alterados:** Atualização no `app.js` para incluir a nova rota `/api/audit`. Injeção de logs nos arquivos `UserService.js`, `AcademicCycleService.js` e `ReservationService.js` (criação, aprovação, rejeição, redirecionamento e sobrescrita).
+
+  ## [12/05/2026]
+### 1. Exclusão Múltipla de Reservas (F6-BE-02)
+- **Descrição:** Implementação da rota transacional `DELETE /api/reservations/bulk` para cancelamento em lote de reservas. Inclui validações individuais por ID (existência, status e permissão), controle de acesso por perfil (PROFESSOR só cancela as próprias; ADMIN cancela qualquer uma) e bloqueio de cancelamento de reservas com itens em datas passadas para professores. Cada cancelamento é registrado individualmente no log de auditoria.
+- **Autor:** Nicole Lisboa
+- **Impacto:**
+  - `src/repositories/ReservationRepository.js` — adição dos métodos `findManyByIds` e `cancelManyWithItems`
+  - `src/services/ReservationService.js` — adição do método `bulkDeleteReservations`
+  - `src/controllers/ReservationController.js` — adição do método `bulkDelete`
+  - `src/routes/reservation.routes.js` — registro da rota `DELETE /bulk`
