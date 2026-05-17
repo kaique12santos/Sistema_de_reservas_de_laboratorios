@@ -307,3 +307,9 @@
 - **Descrição:** Adição do fluxo visual de sobrescrita. O sistema agora intercepta conflitos durante a criação de reserva: se o usuário for ADMIN, exibe um alerta permitindo forçar a reserva. Inclui um modal de confirmação dedicado informando o cancelamento definitivo das reservas anteriores.
 - **Autor:** Kaique Caitano
 - **Impacto:** Criação do componente `components/OverwriteConfirmModal.jsx` (ou similar). Refatoração da lógica de `handlePreSubmit` na página `pages/professor/CreateReservationPage.jsx` e adição do endpoint `overwrite` no `services/Reservation.service.js`.
+
+## [17/05/2026]
+### 1. Exclusão Múltipla e Cancelamento em Lote (Fase 6 - MVP)
+- **Descrição:** Implementação do fluxo visual de seleção múltipla e cancelamento em lote para otimizar a gestão de reservas. Foi adicionada uma coluna de checkboxes na tabela de listagem e uma barra de ações dinâmica que surge ao selecionar um ou mais registros. Seguindo estritamente as regras de negócio do MVP, o sistema desabilita a seleção e o cancelamento de reservas que já estejam aprovadas, rejeitadas ou canceladas, restringindo o lote apenas a solicitações com status `PENDENTE`. Inclui um diálogo de confirmação em bloco e atualização em tempo real do estado local após o sucesso da requisição.
+- **Autor:** Kaique Caitano
+- **Impacto:** Alterações em `src/services/reservation.service.js` (criação do método `bulkDelete`), `src/pages/professor/MinhasReservasPage.jsx` (injeção dos estados de lote, tratamento do loading e barra de controle) e `src/components/reservation/ReservationTable.jsx` (reestruturação do cabeçalho, lógica de "Selecionar Todos" condicional e bloqueio de checkboxes por status).

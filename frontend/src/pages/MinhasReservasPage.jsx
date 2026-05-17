@@ -17,6 +17,7 @@ import {
   Paper,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from "@mui/icons-material/Close";
 import StaggerItem from "../utils/StaggerItem";
 
@@ -44,6 +45,32 @@ const MinhasReservasPage = () => {
   const [canceling, setCanceling] = useState(false);
   const { showSuccess, showError, showWarning, showInfo } = useNotification();
 
+  // Estados da Exclusão Múltipla
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [submittingBulk, setSubmittingBulk] = useState(false);
+
+  // Função para lidar com a exclusão em lote
+  const handleBulkDelete = async () => {
+    setSubmittingBulk(true);
+    try {
+      const result = await reservationService.bulkDelete(selectedIds);
+      
+      showSuccess(`${result.cancelled_count || selectedIds.length} reserva(s) cancelada(s) com sucesso.`);
+      
+      // Remove as reservas canceladas da lista local para atualizar a tela instantaneamente
+      setReservas((prev) => prev.filter((r) => !selectedIds.includes(r.id)));
+      
+      // Limpa a seleção e fecha o modal
+      setSelectedIds([]);
+      setShowBulkDeleteConfirm(false);
+    } catch (error) {
+      showError(error.response?.data?.error || 'Erro ao cancelar reservas selecionadas.');
+      setShowBulkDeleteConfirm(false);
+    } finally {
+      setSubmittingBulk(false);
+    }
+  };
   // 1. Carregar Dados
   useEffect(() => {
     carregarReservas();
@@ -185,16 +212,43 @@ const MinhasReservasPage = () => {
         </Box>
       </StaggerItem>
 
+     
+
+     {/* 🚀 INJEÇÃO 1: BARRA DE AÇÕES EM LOTE */}
+      {selectedIds.length > 0 && (
+        <Box 
+          sx={{ 
+            display: 'flex', alignItems: 'center', gap: 2, mb: 2, p: 1.5,
+            bgcolor: '#fff4e5', border: '1px solid #ffe0b2', borderRadius: 2 
+          }}
+        >
+          <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#ed6c02' }}>
+            {selectedIds.length} reserva(s) selecionada(s)
+          </Typography>
+          <Button
+            variant="contained" color="error" size="small" startIcon={<DeleteIcon />}
+            onClick={() => setShowBulkDeleteConfirm(true)} disableElevation
+          >
+            Cancelar Selecionadas
+          </Button>
+          <Button size="small" color="inherit" onClick={() => setSelectedIds([])}>
+            Limpar seleção
+          </Button>
+        </Box>
+      )}
+
       <StaggerItem index={1}>
-        {/* COMPONENTE DE TABELA INJETADO AQUI */}
+        {/* 🚀 INJEÇÃO 2: PASSANDO AS PROPS DE SELEÇÃO PARA SUA TABELA CUSTOMIZADA */}
         <ReservationTable
           reservations={reservasFiltradas}
           onViewDetails={handleVerDetalhes}
           onCancelClick={handleAbrirConfirm}
           onNewReservation={() => navigate("/reservas/nova")}
+          // NOVAS PROPS PARA O DATAGRID INTERNO:
+          selectedIds={selectedIds}
+          onSelectionChange={(newSelection) => setSelectedIds(newSelection)}
         />
       </StaggerItem>
-
       {/* MODAL DE DETALHES DA RESERVA (Refatorado cores Hex) */}
       <Dialog
         open={modalOpen}
@@ -346,7 +400,7 @@ const MinhasReservasPage = () => {
         </DialogActions>
       </Dialog>
 
-      {/* CONFIRM DIALOG (UTILITÁRIO) */}
+      {/* CONFIRM DIALOG cancelamento */}
       <ConfirmDialog
         open={confirmOpen}
         title="Confirmar Cancelamento"
@@ -357,6 +411,18 @@ const MinhasReservasPage = () => {
         loading={canceling}
         onConfirm={handleConfirmarCancelamento}
         onCancel={() => setConfirmOpen(false)}
+      />
+        {/* CONFIRM DIALOG cancelamento em lote */}
+      <ConfirmDialog
+        open={showBulkDeleteConfirm}
+        title="Cancelar Reservas Múltiplas"
+        message={`Tem certeza que deseja cancelar as ${selectedIds.length} reservas selecionadas? Esta ação não poderá ser desfeita.`}
+        confirmText="Sim, Cancelar Lote"
+        cancelText="Voltar"
+        confirmColor="error"
+        loading={submittingBulk}
+        onConfirm={handleBulkDelete}
+        onCancel={() => setShowBulkDeleteConfirm(false)}
       />
     </Box>
   );
