@@ -618,6 +618,12 @@ class ReservationService {
       }
 
       await connection.commit();
+      
+      EventBus.emit('reservation:bulk_cancelled', { 
+        admin: requestingUser, 
+        cancelledCount: ids.length, 
+        reservations: reservations 
+      });
 
       return { cancelled_count: ids.length, ids };
 
