@@ -3082,8 +3082,8 @@ Deletar várias reservas de uma vez. Cada ID é validado individualmente e a ope
 **Entregáveis:**
 
 **1. ReservationRepository.js (adicionar métodos):**
-- [ ] `findManyByIds(ids)` → SELECT * FROM reservations WHERE id IN (?)
-- [ ] `cancelManyWithItems(ids)` → cancela reservas e seus items em lote
+- [x] `findManyByIds(ids)` → SELECT * FROM reservations WHERE id IN (?)
+- [x] `cancelManyWithItems(ids)` → cancela reservas e seus items em lote
   ```javascript
   async cancelManyWithItems(ids) {
     await db.query(
@@ -3098,7 +3098,7 @@ Deletar várias reservas de uma vez. Cada ID é validado individualmente e a ope
   ```
 
 **2. ReservationService.js (adicionar método):**
-- [ ] `bulkDeleteReservations(ids, requestingUser)` → cancela múltiplas reservas
+- [x] `bulkDeleteReservations(ids, requestingUser)` → cancela múltiplas reservas
   **Lógica de Negócio:**
   1. [ ] Validar `ids` é array não vazio:
      - Se vazio: erro "Selecione ao menos uma reserva para cancelar"
@@ -3128,7 +3128,7 @@ Deletar várias reservas de uma vez. Cada ID é validado individualmente e a ope
   11. [ ] Retornar `{ cancelled_count: ids.length, ids }`
 
 **3. ReservationController.js (adicionar):**
-- [ ] `bulkDelete(req, res)` → DELETE /api/reservations/bulk
+- [x] `bulkDelete(req, res)` → DELETE /api/reservations/bulk
   **Body esperado:**
   ```json
   {
@@ -3165,8 +3165,8 @@ router.delete('/bulk', verifyToken, ReservationController.bulkDelete);
   - [ ] ADMIN cancela qualquer reserva → sucesso
   - [ ] Tentar cancelar IDs inexistentes → erro
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** 🟡 EM DESENVOLVIMENTO  
+**Responsável:** Nicole
 **Depende de:** F4-BE-02
 
 ---

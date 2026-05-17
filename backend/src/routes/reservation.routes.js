@@ -74,4 +74,7 @@ router.post(
   ReservationController.overwrite
 );
 
+// Autenticado — permissões controladas no service
+router.delete('/bulk', authMiddleware, ReservationController.bulkDelete);
+
 export default router;

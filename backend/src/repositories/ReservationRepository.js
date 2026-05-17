@@ -399,6 +399,31 @@ class ReservationRepository {
     }
   }
 
+  async cancelManyWithItems(ids, connection = null) {
+    const dbConn = connection || db.connection;
+    await dbConn.query(
+      'UPDATE reservation_items SET status = ? WHERE reservation_id IN (?)',
+      ['CANCELED', ids]
+    );
+    await dbConn.query(
+      'UPDATE reservations SET status = ? WHERE id IN (?)',
+      ['CANCELED', ids]
+    );
+  }
+
+  async findManyByIds(ids) {
+    if (!ids || ids.length === 0) return [];
+    const query = `
+      SELECT r.*, u.name as professor_name, l.name as lab_name, ac.name as cycle_name
+      FROM reservations r
+      INNER JOIN users u ON u.id = r.user_id
+      INNER JOIN laboratories l ON l.id = r.lab_id
+      INNER JOIN academic_cycles ac ON ac.id = r.cycle_id
+      WHERE r.id IN (?)
+    `;
+    const [rows] = await db.connection.query(query, [ids]);
+    return rows;
+  }
 }
 
 export default new ReservationRepository();
