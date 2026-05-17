@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Chip, Box, Button, Typography, Pagination
+  Paper, Chip, Box, Button, Typography, Pagination, Checkbox
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import BlockIcon from '@mui/icons-material/Block';
 import AddIcon from '@mui/icons-material/Add';
 
-export default function ReservationTable({ reservations, onViewDetails, onCancelClick, onNewReservation }) {
-  // 🚀 Paginação Numerada (MUI Pagination começa no 1)
+export default function ReservationTable({ 
+  reservations, 
+  onViewDetails, 
+  onCancelClick, 
+  onNewReservation,
+  selectedIds = [], 
+  onSelectionChange 
+}) {
   const [page, setPage] = useState(1);
-  const rowsPerPage = 5; // Fixado em 5 para o layout ficar consistente
+  const rowsPerPage = 5;
 
-  // Volta para a página 1 se o usuário mudar o filtro no dropdown
   useEffect(() => {
     setPage(1);
   }, [reservations]);
@@ -20,6 +25,42 @@ export default function ReservationTable({ reservations, onViewDetails, onCancel
   const handleChangePage = (event, value) => {
     setPage(value);
   };
+
+  // 🚀 REGRA DE NEGÓCIO DO MVP: Apenas "Pendentes" podem ser canceladas
+  const cancelableReservations = reservations.filter(r => 
+    ['PENDING', 'PENDENTE'].includes(r.status?.toUpperCase())
+  );
+
+  // Lógica de Seleção: Selecionar/Deselecionar Todos (APENAS AS CANCELÁVEIS)
+  const handleSelectAllClick = (event) => {
+    if (event.target.checked) {
+      const newSelecteds = cancelableReservations.map((n) => n.id);
+      onSelectionChange(newSelecteds);
+      return;
+    }
+    onSelectionChange([]);
+  };
+
+  const handleClick = (event, id) => {
+    const selectedIndex = selectedIds.indexOf(id);
+    let newSelected = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selectedIds, id);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selectedIds.slice(1));
+    } else if (selectedIndex === selectedIds.length - 1) {
+      newSelected = newSelected.concat(selectedIds.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selectedIds.slice(0, selectedIndex),
+        selectedIds.slice(selectedIndex + 1),
+      );
+    }
+    onSelectionChange(newSelected);
+  };
+
+  const isSelected = (id) => selectedIds.indexOf(id) !== -1;
 
   const getStatusConfig = (status) => {
     const normalizedStatus = status?.toUpperCase();
@@ -50,7 +91,6 @@ export default function ReservationTable({ reservations, onViewDetails, onCancel
     );
   }
 
-  // Fatiamento do array baseado na página atual (Lógica de 1-index)
   const paginatedReservations = reservations.slice((page - 1) * rowsPerPage, page * rowsPerPage);
   const totalPages = Math.ceil(reservations.length / rowsPerPage);
 
@@ -60,6 +100,16 @@ export default function ReservationTable({ reservations, onViewDetails, onCancel
         <Table stickyHeader aria-label="tabela de minhas reservas">
           <TableHead>
             <TableRow>
+              <TableCell padding="checkbox" sx={{ bgcolor: '#f8f9fa' }}>
+                <Checkbox
+                  color="primary"
+                  // O checkbox do cabeçalho reage apenas à quantidade de reservas pendentes
+                  indeterminate={selectedIds.length > 0 && selectedIds.length < cancelableReservations.length}
+                  checked={cancelableReservations.length > 0 && selectedIds.length === cancelableReservations.length}
+                  onChange={handleSelectAllClick}
+                  disabled={cancelableReservations.length === 0} // Desabilita se não houver nenhuma pendente na tela
+                />
+              </TableCell>
               <TableCell sx={{ fontWeight: 'bold', bgcolor: '#f8f9fa' }}>ID</TableCell>
               <TableCell sx={{ fontWeight: 'bold', bgcolor: '#f8f9fa' }}>Solicitado em</TableCell>
               <TableCell sx={{ fontWeight: 'bold', bgcolor: '#f8f9fa' }}>Data da Reserva</TableCell>
@@ -70,9 +120,28 @@ export default function ReservationTable({ reservations, onViewDetails, onCancel
           </TableHead>
           <TableBody>
             {paginatedReservations.map((row) => {
+              const isItemSelected = isSelected(row.id);
               const statusConfig = getStatusConfig(row.status);
+              
+              // 🚀 REGRA APLICADA: Se não for PENDENTE, não pode ser cancelada
+              const canBeCanceled = ['PENDING', 'PENDENTE'].includes(row.status?.toUpperCase());
+
               return (
-                <TableRow key={row.id} hover>
+                <TableRow 
+                  key={row.id} 
+                  hover 
+                  role="checkbox"
+                  aria-checked={isItemSelected}
+                  selected={isItemSelected}
+                >
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      color="primary"
+                      checked={isItemSelected}
+                      disabled={!canBeCanceled} // Desabilita o checkbox se for Aprovado/Rejeitado/Cancelado
+                      onChange={(event) => handleClick(event, row.id)}
+                    />
+                  </TableCell>
                   <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>#{row.id}</TableCell>
                   <TableCell>{row.dataSolicitacao || row.created_at}</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>{row.dataReserva || 'Múltiplas'}</TableCell>
@@ -97,7 +166,7 @@ export default function ReservationTable({ reservations, onViewDetails, onCancel
                       <Button
                         variant="outlined" size="small" color="error"
                         startIcon={<BlockIcon />} sx={{ textTransform: 'none' }}
-                        disabled={['REJECTED', 'CANCELED', 'APPROVED'].includes(row.status?.toUpperCase())} 
+                        disabled={!canBeCanceled} 
                         onClick={() => onCancelClick(row.id)}
                       >
                         Cancelar
@@ -111,24 +180,12 @@ export default function ReservationTable({ reservations, onViewDetails, onCancel
         </Table>
       </TableContainer>
       
-      {/* 🚀 NOVA PAGINAÇÃO: Centralizada e com números */}
       {totalPages > 1 && (
         <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          p: 2, 
-          borderTop: '1px solid', 
-          borderColor: 'divider',
-          bgcolor: 'background.paper'
+          display: 'flex', justifyContent: 'center', p: 2, borderTop: '1px solid', 
+          borderColor: 'divider', bgcolor: 'background.paper'
         }}>
-          <Pagination 
-            count={totalPages} 
-            page={page} 
-            onChange={handleChangePage} 
-            color="primary" 
-            shape="rounded"
-            size="large"
-          />
+          <Pagination count={totalPages} page={page} onChange={handleChangePage} color="primary" shape="rounded" size="large"/>
         </Box>
       )}
     </Paper>
