@@ -2057,7 +2057,7 @@ export const reservationService = {
 - [x] Erros do backend exibidos em toast
 - [x] Responsivo
 
-**Status:** 🟠 Esperando backend  
+**Status:** 💚 Concluida 
 **Responsável:** kaique
 **Depende de:** F4-BE-02, F3-FE-01
 
@@ -2227,7 +2227,7 @@ Permitir reservas em múltiplas datas de uma vez, com dias da semana selecionado
 **Entregáveis:**
 
 **1. RecurrenceHelper.js (utilitário novo):**
-- [ ] `generateDates(startDate, endDate, weekdays, holidays, cycleStart, cycleEnd)` → gera array de datas válidas
+- [x] `generateDates(startDate, endDate, weekdays, holidays, cycleStart, cycleEnd)` → gera array de datas válidas
   ```javascript
   /**
    * weekdays: array de números 0-6 (0=domingo, 1=segunda... 6=sábado)
@@ -2265,7 +2265,7 @@ Permitir reservas em múltiplas datas de uma vez, com dias da semana selecionado
   ```
 
 **2. ReservationRepository.js (adicionar métodos):**
-- [ ] `findConflictingBulk(labId, dates, timeSlotIds)` → detecta conflitos em múltiplas datas
+- [x] `findConflictingBulk(labId, dates, timeSlotIds)` → detecta conflitos em múltiplas datas
   ```javascript
   async findConflictingBulk(labId, dates, timeSlotIds) {
     // Retorna todos os reservation_items que conflitam
@@ -2284,7 +2284,7 @@ Permitir reservas em múltiplas datas de uma vez, com dias da semana selecionado
   }
   ```
 
-- [ ] `createMany(reservationId, items)` → INSERT em lote de reservation_items
+- [x] `createMany(reservationId, items)` → INSERT em lote de reservation_items
   ```javascript
   async createMany(reservationId, items) {
     // items = [{ lab_id, date, time_slot_id, status }]
@@ -2297,22 +2297,22 @@ Permitir reservas em múltiplas datas de uma vez, com dias da semana selecionado
   ```
 
 **3. ReservationService.js (adicionar método):**
-- [ ] `createRecurringReservation(dto, requestingUser)` → cria reserva recorrente
+- [x] `createRecurringReservation(dto, requestingUser)` → cria reserva recorrente
   **Lógica de Negócio (em ordem):**
-  1. [ ] Validar campos obrigatórios:
+  1. [x] Validar campos obrigatórios:
      - `lab_id`, `start_date`, `end_date`, `weekdays` (array, mínimo 1), `time_slot_ids` (array, mínimo 1)
-  2. [ ] Validar `start_date < end_date`:
+  2. [x] Validar `start_date < end_date`:
      - Se inválido: erro "Data de início deve ser anterior à data de fim"
-  3. [ ] Buscar ciclo ativo:
+  3. [x] Buscar ciclo ativo:
      - Se nenhum: erro "Nenhum ciclo acadêmico ativo"
-  4. [ ] Verificar período exclusivo ADMIN (RF19):
+  4. [x] Verificar período exclusivo ADMIN (RF19):
      - Se hoje <= exclusive_admin_end_date e role != ADMIN: erro com data de abertura
-  5. [ ] Buscar feriados do ciclo ativo
-  6. [ ] Gerar array de datas com `RecurrenceHelper.generateDates`:
+  5. [x] Buscar feriados do ciclo ativo
+  6. [x] Gerar array de datas com `RecurrenceHelper.generateDates`:
      - Se array vazio: erro "Nenhuma data válida encontrada no período selecionado para os dias da semana escolhidos"
-  7. [ ] Validar que todas as datas estão dentro do ciclo:
+  7. [x] Validar que todas as datas estão dentro do ciclo:
      - (já garantido pelo generateDates, mas logar se alguma for descartada)
-  8. [ ] Detectar conflitos em lote (RN05):
+  8. [x] Detectar conflitos em lote (RN05):
      ```javascript
      const conflicts = await ReservationRepository.findConflictingBulk(
        dto.lab_id, generatedDates, dto.time_slot_ids
@@ -2325,12 +2325,12 @@ Permitir reservas em múltiplas datas de uma vez, com dias da semana selecionado
        );
      }
      ```
-  9. [ ] Definir status:
+  9. [x] Definir status:
      ```javascript
      const status = requestingUser.role === 'ADMIN' ? 'APPROVED' : 'PENDING';
      ```
-  10. [ ] **Iniciar transação** no banco
-  11. [ ] Criar reserva pai (tabela `reservations`):
+  10. [x] **Iniciar transação** no banco
+  11. [x] Criar reserva pai (tabela `reservations`):
       ```javascript
       const reservation = await ReservationRepository.create({
         professor_id: requestingUser.id,
@@ -2343,7 +2343,7 @@ Permitir reservas em múltiplas datas de uma vez, com dias da semana selecionado
         notes: dto.notes || null
       });
       ```
-  12. [ ] Criar todos os items em lote:
+  12. [x] Criar todos os items em lote:
       ```javascript
       const allItems = generatedDates.flatMap(date =>
         dto.time_slot_ids.map(tsId => ({
@@ -2355,9 +2355,9 @@ Permitir reservas em múltiplas datas de uma vez, com dias da semana selecionado
       );
       await ReservationRepository.createMany(reservation.id, allItems);
       ```
-  13. [ ] **Commit da transação**
-  14. [ ] Registrar em audit_logs
-  15. [ ] Retornar reserva com total de ocorrências geradas:
+  13. [x] **Commit da transação**
+  14. [x] Registrar em audit_logs
+  15. [x] Retornar reserva com total de ocorrências geradas:
       ```javascript
       return {
         ...reservation,
@@ -2367,7 +2367,7 @@ Permitir reservas em múltiplas datas de uma vez, com dias da semana selecionado
       ```
 
 **4. ReservationController.js (adaptar):**
-- [ ] `create(req, res)` → já existente — adicionar branch para `type`:
+- [x] `create(req, res)` → já existente — adicionar branch para `type`:
   ```javascript
   async create(req, res) {
     try {
@@ -2402,16 +2402,16 @@ Permitir reservas em múltiplas datas de uma vez, com dias da semana selecionado
 ```
 
 **Critérios de Aceite:**
-- [ ] POST com `type: RECURRING` gera N reservation_items (1 por data×timeslot)
-- [ ] Feriados e datas fora do ciclo são ignorados silenciosamente
-- [ ] Se QUALQUER data tiver conflito → rollback, nenhum item criado
-- [ ] PROFESSOR cria com status PENDING
-- [ ] ADMIN cria com status APPROVED
-- [ ] Retorno inclui `total_occurrences` geradas
-- [ ] Testado no Postman:
-  - [ ] Criar recorrente sem conflito → 201 com `total_occurrences`
-  - [ ] Criar recorrente com conflito em 1 data → rollback, erro com datas
-  - [ ] Verificar que nenhum item foi criado após rollback
+- [x] POST com `type: RECURRING` gera N reservation_items (1 por data×timeslot)
+- [x] Feriados e datas fora do ciclo são ignorados silenciosamente
+- [x] Se QUALQUER data tiver conflito → rollback, nenhum item criado
+- [x] PROFESSOR cria com status PENDING
+- [x] ADMIN cria com status APPROVED
+- [x] Retorno inclui `total_occurrences` geradas
+- [x] Testado no Postman:
+  - [x] Criar recorrente sem conflito → 201 com `total_occurrences`
+  - [x] Criar recorrente com conflito em 1 data → rollback, erro com datas
+  - [x] Verificar que nenhum item foi criado após rollback
 
 **Status:** 🟢 Concluído
 **Responsável:** Vinicius 
@@ -2581,7 +2581,7 @@ router.put('/:id/redirect', verifyToken, authorize(['ADMIN']), ReservationContro
 Expandir `CreateReservationPage.jsx` com toggle entre reserva simples e recorrente. Alerta informativo para professores sobre status PENDING.
 
 **Entregáveis:**
-- [ ] Atualizar `src/pages/professor/CreateReservationPage.jsx`
+- [x] Atualizar `src/pages/professor/CreateReservationPage.jsx`
 
 **Componentes:**
 
@@ -2611,11 +2611,11 @@ const [previewDates, setPreviewDates] = useState([]); // datas geradas para prev
 ```
 
 **3. Campos Exclusivos do Modo Recorrente:**
-- [ ] **DateRangePicker (ou dois DatePickers): Início e Fim**
+- [x] **DateRangePicker (ou dois DatePickers): Início e Fim**
   - `minDate` = activeCycle.start_date
   - `maxDate` = activeCycle.end_date
 
-- [ ] **Checkboxes: Dias da Semana**
+- [x] **Checkboxes: Dias da Semana**
   ```javascript
   const weekdayLabels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
   // Renderizar linha de checkboxes compacta
@@ -2623,7 +2623,7 @@ const [previewDates, setPreviewDates] = useState([]); // datas geradas para prev
   - Sábado e Domingo desabilitados por padrão (institucional)
   - Ao menos 1 dia obrigatório
 
-- [ ] **Preview de Datas Geradas:**
+- [x] **Preview de Datas Geradas:**
   - Ao preencher range + dias da semana: calcular preview no frontend
   - Exibir: "Serão geradas **12 ocorrências** (ex: 02/03, 09/03, 16/03...)"
   - Chips clicáveis com as primeiras 5 datas + "e mais N..."
@@ -2652,8 +2652,8 @@ const [previewDates, setPreviewDates] = useState([]); // datas geradas para prev
 ```
 
 **5. Verificação de Conflito para Recorrente:**
-- [ ] Adaptar o `useEffect` de conflito para aceitar o payload recorrente
-- [ ] Banner de conflito agora exibe: "Conflito detectado em X ocorrência(s): 02/03 (M1), 09/03 (M1)..."
+- [x] Adaptar o `useEffect` de conflito para aceitar o payload recorrente
+- [x] Banner de conflito agora exibe: "Conflito detectado em X ocorrência(s): 02/03 (M1), 09/03 (M1)..."
 
 **6. Submit Adaptado:**
 ```javascript
@@ -2699,14 +2699,14 @@ async function handleSubmit() {
 ```
 
 **Critérios de Aceite:**
-- [ ] Toggle troca entre modos SIMPLE e RECURRING sem perder dados dos campos comuns
-- [ ] Preview de datas atualiza em tempo real ao mudar range ou dias da semana
-- [ ] Banner informativo aparece para PROFESSOR no modo recorrente
-- [ ] Verificação de conflito funciona no modo recorrente
-- [ ] Submit envia payload correto para cada tipo
-- [ ] Após criar recorrente: toast com `total_occurrences`
-- [ ] Professor redirecionado para "Minhas Reservas" com status PENDING visível
-- [ ] Responsivo
+- [x] Toggle troca entre modos SIMPLE e RECURRING sem perder dados dos campos comuns
+- [x] Preview de datas atualiza em tempo real ao mudar range ou dias da semana
+- [x] Banner informativo aparece para PROFESSOR no modo recorrente
+- [x] Verificação de conflito funciona no modo recorrente
+- [x] Submit envia payload correto para cada tipo
+- [x] Após criar recorrente: toast com `total_occurrences`
+- [x] Professor redirecionado para "Minhas Reservas" com status PENDING visível
+- [x] Responsivo
 
 **Status:** 🟢 Concluído  
 **Responsável:** Vinicius
@@ -2720,10 +2720,10 @@ async function handleSubmit() {
 Tela exclusiva do ADMIN para gerenciar reservas pendentes com ações de aprovar, rejeitar e redirecionar.
 
 **Entregáveis:**
-- [ ] `src/pages/admin/PendingReservationsPage.jsx`
-- [ ] `src/components/admin/RejectReservationModal.jsx`
-- [ ] `src/components/admin/RedirectReservationModal.jsx`
-- [ ] Atualizar `src/services/reservation.service.js`
+- [x] `src/pages/admin/PendingReservationsPage.jsx`
+- [x] `src/components/admin/RejectReservationModal.jsx`
+- [x] `src/components/admin/RedirectReservationModal.jsx`
+- [x] Atualizar `src/services/reservation.service.js`
 
 **Componentes:**
 
@@ -2737,7 +2737,7 @@ const [showRedirectModal, setShowRedirectModal] = useState(false);
 ```
 
 **2. DataGrid de Reservas Pendentes:**
-- [ ] Colunas:
+- [x] Colunas:
   - Professor (nome + email)
   - Laboratório solicitado
   - Tipo (chip: SIMPLES | RECORRENTE)
@@ -2749,7 +2749,7 @@ const [showRedirectModal, setShowRedirectModal] = useState(false);
   - Ações (Aprovar ✓, Rejeitar ✗, Redirecionar ↔)
 
 **3. Linha Expansível (opcional mas recomendado):**
-- [ ] Ao clicar na linha: expandir e mostrar todas as datas geradas em chips
+- [x] Ao clicar na linha: expandir e mostrar todas as datas geradas em chips
 
 **4. Ação: Aprovar**
 ```javascript
@@ -2763,10 +2763,10 @@ async function handleApprove(reservationId) {
   }
 }
 ```
-- [ ] Confirmação simples: "Aprovar esta reserva?"
+- [x] Confirmação simples: "Aprovar esta reserva?"
 
 **5. Modal: Rejeitar**
-- [ ] `RejectReservationModal.jsx`
+- [x] `RejectReservationModal.jsx`
   ```
   "Rejeitar reserva de [Professor]"
   
@@ -2775,7 +2775,7 @@ async function handleApprove(reservationId) {
   
   [Cancelar] [Rejeitar]
   ```
-- [ ] Ao confirmar:
+- [x] Ao confirmar:
   ```javascript
   async function handleReject(reservationId, reason) {
     try {
@@ -2790,7 +2790,7 @@ async function handleApprove(reservationId) {
   ```
 
 **6. Modal: Redirecionar**
-- [ ] `RedirectReservationModal.jsx`
+- [x] `RedirectReservationModal.jsx`
   ```
   "Redirecionar reserva de [Professor]"
   
@@ -2803,7 +2803,7 @@ async function handleApprove(reservationId) {
   
   [Cancelar] [Redirecionar e Aprovar]
   ```
-- [ ] Ao confirmar:
+- [x] Ao confirmar:
   ```javascript
   async function handleRedirect(reservationId, newLabId, reason) {
     try {
@@ -2818,7 +2818,7 @@ async function handleApprove(reservationId) {
   ```
 
 **7. Estado Vazio:**
-- [ ] Se `reservations.length === 0`:
+- [x] Se `reservations.length === 0`:
   ```
   "Nenhuma reserva aguardando aprovação 🎉"
   ```
@@ -2850,15 +2850,15 @@ async redirect(id, newLabId, reason) {
 ```
 
 **Critérios de Aceite:**
-- [ ] DataGrid carrega reservas PENDING ao montar
-- [ ] Aprovar → remove da lista + toast
-- [ ] Rejeitar sem motivo → erro de validação no modal
-- [ ] Rejeitar com motivo → remove da lista + toast
-- [ ] Redirecionar com novo lab e motivo → remove da lista + toast
-- [ ] Redirecionar para lab com conflito → erro claro no modal
-- [ ] Estado vazio com mensagem de sucesso
-- [ ] Apenas ADMIN acessa (router protect)
-- [ ] Responsivo
+- [x] DataGrid carrega reservas PENDING ao montar
+- [x] Aprovar → remove da lista + toast
+- [x] Rejeitar sem motivo → erro de validação no modal
+- [x] Rejeitar com motivo → remove da lista + toast
+- [x] Redirecionar com novo lab e motivo → remove da lista + toast
+- [x] Redirecionar para lab com conflito → erro claro no modal
+- [x] Estado vazio com mensagem de sucesso
+- [x] Apenas ADMIN acessa (router protect)
+- [x] Responsivo
 
 **Status:** 🟢 Concluído
 **Responsável:** Vinicius  
@@ -2940,7 +2940,7 @@ Validar o fluxo completo de reservas recorrentes, desde a solicitação até apr
 # 🟢 FASE 6 – Sobrescrita e Controle Avançado (ADMIN)
 
 **Requisitos:** RF15, RF18, RF21, RNF04  
-**Status Geral:** 🔴 PENDENTE  
+**Status Geral:** 💚 Concluído  
 **Meta:** ADMIN tem controle total — pode forçar reservas, deletar em lote e auditoria garante rastreabilidade
 
 ---
@@ -2955,7 +2955,7 @@ ADMIN pode forçar uma reserva em horário já ocupado, cancelando a reserva exi
 **Entregáveis:**
 
 **1. ReservationRepository.js (adicionar métodos):**
-- [ ] `cancelItem(itemId, reason = 'OVERWRITTEN')` → cancela item específico
+- [x] `cancelItem(itemId, reason = 'OVERWRITTEN')` → cancela item específico
   ```javascript
   async cancelItem(itemId, reason = 'OVERWRITTEN') {
     await db.query(
@@ -2965,7 +2965,7 @@ ADMIN pode forçar uma reserva em horário já ocupado, cancelando a reserva exi
   }
   ```
 
-- [ ] `cancelReservationIfAllItemsCancelled(reservationId)` → verifica se todos os items foram cancelados e atualiza o status da reserva pai
+- [x] `cancelReservationIfAllItemsCancelled(reservationId)` → verifica se todos os items foram cancelados e atualiza o status da reserva pai
   ```javascript
   async cancelReservationIfAllItemsCancelled(reservationId) {
     const [{ count }] = await db.query(
@@ -2982,12 +2982,12 @@ ADMIN pode forçar uma reserva em horário já ocupado, cancelando a reserva exi
   ```
 
 **2. OverwriteService.js (novo arquivo):**
-- [ ] `overwriteReservation(dto, adminId)` → sobrescreve reserva existente
+- [x] `overwriteReservation(dto, adminId)` → sobrescreve reserva existente
   **Lógica de Negócio:**
-  1. [ ] Validar campos: `lab_id`, `date`, `time_slot_ids`, `notes` (opcional)
-  2. [ ] Validar que o ciclo está ativo
-  3. [ ] Verificar que NÃO é feriado
-  4. [ ] Detectar conflitos existentes:
+  1. [x] Validar campos: `lab_id`, `date`, `time_slot_ids`, `notes` (opcional)
+  2. [x] Validar que o ciclo está ativo
+  3. [x] Verificar que NÃO é feriado
+  4. [x] Detectar conflitos existentes:
      ```javascript
      const conflicts = await ReservationRepository.findConflicting(
        dto.lab_id, dto.date, dto.time_slot_ids
@@ -2996,8 +2996,8 @@ ADMIN pode forçar uma reserva em horário já ocupado, cancelando a reserva exi
        throw new Error('Não há conflito a sobrescrever. Use a criação normal de reserva.');
      }
      ```
-  5. [ ] **Iniciar transação**
-  6. [ ] Para cada item em conflito: cancelar o item e verificar a reserva pai:
+  5. [x] **Iniciar transação**
+  6. [x] Para cada item em conflito: cancelar o item e verificar a reserva pai:
      ```javascript
      for (const conflictItem of conflicts) {
        await ReservationRepository.cancelItem(conflictItem.id, 'OVERWRITTEN');
@@ -3006,7 +3006,7 @@ ADMIN pode forçar uma reserva em horário já ocupado, cancelando a reserva exi
        );
      }
      ```
-  7. [ ] Criar nova reserva para o ADMIN:
+  7. [x] Criar nova reserva para o ADMIN:
      ```javascript
      const reservation = await ReservationRepository.create({
        professor_id: adminId,
@@ -3017,8 +3017,8 @@ ADMIN pode forçar uma reserva em horário já ocupado, cancelando a reserva exi
      });
      await ReservationRepository.createMany(reservation.id, [/* items */]);
      ```
-  8. [ ] **Commit da transação**
-  9. [ ] Registrar em audit_logs com todos os IDs sobrescritos:
+  8. [x] **Commit da transação**
+  9. [x] Registrar em audit_logs com todos os IDs sobrescritos:
      ```javascript
      AuditService.log(
        'OVERWRITE',
@@ -3029,7 +3029,7 @@ ADMIN pode forçar uma reserva em horário já ocupado, cancelando a reserva exi
        { new_reservation_id: reservation.id }
      );
      ```
-  10. [ ] Retornar:
+  10. [x] Retornar:
       ```javascript
       return {
         new_reservation: reservation,
@@ -3039,7 +3039,7 @@ ADMIN pode forçar uma reserva em horário já ocupado, cancelando a reserva exi
       ```
 
 **3. ReservationController.js (adicionar):**
-- [ ] `overwrite(req, res)` → POST /api/reservations/overwrite
+- [x] `overwrite(req, res)` → POST /api/reservations/overwrite
   **Body esperado:**
   ```json
   {
@@ -3057,16 +3057,16 @@ router.post('/overwrite', verifyToken, authorize(['ADMIN']), ReservationControll
 ```
 
 **Critérios de Aceite:**
-- [ ] POST /overwrite cancela items conflitantes e cria nova reserva na mesma transação
-- [ ] Se todos os items de uma reserva forem cancelados, a reserva pai também é CANCELLED
-- [ ] Se não houver conflito, retorna erro (use rota normal)
-- [ ] Retorno inclui `overwritten_count` e IDs das reservas afetadas
-- [ ] audit_logs registra a sobrescrita com IDs antigos e novo
-- [ ] PROFESSOR não consegue acessar (403)
-- [ ] Testado no Postman:
-  - [ ] Criar reserva normal → reservar mesmo horário via overwrite → verificar cancelamento
-  - [ ] Tentar overwrite sem conflito → erro
-  - [ ] Verificar audit_logs após overwrite
+- [x] POST /overwrite cancela items conflitantes e cria nova reserva na mesma transação
+- [x] Se todos os items de uma reserva forem cancelados, a reserva pai também é CANCELLED
+- [x] Se não houver conflito, retorna erro (use rota normal)
+- [x] Retorno inclui `overwritten_count` e IDs das reservas afetadas
+- [x] audit_logs registra a sobrescrita com IDs antigos e novo
+- [x] PROFESSOR não consegue acessar (403)
+- [x] Testado no Postman:
+  - [x] Criar reserva normal → reservar mesmo horário via overwrite → verificar cancelamento
+  - [x] Tentar overwrite sem conflito → erro
+  - [x] Verificar audit_logs após overwrite
 
 **Status:** 💚 Concluído  
 **Responsável:** kaique
@@ -3100,12 +3100,12 @@ Deletar várias reservas de uma vez. Cada ID é validado individualmente e a ope
 **2. ReservationService.js (adicionar método):**
 - [x] `bulkDeleteReservations(ids, requestingUser)` → cancela múltiplas reservas
   **Lógica de Negócio:**
-  1. [ ] Validar `ids` é array não vazio:
+  1. [x] Validar `ids` é array não vazio:
      - Se vazio: erro "Selecione ao menos uma reserva para cancelar"
-  2. [ ] Buscar todas as reservas pelos IDs
-  3. [ ] Validar que todas existem:
+  2. [x] Buscar todas as reservas pelos IDs
+  3. [x] Validar que todas existem:
      - Se algum ID não encontrado: erro "Reservas não encontradas: [ids]"
-  4. [ ] Validar permissões por role:
+  4. [x] Validar permissões por role:
      - ADMIN: pode cancelar qualquer reserva
      - PROFESSOR: pode cancelar apenas suas próprias:
        ```javascript
@@ -3116,16 +3116,16 @@ Deletar várias reservas de uma vez. Cada ID é validado individualmente e a ope
          throw new Error('Você não tem permissão para cancelar reservas de outros professores');
        }
        ```
-  5. [ ] Validar que nenhuma já está CANCELLED:
+  5. [x] Validar que nenhuma já está CANCELLED:
      - Se alguma: erro "Reservas já canceladas: [ids]. Remova-as da seleção."
-  6. [ ] Validar que professor não cancela reservas com data passada:
+  6. [x] Validar que professor não cancela reservas com data passada:
      - ADMIN: pode cancelar qualquer data
      - PROFESSOR: apenas reservas com itens de data >= hoje
-  7. [ ] **Iniciar transação**
-  8. [ ] `cancelManyWithItems(ids)`
-  9. [ ] **Commit**
-  10. [ ] Registrar em audit_logs para cada ID
-  11. [ ] Retornar `{ cancelled_count: ids.length, ids }`
+  7. [x] **Iniciar transação**
+  8. [x] `cancelManyWithItems(ids)`
+  9. [x] **Commit**
+  10. [x] Registrar em audit_logs para cada ID
+  11. [x] Retornar `{ cancelled_count: ids.length, ids }`
 
 **3. ReservationController.js (adicionar):**
 - [x] `bulkDelete(req, res)` → DELETE /api/reservations/bulk
@@ -3154,18 +3154,18 @@ router.delete('/bulk', verifyToken, ReservationController.bulkDelete);
 ```
 
 **Critérios de Aceite:**
-- [ ] DELETE /bulk cancela todas as reservas do array em uma transação
-- [ ] PROFESSOR só pode cancelar suas próprias reservas (403 semântico para as alheias)
-- [ ] ADMIN pode cancelar qualquer reserva
-- [ ] Não pode cancelar reservas já CANCELLED (erro claro)
-- [ ] Rollback se qualquer validação falhar — nenhuma cancelada parcialmente
-- [ ] Testado no Postman:
-  - [ ] Cancelar 3 reservas próprias (professor) → sucesso
-  - [ ] Tentar cancelar reserva de outro professor → erro
-  - [ ] ADMIN cancela qualquer reserva → sucesso
-  - [ ] Tentar cancelar IDs inexistentes → erro
+- [x] DELETE /bulk cancela todas as reservas do array em uma transação
+- [x] PROFESSOR só pode cancelar suas próprias reservas (403 semântico para as alheias)
+- [x] ADMIN pode cancelar qualquer reserva
+- [x] Não pode cancelar reservas já CANCELLED (erro claro)
+- [x] Rollback se qualquer validação falhar — nenhuma cancelada parcialmente
+- [x] Testado no Postman:
+  - [x] Cancelar 3 reservas próprias (professor) → sucesso
+  - [x] Tentar cancelar reserva de outro professor → erro
+  - [x] ADMIN cancela qualquer reserva → sucesso
+  - [x] Tentar cancelar IDs inexistentes → erro
 
-**Status:** 🟡 EM DESENVOLVIMENTO  
+**Status:** 💚 Concluído
 **Responsável:** Nicole
 **Depende de:** F4-BE-02
 
@@ -3179,7 +3179,7 @@ Centralizar e padronizar o registro de ações críticas na tabela `audit_logs`.
 **Entregáveis:**
 
 **1. AuditRepository.js:**
-- [ ] `create(data)` → INSERT em audit_logs
+- [x] `create(data)` → INSERT em audit_logs
   ```javascript
   async create(data) {
     // data = { action, table_name, record_id, changed_by, old_values, new_values }
@@ -3192,11 +3192,11 @@ Centralizar e padronizar o registro de ações críticas na tabela `audit_logs`.
   }
   ```
 
-- [ ] `findByRecord(tableName, recordId)` → histórico de um registro
-- [ ] `findByUser(userId, limit = 50)` → histórico de ações de um usuário
+- [x] `findByRecord(tableName, recordId)` → histórico de um registro
+- [x] `findByUser(userId, limit = 50)` → histórico de ações de um usuário
 
 **2. AuditService.js (criar ou formalizar):**
-- [ ] `log(action, tableName, recordId, changedBy, oldValues, newValues)` → registra ação
+- [x] `log(action, tableName, recordId, changedBy, oldValues, newValues)` → registra ação
   ```javascript
   /**
    * Actions padronizadas:
@@ -3222,17 +3222,17 @@ Centralizar e padronizar o registro de ações críticas na tabela `audit_logs`.
   > **Regra crítica:** Audit sempre em try-catch isolado. Falha de log nunca propaga erro para a operação principal.
 
 **3. Retroativamente aplicar AuditService.log() em:**
-- [ ] F2-BE-01: approveUser, rejectUser
-- [ ] F3-BE-01: activateCycle
-- [ ] F4-BE-02: createSimpleReservation
-- [ ] F5-BE-01: createRecurringReservation
-- [ ] F5-BE-02: approveReservation, rejectReservation, redirectReservation
-- [ ] F6-BE-01: overwriteReservation
-- [ ] F6-BE-02: bulkDeleteReservations
+- [x] F2-BE-01: approveUser, rejectUser
+- [x] F3-BE-01: activateCycle
+- [x] F4-BE-02: createSimpleReservation
+- [x] F5-BE-01: createRecurringReservation
+- [x] F5-BE-02: approveReservation, rejectReservation, redirectReservation
+- [x] F6-BE-01: overwriteReservation
+- [x] F6-BE-02: bulkDeleteReservations
 
 **4. AuditController.js (ADMIN only):**
-- [ ] `getByRecord(req, res)` → GET /api/audit/:table/:id
-- [ ] `getByUser(req, res)` → GET /api/audit/user/:userId
+- [x] `getByRecord(req, res)` → GET /api/audit/:table/:id
+- [x] `getByUser(req, res)` → GET /api/audit/user/:userId
 
 **5. routes/audit.routes.js:**
 ```javascript
@@ -3242,17 +3242,17 @@ router.get('/:table/:id', verifyToken, authorize(['ADMIN']), AuditController.get
 ```
 
 **Critérios de Aceite:**
-- [ ] AuditService.log() nunca lança exceção para cima (erro isolado no catch)
-- [ ] Todas as operações críticas registram em audit_logs após a implementação retroativa
-- [ ] GET /api/audit/:table/:id retorna histórico ordenado por created_at DESC
-- [ ] old_values e new_values gravados como JSON válido
-- [ ] PROFESSOR não consegue acessar rotas de audit (403)
-- [ ] Testado no Postman:
-  - [ ] Após ativar ciclo: GET /audit/academic_cycles/:id → exibe log ACTIVATE
-  - [ ] Após aprovar reserva: GET /audit/reservations/:id → exibe log APPROVE
-  - [ ] Após overwrite: log OVERWRITE com IDs sobrescritos
+- [x] AuditService.log() nunca lança exceção para cima (erro isolado no catch)
+- [x] Todas as operações críticas registram em audit_logs após a implementação retroativa
+- [x] GET /api/audit/:table/:id retorna histórico ordenado por created_at DESC
+- [x] old_values e new_values gravados como JSON válido
+- [x] PROFESSOR não consegue acessar rotas de audit (403)
+- [x] Testado no Postman:
+  - [x] Após ativar ciclo: GET /audit/academic_cycles/:id → exibe log ACTIVATE
+  - [x] Após aprovar reserva: GET /audit/reservations/:id → exibe log APPROVE
+  - [x] Após overwrite: log OVERWRITE com IDs sobrescritos
 
-**Status:** 🔴 PENDENTE  
+**Status:** 💚 Concluído  
 **Responsável:** -  
 **Depende de:** F6-BE-01, F6-BE-02
 
@@ -3266,8 +3266,8 @@ router.get('/:table/:id', verifyToken, authorize(['ADMIN']), AuditController.get
 ADMIN pode sobrescrever uma reserva existente diretamente do formulário de criação, com confirmação explícita e aviso de impacto.
 
 **Entregáveis:**
-- [ ] Atualizar `src/pages/professor/CreateReservationPage.jsx` (usado pelo ADMIN também)
-- [ ] `src/components/admin/OverwriteConfirmModal.jsx`
+- [x] Atualizar `src/pages/professor/CreateReservationPage.jsx` (usado pelo ADMIN também)
+- [x] `src/components/admin/OverwriteConfirmModal.jsx`
 
 **Componentes:**
 
@@ -3290,7 +3290,7 @@ ADMIN pode sobrescrever uma reserva existente diretamente do formulário de cria
 ```
 
 **2. Modal de Confirmação de Sobrescrita:**
-- [ ] `OverwriteConfirmModal.jsx`
+- [x] `OverwriteConfirmModal.jsx`
   ```
   "⚠️ Confirmar Sobrescrita"
   
@@ -3337,11 +3337,11 @@ async overwrite(data) {
 ```
 
 **Critérios de Aceite:**
-- [ ] Botão "Sobrescrever" aparece APENAS para ADMIN quando há conflito
-- [ ] Professor com conflito continua bloqueado (sem botão de sobrescrita)
-- [ ] Modal exibe lista de reservas que serão canceladas
-- [ ] Após confirmação: toast com count de reservas sobrescritas
-- [ ] Apenas ADMIN acessa a funcionalidade
+- [x] Botão "Sobrescrever" aparece APENAS para ADMIN quando há conflito
+- [x] Professor com conflito continua bloqueado (sem botão de sobrescrita)
+- [x] Modal exibe lista de reservas que serão canceladas
+- [x] Após confirmação: toast com count de reservas sobrescritas
+- [x] Apenas ADMIN acessa a funcionalidade
 
 **Status:** 🟢 Concluído 
 **Responsável:** Kaique 
@@ -3355,7 +3355,7 @@ async overwrite(data) {
 Adicionar seleção múltipla e cancelamento em lote em `MyReservationsPage.jsx` (professor) e no painel do ADMIN.
 
 **Entregáveis:**
-- [ ] Atualizar `src/pages/professor/MyReservationsPage.jsx`
+- [x] Atualizar `src/pages/professor/MyReservationsPage.jsx`
 
 **Componentes:**
 
@@ -3426,16 +3426,16 @@ async bulkDelete(ids) {
 ```
 
 **Critérios de Aceite:**
-- [ ] Checkboxes aparecem no DataGrid de "Minhas Reservas"
-- [ ] Barra de ações aparece ao selecionar ao menos 1 reserva
-- [ ] Confirmação antes de cancelar
-- [ ] Após cancelamento: reservas somem da lista
-- [ ] Tentar cancelar reserva de outro professor → erro claro
-- [ ] ADMIN no painel de reservas também usa a seleção múltipla
-- [ ] Responsivo
+- [x] Checkboxes aparecem no DataGrid de "Minhas Reservas"
+- [x] Barra de ações aparece ao selecionar ao menos 1 reserva
+- [x] Confirmação antes de cancelar
+- [x] Após cancelamento: reservas somem da lista
+- [x] Tentar cancelar reserva de outro professor → erro claro
+- [x] ADMIN no painel de reservas também usa a seleção múltipla
+- [x] Responsivo
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** 💚 Concluído  
+**Responsável:** Kaique
 **Depende de:** F6-BE-02, F4-FE-02
 
 ---
@@ -3450,54 +3450,54 @@ Validar sobrescrita transacional, exclusão múltipla e rastreabilidade completa
 **Checklist de Testes:**
 
 **Cenário 1: Sobrescrita de Reserva (ADMIN)**
-- [ ] 1. Professor cria reserva: Lab 01, 10/03, M1 → APPROVED
-- [ ] 2. ADMIN acessa formulário de criação
-- [ ] 3. Seleciona Lab 01, 10/03, M1 → banner de conflito com botão "Sobrescrever"
-- [ ] 4. ADMIN abre modal — lista a reserva do Professor
-- [ ] 5. ADMIN confirma sobrescrita
-- [ ] 6. Toast: "1 reserva anterior cancelada"
-- [ ] 7. Professor acessa "Minhas Reservas" → sua reserva agora está CANCELLED
-- [ ] 8. GET /audit/reservations/:newId → log OVERWRITE com ID da reserva antiga
-- [ ] 9. Tentar overwrite sem conflito → erro "Não há conflito a sobrescrever"
+- [x] 1. Professor cria reserva: Lab 01, 10/03, M1 → APPROVED
+- [x] 2. ADMIN acessa formulário de criação
+- [x] 3. Seleciona Lab 01, 10/03, M1 → banner de conflito com botão "Sobrescrever"
+- [x] 4. ADMIN abre modal — lista a reserva do Professor
+- [x] 5. ADMIN confirma sobrescrita
+- [x] 6. Toast: "1 reserva anterior cancelada"
+- [x] 7. Professor acessa "Minhas Reservas" → sua reserva agora está CANCELLED
+- [x] 8. GET /audit/reservations/:newId → log OVERWRITE com ID da reserva antiga
+- [x] 9. Tentar overwrite sem conflito → erro "Não há conflito a sobrescrever"
 
 **Cenário 2: Transação de Sobrescrita (Atomicidade)**
-- [ ] 1. Simular falha no meio da transação (mock ou força erro)
-- [ ] 2. Verificar que a reserva antiga NÃO foi cancelada
-- [ ] 3. Verificar que a nova reserva NÃO foi criada
-- [ ] 4. Banco de dados limpo (nenhuma reserva parcial)
+- [x] 1. Simular falha no meio da transação (mock ou força erro)
+- [x] 2. Verificar que a reserva antiga NÃO foi cancelada
+- [x] 3. Verificar que a nova reserva NÃO foi criada
+- [x] 4. Banco de dados limpo (nenhuma reserva parcial)
 
 **Cenário 3: Exclusão Múltipla**
-- [ ] 1. Professor cria 3 reservas simples
-- [ ] 2. Seleciona todas no DataGrid
-- [ ] 3. Barra de ações aparece com contador "3 reserva(s) selecionada(s)"
-- [ ] 4. Confirma cancelamento → toast "3 reserva(s) cancelada(s)"
-- [ ] 5. Reservas somem da lista
-- [ ] 6. Tentar cancelar reserva de outro professor via API direta → erro de permissão
+- [x] 1. Professor cria 3 reservas simples
+- [x] 2. Seleciona todas no DataGrid
+- [x] 3. Barra de ações aparece com contador "3 reserva(s) selecionada(s)"
+- [x] 4. Confirma cancelamento → toast "3 reserva(s) cancelada(s)"
+- [x] 5. Reservas somem da lista
+- [x] 6. Tentar cancelar reserva de outro professor via API direta → erro de permissão
 
 **Cenário 4: Auditoria Completa**
-- [ ] 1. Após ativar ciclo: GET /api/audit/academic_cycles/:id → log ACTIVATE
-- [ ] 2. Após aprovar reserva: GET /api/audit/reservations/:id → log APPROVE com `approved_by`
-- [ ] 3. Após sobrescrita: log OVERWRITE com `overwritten_item_ids`
-- [ ] 4. Após bulk cancel: log BULK_CANCEL com array de IDs
-- [ ] 5. PROFESSOR tenta GET /api/audit/... → 403
-- [ ] 6. Simular falha no AuditService → operação principal continua funcionando normalmente
+- [x] 1. Após ativar ciclo: GET /api/audit/academic_cycles/:id → log ACTIVATE
+- [x] 2. Após aprovar reserva: GET /api/audit/reservations/:id → log APPROVE com `approved_by`
+- [x] 3. Após sobrescrita: log OVERWRITE com `overwritten_item_ids`
+- [x] 4. Após bulk cancel: log BULK_CANCEL com array de IDs
+- [x] 5. PROFESSOR tenta GET /api/audit/... → 403
+- [x] 6. Simular falha no AuditService → operação principal continua funcionando normalmente
 
 **Cenário 5: Proteção de Rotas e Integridade**
-- [ ] 1. PROFESSOR tenta POST /api/reservations/overwrite → 403
-- [ ] 2. DELETE /api/reservations/bulk com IDs mistos (próprios + alheios) → erro parcial claro
-- [ ] 3. Tentar bulk delete de IDs já CANCELLED → erro claro
-- [ ] 4. Transação com IDs inválidos → rollback, nenhum ID cancelado
+- [x] 1. PROFESSOR tenta POST /api/reservations/overwrite → 403
+- [x] 2. DELETE /api/reservations/bulk com IDs mistos (próprios + alheios) → erro parcial claro
+- [x] 3. Tentar bulk delete de IDs já CANCELLED → erro claro
+- [x] 4. Transação com IDs inválidos → rollback, nenhum ID cancelado
 
 **Critérios de Aceite:**
-- [ ] Todos os 5 cenários passam sem bugs
-- [ ] Atomicidade comprovada: nunca há estado parcial no banco
-- [ ] audit_logs preenchido para todas as ações críticas
-- [ ] AuditService nunca derruba operação principal
-- [ ] Nenhum console.error no frontend
-- [ ] Nenhum erro 500 no backend
-- [ ] Pronto para avançar para FASE 7
+- [x] Todos os 5 cenários passam sem bugs
+- [x] Atomicidade comprovada: nunca há estado parcial no banco
+- [x] audit_logs preenchido para todas as ações críticas
+- [x] AuditService nunca derruba operação principal
+- [x] Nenhum console.error no frontend
+- [x] Nenhum erro 500 no backend
+- [x] Pronto para avançar para FASE 7
 
-**Status:** 🔴 PENDENTE  
+**Status:** 💚 Concluído  
 **Responsável:** Kaique  
 **Depende de:** Todas as tasks F6-* concluídas
 
@@ -3506,7 +3506,7 @@ Validar sobrescrita transacional, exclusão múltipla e rastreabilidade completa
 # 🔴 FASE 7 – Notificações e Comunicação
 
 **Requisitos:** RF16, RF17  
-**Status Geral:** 🔴 PENDENTE  
+**Status Geral:** 💚 Concluído  
 **Meta:** Admins recebem alerta de novas solicitações; professores recebem confirmações de aprovação, rejeição e sobrescrita
 
 ---
@@ -3534,7 +3534,7 @@ module.exports = EventBus;
 ```
 
 **2. events/reservation.events.js (listeners):**
-- [ ] Definir e registrar todos os listeners de reserva
+- [x] Definir e registrar todos os listeners de reserva
   ```javascript
   const EventBus = require('./EventBus');
   const EmailService = require('../services/EmailService');
@@ -3580,7 +3580,7 @@ module.exports = EventBus;
 
 **3. Emitir eventos nos Services existentes:**
 
-- [ ] **ReservationService.createRecurringReservation** — emitir após criar com status PENDING:
+- [x] **ReservationService.createRecurringReservation** — emitir após criar com status PENDING:
   ```javascript
   // Ao final do método, após commit:
   if (status === 'PENDING') {
@@ -3589,19 +3589,19 @@ module.exports = EventBus;
   }
   ```
 
-- [ ] **ReservationService.approveReservation** — emitir após aprovar:
+- [x] **ReservationService.approveReservation** — emitir após aprovar:
   ```javascript
   const professor = await UserRepository.findById(reservation.professor_id);
   EventBus.emit('reservation:approved', { reservation, professor });
   ```
 
-- [ ] **ReservationService.rejectReservation** — emitir após rejeitar:
+- [x] **ReservationService.rejectReservation** — emitir após rejeitar:
   ```javascript
   const professor = await UserRepository.findById(reservation.professor_id);
   EventBus.emit('reservation:rejected', { reservation, professor, reason });
   ```
 
-- [ ] **OverwriteService.overwriteReservation** — emitir para cada professor afetado:
+- [x] **OverwriteService.overwriteReservation** — emitir para cada professor afetado:
   ```javascript
   // Para cada reserva única afetada pela sobrescrita:
   for (const affectedId of overwritten_reservation_ids) {
@@ -3622,13 +3622,13 @@ require('./events/reservation.events');
 ```
 
 **Critérios de Aceite:**
-- [ ] EventBus é singleton (mesmo require retorna mesma instância)
-- [ ] Falha em listener nunca propaga erro para o service emissor
-- [ ] `reservation:created:pending` dispara apenas quando status = PENDING (recorrente de professor)
-- [ ] `reservation:overwritten` dispara para cada professor com reserva cancelada
-- [ ] `reservation:approved` e `reservation:rejected` disparam após ações do ADMIN
-- [ ] Listeners registrados ao iniciar o servidor (log de confirmação no console)
-- [ ] Testado localmente (pode ser com `console.log` temporário nos listeners antes de integrar email)
+- [x] EventBus é singleton (mesmo require retorna mesma instância)
+- [x] Falha em listener nunca propaga erro para o service emissor
+- [x] `reservation:created:pending` dispara apenas quando status = PENDING (recorrente de professor)
+- [x] `reservation:overwritten` dispara para cada professor com reserva cancelada
+- [x] `reservation:approved` e `reservation:rejected` disparam após ações do ADMIN
+- [x] Listeners registrados ao iniciar o servidor (log de confirmação no console)
+- [x] Testado localmente (pode ser com `console.log` temporário nos listeners antes de integrar email)
 
 **Status:** 💚 Concluído  
 **Responsável:** kaique
@@ -3833,19 +3833,19 @@ module.exports = templates;
 ```
 
 **Critérios de Aceite:**
-- [ ] `.env` configurado com credenciais SMTP (não commitar senha — usar `.env.example`)
-- [ ] `transporter.verify()` loga sucesso na inicialização
-- [ ] Email de nova solicitação chega para ADMIN ao criar reserva recorrente (professor)
-- [ ] Email de aprovação chega para professor ao ADMIN aprovar
-- [ ] Email de rejeição chega para professor com motivo visível
-- [ ] Email de sobrescrita chega para professor afetado com datas canceladas listadas
-- [ ] Falha de envio (SMTP fora) não derruba a operação (erro isolado no EventBus listener)
-- [ ] Templates respeitam identidade visual CPS (vermelho, branco, preto)
-- [ ] Testado com Mailtrap ou Gmail sandbox:
-  - [ ] Criar reserva recorrente → email para ADMIN
-  - [ ] ADMIN aprova → email para professor
-  - [ ] ADMIN rejeita → email para professor com motivo
-  - [ ] Sobrescrever reserva → email para professor afetado
+- [x] `.env` configurado com credenciais SMTP (não commitar senha — usar `.env.example`)
+- [x] `transporter.verify()` loga sucesso na inicialização
+- [x] Email de nova solicitação chega para ADMIN ao criar reserva recorrente (professor)
+- [x] Email de aprovação chega para professor ao ADMIN aprovar
+- [x] Email de rejeição chega para professor com motivo visível
+- [x] Email de sobrescrita chega para professor afetado com datas canceladas listadas
+- [x] Falha de envio (SMTP fora) não derruba a operação (erro isolado no EventBus listener)
+- [x] Templates respeitam identidade visual CPS (vermelho, branco, preto)
+- [x] Testado com Mailtrap ou Gmail sandbox:
+  - [x] Criar reserva recorrente → email para ADMIN
+  - [x] ADMIN aprova → email para professor
+  - [x] ADMIN rejeita → email para professor com motivo
+  - [x] Sobrescrever reserva → email para professor afetado
 
 **Status:** 💚 Concluído  
 **Responsável:** kaique
@@ -3861,9 +3861,9 @@ module.exports = templates;
 Contexto global de notificações toast usando MUI Snackbar + Alert. Todas as páginas e componentes da aplicação usam este contexto para exibir feedback ao usuário.
 
 **Entregáveis:**
-- [ ] `src/contexts/NotificationContext.jsx`
-- [ ] Integrar ao `App.jsx` (ou provider raiz)
-- [ ] Substituir qualquer `alert()` ou toast avulso existente pelo contexto
+- [x] `src/contexts/NotificationContext.jsx`
+- [x] Integrar ao `App.jsx` (ou provider raiz)
+- [x] Substituir qualquer `alert()` ou toast avulso existente pelo contexto
 
 **Componentes:**
 
@@ -3975,13 +3975,13 @@ function MinhaPage() {
 | Bulk cancel realizado | success | "X reserva(s) cancelada(s)" |
 
 **Critérios de Aceite:**
-- [ ] Toast aparece no canto inferior direito
-- [ ] Erros ficam visíveis por 6s; demais por 4s
-- [ ] Click fora ou no X fecha o toast
-- [ ] Apenas um toast visível por vez (novo substitui anterior)
-- [ ] `showError`, `showSuccess`, `showWarning`, `showInfo` funcionam em todos os componentes
-- [ ] Nenhum `alert()` nativo permanece na aplicação
-- [ ] `useNotification()` fora do provider lança erro descritivo
+- [x] Toast aparece no canto inferior direito
+- [x] Erros ficam visíveis por 6s; demais por 4s
+- [x] Click fora ou no X fecha o toast
+- [x] Apenas um toast visível por vez (novo substitui anterior)
+- [x] `showError`, `showSuccess`, `showWarning`, `showInfo` funcionam em todos os componentes
+- [x] Nenhum `alert()` nativo permanece na aplicação
+- [x] `useNotification()` fora do provider lança erro descritivo
 
 **Status:** 💚 Concluído  
 **Responsável:** kaique
@@ -3999,53 +3999,53 @@ Validar o fluxo completo de notificações: eventos emitidos, emails enviados e 
 **Checklist de Testes:**
 
 **Cenário 1: Notificação de Nova Solicitação (RF16)**
-- [ ] 1. Configurar Mailtrap (ou equivalente) como SMTP de testes
-- [ ] 2. Professor cria reserva recorrente → status PENDING
-- [ ] 3. ADMIN recebe email com assunto "[SisLab] Nova solicitação de reserva — [Nome]"
-- [ ] 4. Email contém nome do professor, laboratório, período e total de ocorrências
-- [ ] 5. ADMIN não recebe email quando reserva simples é criada (status APPROVED direto)
-- [ ] 6. Professor vê toast info: "Solicitação enviada com X ocorrências. Aguardando aprovação."
+- [x] 1. Configurar Mailtrap (ou equivalente) como SMTP de testes
+- [x] 2. Professor cria reserva recorrente → status PENDING
+- [x] 3. ADMIN recebe email com assunto "[SisLab] Nova solicitação de reserva — [Nome]"
+- [x] 4. Email contém nome do professor, laboratório, período e total de ocorrências
+- [x] 5. ADMIN não recebe email quando reserva simples é criada (status APPROVED direto)
+- [x] 6. Professor vê toast info: "Solicitação enviada com X ocorrências. Aguardando aprovação."
 
 **Cenário 2: Notificação de Aprovação**
-- [ ] 1. ADMIN aprova reserva pendente
-- [ ] 2. Professor recebe email "[SisLab] ✅ Sua reserva foi aprovada!"
-- [ ] 3. ADMIN vê toast success: "Reserva aprovada!"
-- [ ] 4. Professor recarrega "Minhas Reservas" → status APPROVED visível
+- [x] 1. ADMIN aprova reserva pendente
+- [x] 2. Professor recebe email "[SisLab] ✅ Sua reserva foi aprovada!"
+- [x] 3. ADMIN vê toast success: "Reserva aprovada!"
+- [x] 4. Professor recarrega "Minhas Reservas" → status APPROVED visível
 
 **Cenário 3: Notificação de Rejeição**
-- [ ] 1. ADMIN rejeita reserva com motivo "Lab em reforma"
-- [ ] 2. Professor recebe email "[SisLab] ❌ Sua reserva foi rejeitada"
-- [ ] 3. Email contém o motivo "Lab em reforma"
-- [ ] 4. ADMIN vê toast success: "Reserva rejeitada"
+- [x] 1. ADMIN rejeita reserva com motivo "Lab em reforma"
+- [x] 2. Professor recebe email "[SisLab] ❌ Sua reserva foi rejeitada"
+- [x] 3. Email contém o motivo "Lab em reforma"
+- [x] 4. ADMIN vê toast success: "Reserva rejeitada"
 
 **Cenário 4: Notificação de Sobrescrita (RF17)**
-- [ ] 1. Professor A tem reserva APPROVED em Lab 01, 10/03, M1
-- [ ] 2. ADMIN sobrescreve o mesmo horário
-- [ ] 3. Professor A recebe email "⚠️ Sua reserva foi sobrescrita" com a data afetada listada
-- [ ] 4. ADMIN vê toast success: "Sobrescrita realizada! 1 reserva(s) cancelada(s)."
+- [x] 1. Professor A tem reserva APPROVED em Lab 01, 10/03, M1
+- [x] 2. ADMIN sobrescreve o mesmo horário
+- [x] 3. Professor A recebe email "⚠️ Sua reserva foi sobrescrita" com a data afetada listada
+- [x] 4. ADMIN vê toast success: "Sobrescrita realizada! 1 reserva(s) cancelada(s)."
 
 **Cenário 5: Resiliência de Email**
-- [ ] 1. Desconectar SMTP (credencial inválida)
-- [ ] 2. ADMIN aprova reserva
-- [ ] 3. Aprovação é salva no banco normalmente
-- [ ] 4. Nenhum erro 500 na API
-- [ ] 5. Console exibe "[Event reservation:approved] Falha no email: ..."
-- [ ] 6. Toast de sucesso aparece normalmente no frontend
+- [x] 1. Desconectar SMTP (credencial inválida)
+- [x] 2. ADMIN aprova reserva
+- [x] 3. Aprovação é salva no banco normalmente
+- [x] 4. Nenhum erro 500 na API
+- [x] 5. Console exibe "[Event reservation:approved] Falha no email: ..."
+- [x] 6. Toast de sucesso aparece normalmente no frontend
 
 **Cenário 6: Toast Global**
-- [ ] 1. Todas as ações CRUD exibem toast adequado (success/error/warning/info)
-- [ ] 2. Nenhum `alert()` nativo aparece em nenhum fluxo
-- [ ] 3. Toast de erro permanece 6s, demais 4s
-- [ ] 4. Múltiplas ações rápidas: apenas o último toast é exibido
+- [x] 1. Todas as ações CRUD exibem toast adequado (success/error/warning/info)
+- [x] 2. Nenhum `alert()` nativo aparece em nenhum fluxo
+- [x] 3. Toast de erro permanece 6s, demais 4s
+- [x] 4. Múltiplas ações rápidas: apenas o último toast é exibido
 
 **Critérios de Aceite:**
-- [ ] Todos os 6 cenários passam sem bugs
-- [ ] Falha de SMTP nunca derruba operação principal (verificado no Cenário 5)
-- [ ] Templates HTML renderizam corretamente nos clientes de email testados
-- [ ] Nenhum console.error não tratado no backend
-- [ ] Pronto para avançar para FASE 8
+- [x] Todos os 6 cenários passam sem bugs
+- [x] Falha de SMTP nunca derruba operação principal (verificado no Cenário 5)
+- [x] Templates HTML renderizam corretamente nos clientes de email testados
+- [x] Nenhum console.error não tratado no backend
+- [x] Pronto para avançar para FASE 8
 
-**Status:** 🔴 PENDENTE  
+**Status:** 💚 Concluída  
 **Responsável:** Kaique  
 **Depende de:** Todas as tasks F7-* concluídas
 
@@ -6261,15 +6261,15 @@ Validar cobertura de testes, qualidade da documentação e executar rodada final
 
 ## ✅ PROGRESSO GERAL
 
-- **Concluídas:** 31 tasks (48%)
+- **Concluídas:** 30 tasks (68%)
 - **Em Andamento:** 1 task (2%)
-- **Pendentes:** 30 tasks (50%)
+- **Pendentes:** 13 tasks (30%)
 
 ---
 
 ## 👥 RESPONSABILIDADE DE DEV
 
-- Kaique — 29 tasks
+- Kaique — 31 tasks
+- Vinicius — 6 tasks
 - Luiz — 8 tasks
-- Nicole — 4 tasks
-- Vinicius — 3 tasks
+- Nicole — 5 tasks

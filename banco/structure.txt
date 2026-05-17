@@ -140,7 +140,7 @@ CREATE TABLE reservation_items (
 
 CREATE TABLE audit_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    action ENUM('CREATE', 'UPDATE', 'DELETE', 'OVERWRITE', 'APPROVE', 'REJECT') NOT NULL,
+    action ENUM('CREATE', 'UPDATE', 'DELETE', 'OVERWRITE', 'APPROVE', 'REJECT', 'ACTIVATE', 'REDIRECT', 'BULK_CANCEL') NOT NULL,
     table_name VARCHAR(50) NOT NULL,
     record_id INT NOT NULL,
     changed_by INT NOT NULL,
@@ -149,4 +149,3 @@ CREATE TABLE audit_logs (
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (changed_by) REFERENCES users(id)
 ) ENGINE=InnoDB COMMENT='Logs de segurança e rastreabilidade de alterações';
-
