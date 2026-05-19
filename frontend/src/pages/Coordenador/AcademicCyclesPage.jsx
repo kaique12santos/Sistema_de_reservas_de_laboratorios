@@ -26,6 +26,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import StaggerItem from "../../utils/StaggerItem";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { useNotification } from "../../context/NotificationContext";
+import FeedbackWidget from "../../utils/FeedbackWidget";
 
 import { academicCycleService } from "../../services/academicCycle.service";
 
@@ -94,8 +95,8 @@ export default function AcademicCyclesPage() {
     cycle: null,
   });
 
-  // eslint-disable-next-line no-unused-vars
   const { showSuccess, showError, showWarning, showInfo } = useNotification();
+  const [showFeedback, setShowFeedback] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -132,12 +133,14 @@ export default function AcademicCyclesPage() {
       await academicCycleService.activate(activateDialog.cycle.id);
       setActivateDialog({ open: false, cycle: null });
       showSuccess(`Ciclo ${activateDialog.cycle.name} ativado com sucesso!`);
+      setShowFeedback(true);
       await load();
     } catch (err) {
       showError(err?.response?.data?.error || "Erro ao ativar ciclo.");
     } finally {
       setActionLoading(false);
     }
+
   };
 
   const openActivate = (cycle) => setActivateDialog({ open: true, cycle });
@@ -290,6 +293,11 @@ export default function AcademicCyclesPage() {
         onConfirm={handleActivate}
         onCancel={() => setActivateDialog({ open: false, cycle: null })}
         loading={actionLoading}
+      />
+      <FeedbackWidget 
+        open={showFeedback} 
+        handleClose={() => setShowFeedback(false)} 
+        feature="ACADEMIC_CYCLE_ACTIVATION" 
       />
 
     </Box>

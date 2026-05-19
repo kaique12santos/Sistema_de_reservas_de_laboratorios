@@ -78,7 +78,8 @@ class ReservationController {
 
       return res.status(201).json({
         message: 'Reserva criada com sucesso',
-        reservation
+        reservation,
+        promptFeedback: reservation.promptFeedback
       });
     } catch (error) {
       console.error('Erro ao criar reserva:', error.message);

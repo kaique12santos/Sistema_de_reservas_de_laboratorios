@@ -10,6 +10,8 @@ import holidayRouter from './routes/holiday.routes.js';
 import reservationRoutes from './routes/reservation.routes.js';
 import auditRoutes from './routes/audit.routes.js';
 import './events/reservation.events.js';
+import './jobs/FeedbackExportJob.js';
+import feedbackRoutes from './routes/feedback.routes.js'; 
 
 class App {
   constructor() {
@@ -46,6 +48,7 @@ class App {
     this.server.use('/api/holidays', holidayRouter);
     this.server.use('/api/reservations', reservationRoutes);
     this.server.use('/api/audit', auditRoutes);
+    this.server.use('/api/feedback', feedbackRoutes);
 
   }
 }

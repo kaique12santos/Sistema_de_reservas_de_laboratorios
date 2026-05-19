@@ -12,8 +12,9 @@ import { reservationService } from '../../services/Reservation.service';
 import { useNotification } from '../../context/NotificationContext';
 import ConfirmDialog from '../../utils/ConfirmDialog'; 
 import LoadingOverlay from "../../components/LoadingOverlay";
+import FeedbackWidget from '../../utils/FeedbackWidget';
 
-// Ajuste o caminho do import caso tenha salvado em outra pasta
+
 import OverwriteConfirmModal from '../../components/OverwriteConfirmModal';
 
 const CreateReservationPage = () => {
@@ -26,7 +27,7 @@ const CreateReservationPage = () => {
 
   const [initialData, setInitialData] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  
+  const [showFeedback, setShowFeedback] = useState(false);
   const { showSuccess, showError } = useNotification();
 
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -100,13 +101,22 @@ const CreateReservationPage = () => {
       }
 
       const response = await reservationService.create(payload);
+      console.log(response);
       setConfirmOpen(false);
       showSuccess(
         pendingFormData.reservationType === 'RECURRING'
           ? `Reservas solicitadas com sucesso! Total: ${response.total_occurrences} ocorrências.`
           : 'Reserva solicitada com sucesso!'
       );
-      setTimeout(() => navigate('/reservas'), 2500);
+      
+      const needsFeedback = response.promptFeedback
+
+      if (needsFeedback === true) {     
+          setShowFeedback(true);
+      } else {         
+          setTimeout(() => navigate('/reservas'), 2500);
+      }
+      
 
     } catch (error) {
       showError(error.response?.data?.error || 'Erro ao processar a solicitação.');
@@ -190,6 +200,15 @@ const CreateReservationPage = () => {
           onClose={() => setShowOverwriteModal(false)}
           onConfirm={handleOverwrite}
           submitting={submitting}
+        />
+
+        <FeedbackWidget 
+        open={showFeedback} 
+        handleClose={() => {
+          setShowFeedback(false)
+          navigate('/reservas')    
+        }} 
+        feature="RESERVATION_CREATION"
         />
 
       </Box>

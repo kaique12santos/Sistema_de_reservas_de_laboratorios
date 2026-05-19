@@ -207,3 +207,8 @@ O endpoint agora bloqueia acessos de contas com status `PENDING` e `REJECTED` an
   - `src/services/ReservationService.js` — adição do método `bulkDeleteReservations`
   - `src/controllers/ReservationController.js` — adição do método `bulkDelete`
   - `src/routes/reservation.routes.js` — registro da rota `DELETE /bulk`
+
+## [19/05/2026]
+### 1. Sistema de Coleta e Exportação Trimestral de Feedback (SisLab Analytics)
+- **Descrição:** Implementação da infraestrutura completa para coleta e análise de satisfação do usuário. Criação da tabela `logs_feedback` e do endpoint protegido `POST /api/feedback` (com Controller e Repository isolados). Injeção de lógica no `ReservationService` e `ReservationController` para calcular o histórico do usuário e devolver a flag `promptFeedback` (disparada na 1ª e a cada 10ª reserva). Criação do Job automatizado `FeedbackExportJob` via `node-cron` para gerar planilhas estilizadas em `.xlsx` (usando `exceljs`) a cada 3 meses. Refatoração do `EmailService` para suportar disparo de relatórios com anexos e migração do `UserService` para disparos de e-mail assíncronos via `EventBus`.
+- **Autor:** Kaique Caitano
