@@ -31,7 +31,7 @@ class UserService {
     // Log de auditoria
     await AuditService.log('APPROVE', 'users', userId, adminId, { status: 'PENDING' }, { status: 'APPROVED', role: finalRole });
 
-    EmailService.sendApprovalNotification(user.email, user.name)
+    EmailService.sendAccountApproval(user.email, user.name)
         .catch(err => console.error("Falha silenciosa ao enviar email de aprovação", err));
 
     // Retornamos os dados novos para o front-end

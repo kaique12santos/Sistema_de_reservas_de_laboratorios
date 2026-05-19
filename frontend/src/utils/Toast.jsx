@@ -1,4 +1,3 @@
-// src/components/Toast.jsx (ou onde ele estiver)
 import { Snackbar, Alert } from '@mui/material';
 
 const Toast = ({ open, handleClose, message, severity = "success" }) => {

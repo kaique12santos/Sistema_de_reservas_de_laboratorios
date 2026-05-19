@@ -150,6 +150,23 @@ class ReservationService {
       const reservation = await ReservationRepository.findById(reservationId);
       reservation.items = reservationItems;
 
+      // =========================================================
+      // 🚀 INJEÇÃO DO GATILHO DE FEEDBACK (1ª e a cada 10)
+      // =========================================================
+      try {
+        const [rows] = await db.connection.query('SELECT COUNT(*) as total FROM reservations WHERE user_id = ?', [userId]);
+        const totalReservations = Number(rows[0].total);
+        
+        
+         reservation.promptFeedback = true;
+        
+       // reservation.promptFeedback = (totalReservations === 1 || totalReservations % 10 === 0);
+      } catch (feedbackErr) {
+        console.error('[Feedback] Erro ao calcular gatilho:', feedbackErr.message);
+        reservation.promptFeedback = false; // Fail-safe: não quebra a reserva se der erro
+      }
+      // =========================================================
+
       if (status === 'PENDING'){
         const professor = await UserRepository.findById(userId);
         EventBus.emit('reservation:created:pending', { reservation, professor });
@@ -325,6 +342,20 @@ class ReservationService {
           };
         })
       );
+
+      // =========================================================
+      // 🚀 INJEÇÃO DO GATILHO DE FEEDBACK (1ª e a cada 10)
+      // =========================================================
+      try {
+        // userId aqui foi extraído de requestingUser no início da função
+        const [rows] = await db.connection.query('SELECT COUNT(*) as total FROM reservations WHERE user_id = ?', [userId]);
+        const totalReservations = Number(rows[0].total);
+        reservation.promptFeedback = (totalReservations === 1 || totalReservations % 10 === 0);
+      } catch (feedbackErr) {
+        console.error('[Feedback] Erro ao calcular gatilho recorrente:', feedbackErr.message);
+        reservation.promptFeedback = false; 
+      }
+      // =========================================================
       if (status === 'PENDING'){
         const professor = await UserRepository.findById(userId); // Usa o userId que você já extraiu lá no topo
         EventBus.emit('reservation:created:pending', { reservation, professor });

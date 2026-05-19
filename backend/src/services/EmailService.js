@@ -20,13 +20,14 @@ class EmailService {
         });
     }
 
-    async #sendMail({ to, subject, html, logMessage }) {
+    async #sendMail({ to, subject, html, logMessage, attachments = [] }) {
         try {
             const info = await this.transporter.sendMail({
                 from: `"Reservas Fatec ZL" <${process.env.EMAIL_FROM}>`,
                 to,
                 subject,
-                html
+                html,
+                attachments
             });
             console.log(`📧 ${logMessage}: ${info.messageId}`);
             return true;
@@ -113,6 +114,36 @@ class EmailService {
             subject: "🔄 Alteração de Laboratório - Sua reserva foi aprovada",
             html: templates.reservationRedirected({ professor, oldLabName, newLabName }),
             logMessage: `Aviso de redirecionamento enviado para ${professor.email}`
+        });
+    }
+    // --- Método para Relatório Trimestral de Feedbacks ---
+    async sendFeedbackReport(buffer, feedbackCount) {
+    const date = new Date().toISOString().split('T')[0];
+    
+        return this.#sendMail({
+            to: 'suporte.sislab@fatec.sp.gov.br',
+            subject: '📊 Relatório Trimestral de Satisfação e UX - SisLab',
+            logMessage: 'Relatório trimestral enviado',
+            attachments: [
+                {
+                    filename: `Relatorio_Satisfacao_SisLab_${date}.xlsx`,
+                    content: buffer,
+                    contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                }
+            ],
+            // Você pode mover este HTML para o arquivo de templates se preferir
+            html: `
+                <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
+                    <h2 style="color: #1B365D; border-bottom: 2px solid #1B365D; padding-bottom: 10px;">Relatório de Satisfação Disponível</h2>
+                    <p>Olá, Equipe de Suporte e Governança do SisLab,</p>
+                    <p>Compilamos automaticamente os dados de telemetria de UX e feedbacks coletados nos últimos <b>3 meses</b>.</p>
+                    <ul>
+                        <li><b>Total de Avaliações:</b> ${feedbackCount}</li>
+                    </ul>
+                    <p>O arquivo Excel encontra-se em anexo.</p>
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+                    <p style="font-size: 11px; color: #777;">E-mail automático gerado pelo SisLab.</p>
+                </div>`
         });
     }
 }
