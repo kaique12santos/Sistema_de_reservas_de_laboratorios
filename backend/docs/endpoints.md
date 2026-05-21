@@ -134,7 +134,68 @@
     "status": "APROVADO"
   }
 ]
+
+
 ```
+
+### GET /api/reservations/calendar
+
+**Descrição:** Retorna os itens de reserva de um laboratório em um mês específico, agrupáveis por data para exibição em calendário.
+
+**Parâmetros de Consulta (Obrigatórios):**
+- `lab_id` - ID do laboratório
+- `year` - Ano (ex: `2026`)
+- `month` - Mês (ex: `3`)
+
+**Resposta de Sucesso:** `200 OK`
+
+**Exemplo de Retorno:**
+```json
+[
+  {
+    "date": "2026-03-10T00:00:00.000Z",
+    "time_slot_id": 2,
+    "status": "ACTIVE",
+    "professor_id": 5,
+    "reservation_status": "APPROVED",
+    "type": "SINGLE",
+    "professor_name": "Edson Júnior",
+    "time_slot_name": "2º Horário",
+    "start_time": "19:50:00",
+    "end_time": "20:40:00"
+  }
+]
+```
+
+**Respostas de Erro:**
+- `400 Bad Request` (`lab_id`, `year` e `month` são obrigatórios)
+- `401 Unauthorized`
+
+**Observação:** Retorna array vazio `[]` quando não há reservas para o período — nunca `404`. Acessível por `PROFESSOR` e `ADMIN`.
+
+---
+
+### GET /api/reservations/stats
+
+**Descrição:** Retorna contagens agregadas do ciclo acadêmico ativo para exibição no dashboard.
+
+**Parâmetros de Requisição:** Nenhum.
+
+**Resposta de Sucesso:** `200 OK`
+
+**Exemplo de Retorno:**
+```json
+{
+  "active_reservations": 12,
+  "pending_reservations": 3,
+  "active_labs": 8
+}
+```
+
+**Respostas de Erro:**
+- `401 Unauthorized`
+
+**Observação:** Se não houver ciclo ativo, retorna os três campos zerados — nunca `404`. Acessível por `PROFESSOR` e `ADMIN`.
 
 <!-- inicia a documentação daqui -->
 

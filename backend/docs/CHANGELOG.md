@@ -212,3 +212,12 @@ O endpoint agora bloqueia acessos de contas com status `PENDING` e `REJECTED` an
 ### 1. Sistema de Coleta e Exportação Trimestral de Feedback (SisLab Analytics)
 - **Descrição:** Implementação da infraestrutura completa para coleta e análise de satisfação do usuário. Criação da tabela `logs_feedback` e do endpoint protegido `POST /api/feedback` (com Controller e Repository isolados). Injeção de lógica no `ReservationService` e `ReservationController` para calcular o histórico do usuário e devolver a flag `promptFeedback` (disparada na 1ª e a cada 10ª reserva). Criação do Job automatizado `FeedbackExportJob` via `node-cron` para gerar planilhas estilizadas em `.xlsx` (usando `exceljs`) a cada 3 meses. Refatoração do `EmailService` para suportar disparo de relatórios com anexos e migração do `UserService` para disparos de e-mail assíncronos via `EventBus`.
 - **Autor:** Kaique Caitano
+
+## [21/05/2026]
+### 1. Endpoints de Calendário e Dashboard (F7-BE-01)
+- **Descrição:** Implementação de dois novos endpoints para suporte ao frontend. O endpoint `GET /api/reservations/calendar` retorna os itens de reserva de um laboratório em um mês específico, com dados enriquecidos de professor e horário, prontos para agrupamento por data no calendário. O endpoint `GET /api/reservations/stats agrega` as contagens de reservas aprovadas, pendentes e laboratórios ativos do ciclo acadêmico corrente para exibição no dashboard. Ambos retornam dados vazios (nunca 404) quando não há registros, e são acessíveis por PROFESSOR e ADMIN.
+- **Autor:** Nicole Lisboa
+- **Impacto:** 
+  - `src/repositories/ReservationRepository.js` — adição dos métodos `findByLabAndMonth` e `getStats`
+  - `src/controllers/ReservationController.js` — adição dos métodos calendarData e stats; inclusão dos imports de `ReservationRepository` e `AcademicCycleRepository`
+  - `src/routes/reservation.routes.js` — registro das rotas `GET /calendar` e `GET /stats` antes das rotas com parâmetro dinâmico /:id

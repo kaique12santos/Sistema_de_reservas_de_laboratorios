@@ -424,6 +424,48 @@ class ReservationRepository {
     const [rows] = await db.connection.query(query, [ids]);
     return rows;
   }
+
+  async findByLabAndMonth(labId, year, month) {
+    const query = `
+      SELECT ri.date, ri.time_slot_id, ri.status,
+             r.user_id as professor_id , r.status as reservation_status, r.type,
+             u.name as professor_name,
+             ts.name as time_slot_name, ts.start_time, ts.end_time
+      FROM reservation_items ri
+      INNER JOIN reservations r ON r.id = ri.reservation_id
+      INNER JOIN users u ON u.id = r.user_id
+      INNER JOIN time_slots ts ON ts.id = ri.time_slot_id
+      WHERE ri.lab_id = ?
+        AND YEAR(ri.date) = ?
+        AND MONTH(ri.date) = ?
+        AND ri.status = 'ACTIVE'
+        AND r.status IN ('APPROVED', 'PENDING')
+      ORDER BY ri.date ASC, ts.start_time ASC
+    `;
+    const [rows] = await db.connection.query(query, [labId, year, month]);
+    return rows;
+  }
+
+  async getStats(cycleId) {
+  const [[activeCount]] = await db.connection.query(
+    `SELECT COUNT(DISTINCT r.id) as count
+     FROM reservations r WHERE r.cycle_id = ? AND r.status = 'APPROVED'`,
+    [cycleId]
+  );
+  const [[pendingCount]] = await db.connection.query(
+    `SELECT COUNT(DISTINCT r.id) as count
+     FROM reservations r WHERE r.cycle_id = ? AND r.status = 'PENDING'`,
+    [cycleId]
+  );
+  const [[labCount]] = await db.connection.query(
+    `SELECT COUNT(*) as count FROM laboratories WHERE is_active = true`
+  );
+  return {
+    active_reservations: activeCount.count,
+    pending_reservations: pendingCount.count,
+    active_labs: labCount.count
+  };
+}
 }
 
 export default new ReservationRepository();

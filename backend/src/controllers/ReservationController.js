@@ -1,6 +1,8 @@
 import ConflictService from '../services/ConflictService.js';
 import ReservationService from '../services/ReservationService.js';
 import OverwriteService from '../services/OverwriteService.js';
+import ReservationRepository from '../repositories/ReservationRepository.js';
+import AcademicCycleRepository from '../repositories/AcademicCycleRepository.js';
 
 class ReservationController {
 
@@ -226,6 +228,32 @@ class ReservationController {
       res.json({ message: `${result.cancelled_count} reserva(s) cancelada(s)`, ...result });
     } catch (error) {
       res.status(400).json({ error: error.message });
+    }
+  }
+
+  async calendarData(req, res) {
+    try {
+      const { lab_id, year, month } = req.query;
+      if (!lab_id || !year || !month) {
+        return res.status(400).json({ error: 'lab_id, year e month são obrigatórios' });
+      }
+      const items = await ReservationRepository.findByLabAndMonth(
+        lab_id, year, month
+      );
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  async stats(req, res) {
+    try {
+      const activeCycle = await AcademicCycleRepository.findActive();
+      if (!activeCycle) return res.json({ active_reservations: 0, pending_reservations: 0, active_labs: 0 });
+      const data = await ReservationRepository.getStats(activeCycle.id);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
   }
 
