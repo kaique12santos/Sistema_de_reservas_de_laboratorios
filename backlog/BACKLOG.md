@@ -4071,7 +4071,7 @@ Criar endpoints otimizados que retornam dados agregados para o calendário e par
 **Entregáveis:**
 
 **1. ReservationRepository.js (adicionar):**
-- [ ] `findByLabAndMonth(labId, year, month)` → reservas de um lab em um mês
+- [x] `findByLabAndMonth(labId, year, month)` → reservas de um lab em um mês
   ```javascript
   async findByLabAndMonth(labId, year, month) {
     const query = `
@@ -4094,7 +4094,7 @@ Criar endpoints otimizados que retornam dados agregados para o calendário e par
   }
   ```
 
-- [ ] `getStats(cycleId)` → agregações para o dashboard
+- [x] `getStats(cycleId)` → agregações para o dashboard
   ```javascript
   async getStats(cycleId) {
     const [activeCount] = await db.query(
@@ -4119,7 +4119,7 @@ Criar endpoints otimizados que retornam dados agregados para o calendário e par
   ```
 
 **2. ReservationController.js (adicionar):**
-- [ ] `calendarData(req, res)` → GET /api/reservations/calendar
+- [x] `calendarData(req, res)` → GET /api/reservations/calendar
   - Query params: `?lab_id=1&year=2026&month=3`
   ```javascript
   async calendarData(req, res) {
@@ -4138,7 +4138,7 @@ Criar endpoints otimizados que retornam dados agregados para o calendário e par
   }
   ```
 
-- [ ] `stats(req, res)` → GET /api/reservations/stats
+- [x] `stats(req, res)` → GET /api/reservations/stats
   ```javascript
   async stats(req, res) {
     try {
@@ -4165,8 +4165,8 @@ router.get('/stats', verifyToken, ReservationController.stats);
 - [ ] Ambos retornam 200 com dados vazios (não 404) quando não há reservas
 - [ ] PROFESSOR e ADMIN acessam ambos os endpoints
 
-**Status:** 🔴 PENDENTE  
-**Responsável:** -  
+**Status:** 🟡 EM REVISÃO  
+**Responsável:** Nicole Carvalho  
 **Depende de:** F4-BE-02
 
 ---

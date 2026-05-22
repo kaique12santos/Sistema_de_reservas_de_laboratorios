@@ -30,6 +30,11 @@ router.get(
   authMiddleware,
   ReservationController.getMyReservations
 );
+
+// Autenticado — qualquer role
+router.get('/calendar', authMiddleware, ReservationController.calendarData);
+router.get('/stats', authMiddleware, ReservationController.stats);
+
 // Cancelar reserva
 router.patch('/:id/cancel', authMiddleware, ReservationController.cancel);
 
@@ -76,5 +81,6 @@ router.post(
 
 // Autenticado — permissões controladas no service
 router.delete('/bulk', authMiddleware, ReservationController.bulkDelete);
+
 
 export default router;
