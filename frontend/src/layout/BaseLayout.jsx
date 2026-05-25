@@ -27,7 +27,7 @@ import {
 
 // Ícones
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import NotificationsIcon from "@mui/icons-material/Notifications";
+// import NotificationsIcon from "@mui/icons-material/Notifications";
 import ScienceIcon from "@mui/icons-material/Science";
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -42,6 +42,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import EditCalendarIcon from "@mui/icons-material/EditCalendar";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import TableChartIcon from "@mui/icons-material/TableChart";
 // Ícones de Transição (Seta)
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -80,28 +81,31 @@ const BaseLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false); // Gaveta Mobile (Temporary)
   const [isSidebarMinimized, setIsSidebarMinimized] = useState(false); // Gaveta Desktop (Minimized)
 
+  // logica das notificaçoes internas mantidas para uma versao 2.0
+  //implementar o funcionamento.
+  
   // ESTADO DE NOTIFICAÇÕES (MANTIDO IGUAL)
-  const [anchorElNotif, setAnchorElNotif] = useState(null);
-  const openNotif = Boolean(anchorElNotif);
-  const handleOpenNotif = (event) => setAnchorElNotif(event.currentTarget);
-  const handleCloseNotif = () => setAnchorElNotif(null);
+  // const [anchorElNotif, setAnchorElNotif] = useState(null);
+  // const openNotif = Boolean(anchorElNotif);
+  // const handleOpenNotif = (event) => setAnchorElNotif(event.currentTarget);
+  // const handleCloseNotif = () => setAnchorElNotif(null);
 
-  const mockNotifications = [
-    {
-      id: 1,
-      type: "rejeitada",
-      titulo: "Reserva Recusada",
-      msg: "Sua reserva para o Lab 1 foi recusada pelo coordenador.",
-      tempo: "Há 10 min",
-    },
-    {
-      id: 2,
-      type: "aprovada",
-      titulo: "Reserva Aprovada",
-      msg: "Sua reserva para o Lab 3 (20/04) foi confirmada!",
-      tempo: "Há 2 horas",
-    },
-  ];
+  // const mockNotifications = [
+  //   {
+  //     id: 1,
+  //     type: "rejeitada",
+  //     titulo: "Reserva Recusada",
+  //     msg: "Sua reserva para o Lab 1 foi recusada pelo coordenador.",
+  //     tempo: "Há 10 min",
+  //   },
+  //   {
+  //     id: 2,
+  //     type: "aprovada",
+  //     titulo: "Reserva Aprovada",
+  //     msg: "Sua reserva para o Lab 3 (20/04) foi confirmada!",
+  //     tempo: "Há 2 horas",
+  //   },
+  // ];
 
   // CONFIGURAÇÃO CENTRALIZADA DO MENU
   const menuConfig = [
@@ -148,6 +152,12 @@ const BaseLayout = () => {
     //   roles: ["SUPPORT", "ADMIN"],
     // },
     {
+      text: "Calendario",
+      icon: <TableChartIcon />,
+      path: "/calendar",
+      roles: ["PROFESSOR", "ADMIN", "SUPPORT"],
+    },
+    {
       text: "Gestão de horários",
       icon: <AccessTimeIcon />,
       path: "/gestao-horarios",
@@ -180,9 +190,11 @@ const BaseLayout = () => {
   ];
 
   const userRole = user?.role?.toUpperCase() || "PROFESSOR";
-  const menusPermitidos = menuConfig.filter((item) =>
-    item.roles.includes(userRole),
-  );
+  const menusPermitidos = menuConfig
+    .filter((item) => item.roles.includes(userRole))
+    .sort((a, b) =>
+      a.text.localeCompare(b.text, "pt-BR", { sensitivity: "base" }),
+    );
 
   // FUNÇÕES DE TOGGLE
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen); // Abre o menu temporário no mobile
@@ -537,7 +549,7 @@ const BaseLayout = () => {
                 {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
               </IconButton>
             </Tooltip>
-            <IconButton
+            {/* <IconButton
               onClick={handleOpenNotif}
               sx={{
                 color: "text.secondary",
@@ -547,7 +559,7 @@ const BaseLayout = () => {
               <Badge variant="dot" color="error" overlap="circular">
                 <NotificationsIcon />
               </Badge>
-            </IconButton>
+            </IconButton> */}
             <Divider
               orientation="vertical"
               variant="middle"
@@ -664,7 +676,7 @@ const BaseLayout = () => {
       </Box>
 
       {/* MODAL DE NOTIFICAÇÕES (Mantido) */}
-      <Menu
+      {/* <Menu
         anchorEl={anchorElNotif}
         open={openNotif}
         onClose={handleCloseNotif}
@@ -777,7 +789,7 @@ const BaseLayout = () => {
             Ver todas
           </Button>
         </Box>
-      </Menu>
+      </Menu> */}
       {/* ========================================== */}
       {/* MODAL DE CONFIRMAÇÃO DE SAÍDA */}
       {/* ========================================== */}

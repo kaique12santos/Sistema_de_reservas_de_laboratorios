@@ -21,6 +21,7 @@ const CreateReservationPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const labFromUrl = searchParams.get('lab_id') || '';
+  const dateFromUrl = searchParams.get('date') || null;
 
   const userString = localStorage.getItem('user'); 
   const user = userString ? JSON.parse(userString) : null;
@@ -176,6 +177,7 @@ const CreateReservationPage = () => {
             activeCycle={initialData.activeCycle}
             holidays={initialData.holidays}
             initialLabId={labFromUrl}
+            initialDate={dateFromUrl}
             onSubmit={handlePreSubmit}
             submitting={submitting}
             userRole={user?.role}

@@ -23,6 +23,7 @@ export const getAppTheme = (mode) => createTheme({
       headerBg: mode === 'light' ? '#ffffff' : '#1c1c1c', // Dá um contraste sutil em relação ao fundo #0a0a0a
       status: {
         aprovado:  { bg: mode === 'light' ? '#e8f5e9' : 'rgba(46, 125, 50, 0.15)',  text: mode === 'light' ? '#2e7d32' : '#81c784' },
+        livre:     { bg: mode === 'light' ? '#00ff155e' : 'rgba(46, 125, 50, 0.15)',  text: mode === 'light' ? '#2e7d32' : '#81c784' },
         pendente:  { bg: mode === 'light' ? '#fff3e0' : 'rgba(237, 108, 2, 0.15)', text: mode === 'light' ? '#ed6c02' : '#ffb74d' },
         reprovado: { bg: mode === 'light' ? '#ffebee' : 'rgba(211, 47, 47, 0.15)', text: mode === 'light' ? '#c62828' : '#e57373' },
         default:   { bg: mode === 'light' ? '#f5f5f5' : 'rgba(255, 255, 255, 0.05)',text: mode === 'light' ? '#757575' : '#aaaaaa' }

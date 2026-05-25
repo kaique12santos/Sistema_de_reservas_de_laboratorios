@@ -4160,12 +4160,12 @@ router.get('/stats', verifyToken, ReservationController.stats);
 ```
 
 **Critérios de Aceite:**
-- [ ] GET /calendar retorna items agrupáveis por data para o frontend
-- [ ] GET /stats retorna contagens corretas para o ciclo ativo
-- [ ] Ambos retornam 200 com dados vazios (não 404) quando não há reservas
-- [ ] PROFESSOR e ADMIN acessam ambos os endpoints
+- [x] GET /calendar retorna items agrupáveis por data para o frontend
+- [x] GET /stats retorna contagens corretas para o ciclo ativo
+- [x] Ambos retornam 200 com dados vazios (não 404) quando não há reservas
+- [x] PROFESSOR e ADMIN acessam ambos os endpoints
 
-**Status:** 🟡 EM REVISÃO  
+**Status:** 🟢 Concluído  
 **Responsável:** Nicole Carvalho  
 **Depende de:** F4-BE-02
 

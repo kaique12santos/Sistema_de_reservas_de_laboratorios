@@ -318,3 +318,24 @@
 ### 1. Widget Interativo de Pesquisa de Satisfação e UX
 - **Descrição:** Desenvolvimento do componente reutilizável `FeedbackWidget.jsx` baseado no Material-UI (`Snackbar`, `Rating`, `TextField`, `Fade`). O componente coleta avaliações transacionais (1 a 5 estrelas) com revelação progressiva de campo de texto para comentários opcionais, garantindo uma interface não intrusiva. O gatilho foi integrado na tela `AcademicCyclesPage` (após a ativação de um ciclo) e na `CreateReservationPage` (interceptando o fluxo de redirecionamento normal caso o backend solicite o feedback via flag `promptFeedback`). O widget se comunica diretamente com a API e consome o contexto global de notificações (`NotificationContext`) para feedback visual.
 - **Autor:** Kaique Caitano
+
+## [24/05/2026]
+### 1. Integração Visual do FullCalendar
+**Descrição:** Estilização avançada da grade do calendário de ocupação com bordas personalizadas, identificação visual para domingos/feriados e integração completa com o tema global do sistema (Dark/Light mode).
+**Autor:** Kaique Caitano
+**Impacto:** `src/pages/CalendarPage.jsx`
+
+### 2. Cadastro e Visualização Detalhada de Laboratórios
+**Descrição:** Refatoração do modal de cadastro para um fluxo de 2 passos (Wizard) permitindo definir quantidades de equipamentos (serializados na descrição). Implementação de parser e modal secundário para exibir esses equipamentos estruturados em Chips na listagem.
+**Autor:** Kaique Caitano
+**Impacto:** `src/components/LaboratoryFormModal.jsx`, `src/pages/LaboratoriesPage.jsx`
+
+### 3. Modal de Datas nas Aprovações Pendentes
+**Descrição:** Modificação da tag de "Tipo" de reserva (Simples/Recorrente) para um botão clicável que aciona um modal. O modal renderiza de forma dinâmica as datas de início/fim, dias da semana múltiplos e matriz de horários solicitados.
+**Autor:** Kaique Caitano
+**Impacto:** `src/pages/PendingReservationsPage.jsx`
+
+### 4. Correção de Redirecionamento de Reserva
+**Descrição:** Correção do hook useSearchParams para capturar adequadamente o parâmetro date repassado pela URL e injetar o estado inicial no DatePicker.
+**Autor:** Kaique Caitano
+**Impacto:** `src/pages/CreateReservationPage.jsx`
