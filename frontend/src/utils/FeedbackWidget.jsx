@@ -8,7 +8,7 @@ const FeedbackWidget = ({ open, handleClose, feature }) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const { showSuccess, showError } = useNotification(); // Usamos o seu Toast para agradecer!
+  const { showSuccess, showError } = useNotification(); 
 
   const handleRate = (event, newValue) => {
     if (!newValue || submitting) return;
@@ -88,7 +88,6 @@ return (
           />
         </Box>
 
-        {/* 🚀 A MÁGICA DA UX: Só renderiza se o usuário já escolheu as estrelas */}
         {rating > 0 && (
           <Fade in={rating > 0}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>

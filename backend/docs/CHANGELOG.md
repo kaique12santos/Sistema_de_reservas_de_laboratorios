@@ -221,3 +221,9 @@ O endpoint agora bloqueia acessos de contas com status `PENDING` e `REJECTED` an
   - `src/repositories/ReservationRepository.js` — adição dos métodos `findByLabAndMonth` e `getStats`
   - `src/controllers/ReservationController.js` — adição dos métodos calendarData e stats; inclusão dos imports de `ReservationRepository` e `AcademicCycleRepository`
   - `src/routes/reservation.routes.js` — registro das rotas `GET /calendar` e `GET /stats` antes das rotas com parâmetro dinâmico /:id
+
+## [24/05/2026]
+### 1. Injeção de Itens nas Reservas Pendentes
+**Descrição:** Atualização na lógica de listagem para coordenadores. O serviço agora faz sub-buscas na tabela reservation_items, consolidando dados e injetando as propriedades de formato de data, período, múltiplos dias da semana e array formatado de horários no payload principal.
+**Autor:** Kaique Caitano
+**Impacto:** `src/services/ReservationService.js` (método listPendingReservations)

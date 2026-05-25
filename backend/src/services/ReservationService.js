@@ -158,9 +158,9 @@ class ReservationService {
         const totalReservations = Number(rows[0].total);
         
         
-         reservation.promptFeedback = true;
+        // reservation.promptFeedback = true; para testes
         
-       // reservation.promptFeedback = (totalReservations === 1 || totalReservations % 10 === 0);
+        reservation.promptFeedback = (totalReservations === 1 || totalReservations % 10 === 0);
       } catch (feedbackErr) {
         console.error('[Feedback] Erro ao calcular gatilho:', feedbackErr.message);
         reservation.promptFeedback = false; // Fail-safe: não quebra a reserva se der erro
@@ -347,7 +347,6 @@ class ReservationService {
       // 🚀 INJEÇÃO DO GATILHO DE FEEDBACK (1ª e a cada 10)
       // =========================================================
       try {
-        // userId aqui foi extraído de requestingUser no início da função
         const [rows] = await db.connection.query('SELECT COUNT(*) as total FROM reservations WHERE user_id = ?', [userId]);
         const totalReservations = Number(rows[0].total);
         reservation.promptFeedback = (totalReservations === 1 || totalReservations % 10 === 0);
@@ -428,9 +427,69 @@ class ReservationService {
     }
   }
 
-  // Apenas para Admin: Lista todas as reservas pendentes para aprovação
+ // Apenas para Admin: Lista todas as reservas pendentes para aprovação
   async listPendingReservations() {
-    return ReservationRepository.findPending();
+    // 1. Busca os cabeçalhos das reservas pendentes
+    const pendingReservations = await ReservationRepository.findPending();
+
+    // 2. Para cada reserva, faz uma sub-busca para encontrar as datas e horários (os itens)
+    for (let i = 0; i < pendingReservations.length; i++) {
+      const reservation = pendingReservations[i];
+      
+      // Usa a função existente no repositório para buscar as aulas reais
+      const items = await ReservationRepository.findItemsByReservationId(reservation.id);
+
+      if (items && items.length > 0) {
+        // Ordena os itens por data para garantir que pegamos o primeiro e o último dia corretamente
+        items.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        const firstItem = items[0];
+        const lastItem = items[items.length - 1];
+
+        // 🚀 NOVO: Extrai TODOS os horários únicos da reserva
+        const uniqueSlots = new Set();
+        items.forEach(item => {
+          const slotString = `${String(item.start_time).slice(0, 5)} às ${String(item.end_time).slice(0, 5)}`;
+          uniqueSlots.add(slotString);
+        });
+        
+        // Converte o Set para Array e ordena (para aparecer 07:30 antes de 19:00)
+        reservation.time_slots = Array.from(uniqueSlots).sort();
+        // Mantém a string antiga só por segurança/compatibilidade
+        reservation.time_slot_name = reservation.time_slots.join(', ');
+
+        if (reservation.type === 'SINGLE') {
+          reservation.date = firstItem.date;
+        } else if (reservation.type === 'SINGLE') {
+          reservation.date = firstItem.date;
+        } else if (reservation.type === 'RECURRING') {
+          reservation.start_date = firstItem.date;
+          reservation.end_date = lastItem.date;
+          
+          // 🚀 NOVO: Extrai TODOS os dias da semana únicos
+          const uniqueDaysIndices = new Set();
+          
+          items.forEach(item => {
+            const dataCorrigida = item.date instanceof Date 
+              ? item.date.toISOString().split('T')[0] 
+              : String(item.date).slice(0, 10);
+              
+            const dayIndex = new Date(`${dataCorrigida}T12:00:00`).getDay();
+            uniqueDaysIndices.add(dayIndex);
+          });
+            
+          const diasSemana = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+          
+          // Converte o Set para Array, ordena (0=Dom, 1=Seg...) e mapeia para os nomes
+          reservation.day_of_week = Array.from(uniqueDaysIndices)
+            .sort((a, b) => a - b)
+            .map(index => diasSemana[index])
+            .join(', '); // Junta tudo com vírgula
+        }
+      }
+    }
+
+    return pendingReservations;
   }
 
   /**

@@ -173,13 +173,21 @@ class ReservationService {
     const response = await api.post('/reservations/overwrite', data);
     return response.data;
   }
-
+// Adicione junto aos outros métodos da classe
+  async getCalendarData({ lab_id, year, month }) {
+    const response = await api.get(
+      `/reservations/calendar?lab_id=${lab_id}&year=${year}&month=${month}`
+    );
+    return response.data;
+  }
   
   async bulkDelete(ids) {
     // O Axios aceita o corpo da requisição (body) no método DELETE usando a propriedade 'data'
     const response = await api.delete('/reservations/bulk', { data: { ids } });
     return response.data;
   }
+
+  
 }
 
 export const reservationService = new ReservationService();

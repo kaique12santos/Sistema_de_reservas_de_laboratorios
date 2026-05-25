@@ -19,6 +19,7 @@ import HolidaysPage from '../pages/Coordenador/HolidaysPage';
 import CreateReservationPage from '../pages/Professor/CreateReservationPage';
 import SupportManagementPage from '../pages/Support/SupportManagementPage';
 import PendingReservationsPage from '../pages/Coordenador/PendingReservationsPage';
+import CalendarPage from '../pages/CalendarPage';
 import { CircularProgress } from '@mui/material';
 
 // Componente para proteger rotas privadas
@@ -85,7 +86,7 @@ const AppRoutes = () => {
       >
         {/* Rotas Universais (Todos os logados acessam) */}
         <Route path="/dashboard" element={<DashboardPage />} />
-        
+        <Route path="/calendar" element={<CalendarPage />} />
         {/* Rotas Compartilhadas (Professor e Admin) */}
         <Route element={<RoleRoute allowedRoles={['PROFESSOR', 'ADMIN']} />}>
           <Route path="/laboratories" element={<LaboratoriesPage />} />
@@ -107,7 +108,6 @@ const AppRoutes = () => {
           <Route path="/gestao-ciclos" element={<AcademicCyclesPage />} />
           <Route path="/gestao-feriados" element={<HolidaysPage />} />
           <Route path="/gestao-reservas" element={<PendingReservationsPage />} />
-          {/* <Route path="/gestao-reservas" element={<AprovarReservasPage />} /> */}
         </Route>
 
         {/* 🛠️ Rotas Exclusivas do Suporte */}

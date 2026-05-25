@@ -10,11 +10,11 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import SaveIcon from '@mui/icons-material/Save';
 import { reservationService } from '../services/Reservation.service';
 
-export default function ReservationForm({ labs, timeSlots, activeCycle, holidays, initialLabId, onSubmit, submitting, userRole }) {
+export default function ReservationForm({ labs, timeSlots, activeCycle, holidays, initialLabId, initialDate, onSubmit, submitting, userRole }) {
   const [reservationType, setReservationType] = useState('SIMPLE');
   const [formData, setFormData] = useState({
     lab_id: initialLabId || '',
-    date: null,
+    date: initialDate ? dayjs(initialDate) : null,
     time_slot_ids: [],
     notes: ''
   });
@@ -114,7 +114,7 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
       // Limpa TODAS as seleções de tempo, datas e conflitos ao trocar de modo
       setFormData(prev => ({
         ...prev,
-        date: null, 
+        date: initialDate ? dayjs(initialDate) : null,
         time_slot_ids: [] 
       }));
       setRecurringData({
