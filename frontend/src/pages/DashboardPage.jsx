@@ -1,467 +1,173 @@
-import React, { useState, useMemo } from "react";
-import {
-  Box,
-  Typography,
-  Paper,
-  Button,
-  Pagination,
-  TextField,
-  MenuItem,
-  InputAdornment,
-} from "@mui/material";
-import StaggerItem from "../utils/StaggerItem";
-
-import AddIcon from "@mui/icons-material/Add";
-import EventIcon from "@mui/icons-material/Event";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import SearchIcon from "@mui/icons-material/Search";
+import React, { useState, useEffect } from "react";
+import { Box, Typography, Grid, Button, CircularProgress, Badge } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 
-// Mock Temporário
-const mockReservas = Array.from({ length: 20 }, (_, index) => {
-  const statusArray = ["Aprovado", "Pendente", "Reprovado"];
-  const dias = (index * 2).toString().padStart(2, "0");
-  return {
-    id: index + 1,
-    data: `${dias === "00" ? "15" : dias}/04/2026`,
-    lab: `Lab ${Math.floor(Math.random() * 5) + 1} - ${["Informática", "Redes", "Hardware", "Maker"][Math.floor(Math.random() * 4)]}`,
-    horario: index % 2 === 0 ? "19:00 - 20:40" : "21:00 - 22:30",
-    status: statusArray[index % 3],
-  };
-});
+// Ícones
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import ComputerIcon from '@mui/icons-material/Computer';
+import EventIcon from '@mui/icons-material/Event';
+import PendingIcon from '@mui/icons-material/Pending';
+import SchoolIcon from '@mui/icons-material/School';
+import AddIcon from "@mui/icons-material/Add";
+import SettingsIcon from "@mui/icons-material/Settings";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+
+import StaggerItem from "../utils/StaggerItem";
+import StatCard from "../components/Dashboard/StatCard";
+import UpcomingReservations from "../components/Dashboard/UpcomingReservations";
+import { reservationService } from "../services/Reservation.service";
 
 const DashboardPage = () => {
   const navigate = useNavigate();
-  const [reservas, setReservas] = useState(mockReservas);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("todos");
-  const [page, setPage] = useState(1);
-  const rowsPerPage = 5;
+  
+  const userString = localStorage.getItem('user'); 
+  const user = userString ? JSON.parse(userString) : null;
 
-  const filteredAndPaginatedReservas = useMemo(() => {
-    const filtered = reservas.filter((res) => {
-      const matchSearch =
-        res.lab.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        res.data.includes(searchTerm);
-      const matchStatus =
-        statusFilter === "todos" ||
-        res.status.toLowerCase() === statusFilter.toLowerCase();
-      return matchSearch && matchStatus;
-    });
+  const [stats, setStats] = useState({});
+  const [myUpcoming, setMyUpcoming] = useState([]);
+  const [activeCycle, setActiveCycle] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    const totalPages = Math.ceil(filtered.length / rowsPerPage);
-    const paginated = filtered.slice(
-      (page - 1) * rowsPerPage,
-      page * rowsPerPage,
-    );
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        // 1. Pega dados base (Ciclo e Labs)
+        const initialData = await reservationService.getInitialData();
+        setActiveCycle(initialData.activeCycle);
+        const activeLabsCount = initialData.labs ? initialData.labs.filter(l => l.is_active).length : 0;
 
-    return { data: paginated, totalPages };
-  }, [reservas, searchTerm, statusFilter, page]);
+        // 2. Prepara a lista de próximas reservas do usuário (Comum a Admin e Prof)
+        const myRes = await reservationService.getMyReservations(user.id);
+        const todayStr = dayjs().format('YYYY-MM-DD');
+        
+        const upcoming = myRes
+          .filter(item => {
+            // A reserva pai precisa estar aprovada
+            const isApproved = item.status === 'APPROVED';
+            // O dia específico da aula precisa estar ativo
+            const isActiveItem = item.item_status === 'ACTIVE';
+            // A data precisa ser hoje ou no futuro (formatada com dayjs para evitar bugs de timezone)
+            const isFuture = dayjs(item.date).format('YYYY-MM-DD') >= todayStr;
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setPage(1);
-  };
-  const handleStatusChange = (e) => {
-    setStatusFilter(e.target.value);
-    setPage(1);
-  };
+            return isApproved && isActiveItem && isFuture;
+          })
+          .sort((a, b) => new Date(a.date) - new Date(b.date))
+          .slice(0, 5); // Pega apenas as próximas 5
+
+        setMyUpcoming(upcoming);
+        // 3. Monta as Métricas por Role
+        if (user?.role === 'ADMIN') {
+          // Se tiver o endpoint /stats no seu frontend, chame ele aqui. 
+          // Como fallback, fazemos as contagens localmente usando as rotas existentes:
+          const pendingRes = await reservationService.getPending();
+          const pendingCount = pendingRes.pendingReservations?.length || pendingRes.length || 0;
+          
+          setStats({
+            active_reservations: upcoming.length > 0 ? "..." : 0, // Mock: No admin ideal vem do /stats
+            pending_reservations: pendingCount,
+            active_labs: activeLabsCount
+          });
+        } else {
+          // Métricas do Professor
+          const myActive = myRes.filter(r => r.status === 'APPROVED').length;
+          const myPending = myRes.filter(r => r.status === 'PENDING').length;
+          setStats({
+            active: myActive,
+            pending: myPending,
+            active_labs: activeLabsCount
+          });
+        }
+
+      } catch (error) {
+        console.error("Erro ao carregar dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchDashboardData();
+  }, [user?.role, user?.id]);
+
+
+  if (loading) return <CircularProgress sx={{ display: 'block', margin: 'auto', mt: 10 }} />;
 
   return (
-    <Box>
-      {/* METRICS CARDS */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          justifyContent: "space-between",
-          alignItems: { xs: "stretch", md: "center" },
-          mb: 4,
-          gap: 2,
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: 2,
-            flex: 1,
-          }}
-        >
-          {/* Agora o flex: 1 fica no StaggerItem */}
-          <StaggerItem index={0} sx={{ flex: 1 }}>
-            <Paper
-              elevation={1}
-              sx={{
-                p: "10px",
-                height: "100%",
-                bgcolor: "background.paper",
-                borderRadius: 2,
-                borderLeft: "4px solid",
-                borderColor: "info.main",
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  p: 1.5,
-                  borderRadius: 2,
-                  bgcolor: "rgba(2, 136, 209, 0.12)",
-                  color: "info.main",
-                }}
-              >
-                <EventIcon />
-              </Box>
-              <Box sx={{ flex: 1, textAlign: "center" }}>
-                <Typography
-                  variant="caption"
-                  sx={{ color: "text.secondary", fontWeight: "bold" }}
-                >
-                  TOTAL DE RESERVAS
-                </Typography>
-                <Typography
-                  variant="h5"
-                  sx={{ fontWeight: "900", mt: 0.5, color: "info.main" }}
-                >
-                  12
-                </Typography>
-              </Box>
-            </Paper>
-          </StaggerItem>
-
-          <StaggerItem index={1} sx={{ flex: 1 }}>
-            <Paper
-              elevation={1}
-              sx={{
-                p: "10px",
-                height: "100%",
-                bgcolor: "background.paper",
-                borderRadius: 2,
-                borderLeft: "4px solid",
-                borderColor: "warning.main",
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  p: 1.5,
-                  borderRadius: 2,
-                  bgcolor: "rgba(237, 108, 2, 0.08)",
-                  color: "warning.main",
-                }}
-              >
-                <AccessTimeIcon />
-              </Box>
-              <Box sx={{ flex: 1, textAlign: "center" }}>
-                <Typography
-                  variant="caption"
-                  sx={{ color: "text.secondary", fontWeight: "bold" }}
-                >
-                  PENDENTES
-                </Typography>
-                <Typography
-                  variant="h5"
-                  sx={{ fontWeight: "900", mt: 0.5, color: "warning.main" }}
-                >
-                  3
-                </Typography>
-              </Box>
-            </Paper>
-          </StaggerItem>
-
-          <StaggerItem index={2} sx={{ flex: 1 }}>
-            <Paper
-              elevation={1}
-              sx={{
-                p: "10px",
-                height: "100%",
-                bgcolor: "background.paper",
-                borderRadius: 2,
-                borderLeft: "4px solid",
-                borderColor: "success.main",
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  p: 1.5,
-                  borderRadius: 2,
-                  bgcolor: "rgba(46, 125, 50, 0.08)",
-                  color: "success.main",
-                }}
-              >
-                <CheckCircleOutlineIcon />
-              </Box>
-              <Box sx={{ flex: 1, textAlign: "center" }}>
-                <Typography
-                  variant="caption"
-                  sx={{ color: "text.secondary", fontWeight: "bold" }}
-                >
-                  APROVADOS
-                </Typography>
-                <Typography
-                  variant="h5"
-                  sx={{ fontWeight: "900", mt: 0.5, color: "success.main" }}
-                >
-                  9
-                </Typography>
-              </Box>
-            </Paper>
-          </StaggerItem>
-        </Box>
-
-        <StaggerItem index={3} sx={{ height: "100%" }}>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            disableElevation
-            onClick={() => navigate('/reservas/nova')}
-            sx={{
-              width: { xs: "100%", md: "auto" },
-              height: "100%",
-              minHeight: "64px",
-              fontWeight: "bold",
-              borderRadius: 2,
-              
-            }}
-          >
-            Nova Reserva
-          </Button>
-        </StaggerItem>
-      </Box>
-
-      {/* ROW-CARDS DE RESERVAS */}
-      <StaggerItem index={4}>
-        <Box sx={{ mt: 2 }}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: { xs: "column", md: "row" },
-              justifyContent: "space-between",
-              alignItems: { xs: "flex-start", md: "center" },
-              mb: 3,
-              gap: 2,
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: "bold", color: "sectionTitle" }}
-            >
-              Minhas Reservas
+    <Box sx={{ p: { xs: 1, sm: 2 } }}>
+      
+      {/* HEADER DE ATALHOS */}
+      <StaggerItem index={0}>
+        <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", md: "center" }, mb: 4, gap: 2 }}>
+          <Box>
+            <Typography variant="h5" sx={{ fontWeight: "bold", color: "primary.main" }}>
+              Olá, {user?.name?.split(' ')[0]}! 👋
             </Typography>
-
-            <Box
-              sx={{
-                display: "flex",
-                gap: 1,
-                width: { xs: "100%", md: "auto" },
-              }}
-            >
-              <TextField
-                size="small"
-                placeholder="Buscar sala ou data..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon fontSize="small" />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{
-                  minWidth: { xs: "100%", sm: "250px" },
-                  "& .MuiOutlinedInput-root": { borderRadius: 2 },
-                }}
-              />
-              <TextField
-                select
-                size="small"
-                value={statusFilter}
-                onChange={handleStatusChange}
-                sx={{
-                  minWidth: "130px",
-                  display: { xs: "none", sm: "block" },
-                  "& .MuiOutlinedInput-root": { borderRadius: 2 },
-                }}
-              >
-                <MenuItem value="todos">Todos</MenuItem>
-                <MenuItem value="aprovado">Aprovados</MenuItem>
-                <MenuItem value="pendente">Pendentes</MenuItem>
-                <MenuItem value="reprovado">Reprovados</MenuItem>
-              </TextField>
-            </Box>
+            <Typography variant="body2" color="text.secondary">
+              Visão geral do seu painel de reservas.
+            </Typography>
           </Box>
 
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-            {filteredAndPaginatedReservas.data.length === 0 ? (
-              <Typography
-                sx={{ p: 4, textAlign: "center", color: "text.secondary" }}
-              >
-                Nenhuma reserva encontrada.
-              </Typography>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <Button variant="outlined" startIcon={<CalendarMonthIcon />} onClick={() => navigate('/calendar')}>
+              Ver Calendário
+            </Button>
+            
+            {user?.role === 'ADMIN' ? (
+              <>
+                <Badge badgeContent={stats.pending_reservations} color="error">
+                  <Button variant="contained" color="warning" startIcon={<PendingIcon />} onClick={() => navigate('/gestao-reservas')} disableElevation>
+                    Aprovar Pendentes
+                  </Button>
+                </Badge>
+                <Button variant="contained" color="primary" startIcon={<SettingsIcon />} onClick={() => navigate('/laboratories')} disableElevation>
+                  Gestão
+                </Button>
+              </>
             ) : (
-              filteredAndPaginatedReservas.data.map((row) => {
-                const getStatusStyle = (status) => {
-                  switch (status) {
-                    case "Aprovado":
-                      return {
-                        border: "success.main",
-                        bg: "custom.status.aprovado.bg",
-                        text: "custom.status.aprovado.text",
-                      };
-                    case "Pendente":
-                      return {
-                        border: "warning.main",
-                        bg: "custom.status.pendente.bg",
-                        text: "custom.status.pendente.text",
-                      };
-                    case "Reprovado":
-                      return {
-                        border: "error.main",
-                        bg: "custom.status.reprovado.bg",
-                        text: "custom.status.reprovado.text",
-                      };
-                    default:
-                      return {
-                        border: "grey.300",
-                        bg: "custom.status.default.bg",
-                        text: "custom.status.default.text",
-                      };
-                  }
-                };
-                const statusStyle = getStatusStyle(row.status);
-                return (
-                  <Paper
-                    key={row.id}
-                    elevation={1}
-                    sx={{
-                      py: 2,
-                      px: 3,
-                      borderRadius: 2,
-                      bgcolor: "background.paper",
-                      borderLeft: "4px solid",
-                      borderColor: statusStyle.border,
-                      display: "flex",
-                      flexDirection: { xs: "column", sm: "row" },
-                      alignItems: { xs: "flex-start", sm: "center" },
-                      gap: { xs: 1.5, sm: 0 },
-                    }}
-                  >
-                    <Box sx={{ width: { xs: "100%", sm: "30%" } }}>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          display: "block",
-                          mb: 0.2,
-                          color: "text.secondary",
-                          fontWeight: "bold",
-                          letterSpacing: 0.5,
-                        }}
-                      >
-                        DATA
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        sx={{ fontWeight: "bold", color: "text.primary" }}
-                      >
-                        {row.data}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ width: { xs: "100%", sm: "30%" } }}>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          display: "block",
-                          mb: 0.2,
-                          color: "text.secondary",
-                          fontWeight: "bold",
-                          letterSpacing: 0.5,
-                        }}
-                      >
-                        LAB / SALA
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        sx={{ fontWeight: "bold", color: "text.primary" }}
-                      >
-                        {row.lab}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ width: { xs: "100%", sm: "25%" } }}>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          display: "block",
-                          mb: 0.2,
-                          color: "text.secondary",
-                          fontWeight: "bold",
-                          letterSpacing: 0.5,
-                        }}
-                      >
-                        HORÁRIO
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        sx={{ fontWeight: "bold", color: "text.primary" }}
-                      >
-                        {row.horario}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        width: { xs: "100%", sm: "15%" },
-                        textAlign: { xs: "left", sm: "right" },
-                      }}
-                    >
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          bgcolor: statusStyle.bg,
-                          color: statusStyle.text,
-                          px: 2,
-                          py: 0.8,
-                          borderRadius: 1.5,
-                          fontWeight: "bold",
-                          textTransform: "uppercase",
-                          display: "inline-block",
-                        }}
-                      >
-                        {row.status}
-                      </Typography>
-                    </Box>
-                  </Paper>
-                );
-              })
+              <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={() => navigate('/reservas/nova')} disableElevation>
+                Nova Reserva
+              </Button>
             )}
           </Box>
+        </Box>
+      </StaggerItem>
 
-          {filteredAndPaginatedReservas.totalPages > 1 && (
-            <Box
-              sx={{ display: "flex", justifyContent: "center", mt: 4, mb: 2 }}
-            >
-              <Pagination
-                count={filteredAndPaginatedReservas.totalPages}
-                page={page}
-                onChange={(event, value) => setPage(value)}
-                color="primary"
-                shape="rounded"
-              />
-            </Box>
+      {/* CARDS DE MÉTRICAS */}
+      <StaggerItem index={1}>
+        <Box sx={{ mb: 5 }}>
+          {user?.role === 'ADMIN' ? (
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6} md={3}>
+                <StatCard title="Pendentes de Aprovação" value={stats.pending_reservations} icon={<PendingIcon />} color="#f39c12" subtitle={stats.pending_reservations > 0 ? 'Requer sua atenção' : 'Tudo em dia!'} />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <StatCard title="Labs Ativos" value={stats.active_labs} icon={<ComputerIcon />} color="#2980b9" />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <StatCard title="Ciclo Ativo" value={activeCycle?.name || '—'} icon={<SchoolIcon />} color="#8e44ad" subtitle={activeCycle ? `Até ${dayjs(activeCycle.end_date).format('DD/MM/YYYY')}` : 'Nenhum ciclo ativo'} />
+              </Grid>
+            </Grid>
+          ) : (
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={4}>
+                <StatCard title="Minhas Reservas Ativas" value={stats.active} icon={<EventAvailableIcon />} color="#27ae60" />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <StatCard title="Aguardando Aprovação" value={stats.pending} icon={<HourglassEmptyIcon />} color="#f39c12" subtitle="Suas solicitações pendentes" />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <StatCard title="Labs Disponíveis" value={stats.active_labs} icon={<ComputerIcon />} color="#2980b9" />
+              </Grid>
+            </Grid>
           )}
         </Box>
       </StaggerItem>
+
+      {/* LISTAGEM DE PRÓXIMAS RESERVAS */}
+      <StaggerItem index={2}>
+        <UpcomingReservations reservations={myUpcoming} />
+      </StaggerItem>
+
     </Box>
   );
 };

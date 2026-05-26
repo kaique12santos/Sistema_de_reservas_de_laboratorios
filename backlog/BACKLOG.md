@@ -4654,7 +4654,7 @@ router.get('/export', verifyToken, authorize(['ADMIN']), ReservationController.e
 - [ ] PROFESSOR não consegue acessar (403)
 - [ ] Testado no Postman: download do CSV abre corretamente no Excel/Google Sheets
 
-**Status:** 🔴 PENDENTE  
+**Status:** ❕❕❗❗ PARA PROXIMA VERSAO 2.0  
 **Responsável:** -  
 **Depende de:** F4-BE-02
 
@@ -4888,7 +4888,7 @@ async changePassword(data) {
 - [ ] Responsivo
 - [ ] Qualquer role acessa /profile
 
-**Status:** 🔴 PENDENTE  
+**Status:** ❕❕❗❗  PARA PROXIMA VERSAO 2.0
 **Responsável:** -  
 **Depende de:** F1-BE-04, F7-FE-01
 
@@ -5332,7 +5332,7 @@ beforeEach(() => {
 - [ ] Testes de erro validam tanto a mensagem quanto o tipo de exceção
 - [ ] Organização: 1 arquivo de teste por service/utility
 
-**Status:** 🔴 PENDENTE  
+**Status:** 🔴 SUBSTITUIDO PELO TESTE DE INTEGRAÇÃO DAS FASES  
 **Responsável:** -  
 **Depende de:** F6-BE-03
 
@@ -5640,7 +5640,7 @@ module.exports = { createUser, loginAs, createCycle, createLab };
 - [ ] Teste de performance do check-conflict passa consistentemente (RNF05)
 - [ ] `npm test` executa unitários e de integração com um só comando
 
-**Status:** 🔴 PENDENTE  
+**Status:** 🔴 FOI FEITO NA MAO  
 **Responsável:** -  
 **Depende de:** F10-BE-01
 
