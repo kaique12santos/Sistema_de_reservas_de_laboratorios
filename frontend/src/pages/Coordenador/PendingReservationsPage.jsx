@@ -63,7 +63,7 @@ const PendingReservationsPage = () => {
     try {
       const data = await reservationService.getPending();
       const rows = data.pendingReservations || data || [];
-      console.log("=== LISTA DE RESERVAS DA API ===", rows);
+      // console.log("=== LISTA DE RESERVAS DA API ===", rows);
       setPendingReservations(rows);
     } catch (_error) {
       showToast('Erro ao carregar reservas pendentes.', 'error');
@@ -120,8 +120,13 @@ const PendingReservationsPage = () => {
     { field: 'created_at',
       headerName: 'Solicitado em', 
       flex: 1,
-      valueFormatter: (params) => dayjs(params.value).format('DD/MM/YYYY HH:mm') },
-    {
+      valueFormatter: (value) => {        
+        if (!value) return 'Data não registrada';
+        
+        return dayjs(value).format('DD/MM/YYYY HH:mm');
+      }
+    },
+    { 
       field: 'actions',
       headerName: 'Ações',
       width: 280,
@@ -159,6 +164,13 @@ const PendingReservationsPage = () => {
         <DataGrid
           rows={pendingReservations}
           columns={columns}
+          disableColumnMenu={true} // Some com os 3 pontinhos completamente
+          disableColumnFilter={true} // Desativa o filtro complexo
+          disableColumnSelector={true} // Impede o usuário de esconder/mostrar colunas
+          disableDensitySelector={true} // Impede de mudar o espaçamento da tabela
+  
+  
+          slots={{ toolbar: undefined }}
           initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
           pageSizeOptions={[10, 25, 50]}
           disableRowSelectionOnClick

@@ -18,6 +18,7 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
     time_slot_ids: [],
     notes: ''
   });
+  const [realToday, setRealToday] = useState(dayjs());
   const [recurringData, setRecurringData] = useState({
     start_date: null,
     end_date: null,
@@ -88,6 +89,24 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
     return () => clearTimeout(debounce);
   }, [reservationType, formData.lab_id, formData.date, formData.time_slot_ids, generatedDates]);
 
+  // 3. BUSCA HORA REAL DA INTERNET PARA CALENDÁRIO (Ignora o relógio do PC do usuário)
+  useEffect(() => {
+    async function fetchRealTime() {
+      try {
+        const response = await fetch('https://worldtimeapi.org/api/timezone/America/Sao_Paulo');
+        const data = await response.json();
+        setRealToday(dayjs(data.datetime));
+      } catch (error) {
+        console.warn('API de hora externa falhou. Usando hora local como fallback seguro.');
+      }
+    }
+    fetchRealTime();
+  }, []);
+
+  // Calcula a data mínima do calendário: Se o ciclo começou no passado, não deixa voltar. Trava no "Hoje Real".
+  const minAllowedDate = realToday.isAfter(dayjs(activeCycle?.start_date), 'day') 
+    ? realToday 
+    : dayjs(activeCycle?.start_date);
   const handleSlotToggle = (slotId) => {
     setFormData(prev => {
       const currentSlots = prev.time_slot_ids;
@@ -185,7 +204,7 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
               label="Data da Reserva"
               value={formData.date}
               onChange={(newValue) => setFormData({ ...formData, date: newValue })}
-              minDate={dayjs(activeCycle?.start_date)}
+              minDate={minAllowedDate}
               maxDate={dayjs(activeCycle?.end_date)}
               shouldDisableDate={(date) => 
                 holidays.includes(dayjs(date).format('YYYY-MM-DD')) || dayjs(date).day() === 0
@@ -199,7 +218,7 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
                 label="Data de Início"
                 value={recurringData.start_date}
                 onChange={(newValue) => setRecurringData({ ...recurringData, start_date: newValue })}
-                minDate={dayjs(activeCycle?.start_date)}
+                minDate={minAllowedDate}
                 maxDate={dayjs(activeCycle?.end_date)}
                 shouldDisableDate={(date) => 
                   holidays.includes(dayjs(date).format('YYYY-MM-DD')) || dayjs(date).day() === 0
@@ -211,7 +230,7 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
                 label="Data de Fim"
                 value={recurringData.end_date}
                 onChange={(newValue) => setRecurringData({ ...recurringData, end_date: newValue })}
-                minDate={recurringData.start_date || dayjs(activeCycle?.start_date)}
+                minDate={recurringData.start_date || minAllowedDate}
                 maxDate={dayjs(activeCycle?.end_date)}
                 shouldDisableDate={(date) => 
                   holidays.includes(dayjs(date).format('YYYY-MM-DD')) || dayjs(date).day() === 0
@@ -314,6 +333,13 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
           {timeSlots.map((slot) => {
             const hasConflict = conflictInfo?.conflictingSlots?.includes(slot.id);
             const isChecked = formData.time_slot_ids.includes(slot.id);
+            let isPastSlot = false;
+            if (reservationType === 'SIMPLE' && formData.date && formData.date.isSame(realToday, 'day')) {
+              // Compara a string de hora do slot (ex: "07:30:00") com a hora real atual
+              isPastSlot = slot.start_time <= realToday.format('HH:mm:ss');
+            }
+
+            const isSlotDisabled = hasConflict || isPastSlot;
 
             return (
               <Grid item xs={12} sm={6} md={4} key={slot.id}>
@@ -332,6 +358,7 @@ export default function ReservationForm({ labs, timeSlots, activeCycle, holidays
                         checked={isChecked} 
                         onChange={() => handleSlotToggle(slot.id)}
                         color={hasConflict ? "warning" : "primary"}
+                        disabled={isSlotDisabled}
                       />
                     }
                     label={

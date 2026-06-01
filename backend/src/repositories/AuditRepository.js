@@ -49,6 +49,22 @@ class AuditRepository {
     const [rows] = await db.connection.query(query, [userId, limit]);
     return rows;
   }
+
+  /**
+   * Busca os logs gerais do sistema para o painel de auditoria do Suporte
+   */
+  async findAll(limit = 200) {
+    const query = `
+      SELECT a.*, u.name as user_name 
+      FROM audit_logs a
+      LEFT JOIN users u ON u.id = a.changed_by
+      ORDER BY a.timestamp DESC
+      LIMIT ?
+    `;
+    const [rows] = await db.connection.query(query, [limit]);
+    return rows;
+  }
+
 }
 
 export default new AuditRepository();
