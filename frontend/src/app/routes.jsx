@@ -12,10 +12,10 @@ import BaseLayout from '../layout/BaseLayout';
 import MinhasReservasPage from '../pages/MinhasReservasPage';
 import RoleRoute from '../components/RoleRouter';
 import PendingUsersPage from '../pages/Coordenador/PendingUsersPage';
-import ManageLaboratoriesPage from '../pages/Coordenador/ManageLaboratoriesPage';
-import TimeSlotsPage from '../pages/Coordenador/TimeSlotsPage';
-import AcademicCyclesPage from '../pages/Coordenador/AcademicCyclesPage';
-import HolidaysPage from '../pages/Coordenador/HolidaysPage';
+import ManageLaboratoriesPage from '../pages/Support/ManageLaboratoriesPage';
+import TimeSlotsPage from '../pages/Support/TimeSlotsPage';
+import AcademicCyclesPage from '../pages/Support/AcademicCyclesPage';
+import HolidaysPage from '../pages/Support/HolidaysPage';
 import CreateReservationPage from '../pages/Professor/CreateReservationPage';
 import SupportManagementPage from '../pages/Support/SupportManagementPage';
 import PendingReservationsPage from '../pages/Coordenador/PendingReservationsPage';
@@ -43,17 +43,13 @@ const PrivateRoute = ({ children }) => {
   
   const token = localStorage.getItem('token');
 
-  // A GRANDE BARREIRA:
-  // 1. Não tem usuário no contexto? OU
-  // 2. Não tem token guardado? OU
-  // 3. O token existe, mas já passou de 1 hora (expirou)?
   if (!user || !token || isTokenExpired(token)) {
     
-    // Se o token estiver expirado, fazemos uma faxina antes de redirecionar
+    // Se o token estiver expirado, faz uma faxina antes de redirecionar
     if (token && isTokenExpired(token)) {
        localStorage.removeItem('token');
        localStorage.removeItem('user');
-       logout(); // Limpa o estado global também, se possível
+       logout(); // Limpa o estado global, se possível
     }
 
     return <Navigate to="/login" state={{ from: location }} replace />;
@@ -62,7 +58,6 @@ const PrivateRoute = ({ children }) => {
   return children;
 };
 
-// COMPONENTE PRINCIPAL (agora abraçando as rotas)
 const AppRoutes = () => {
   return (
     <Routes>
@@ -86,12 +81,13 @@ const AppRoutes = () => {
       >
         {/* Rotas Universais (Todos os logados acessam) */}
         <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/calendar" element={<CalendarPage />} />
+        
         {/* Rotas Compartilhadas (Professor e Admin) */}
         <Route element={<RoleRoute allowedRoles={['PROFESSOR', 'ADMIN']} />}>
           <Route path="/laboratories" element={<LaboratoriesPage />} />
           <Route path="/reservas" element={<MinhasReservasPage />} />
           <Route path="/reservas/nova" element={<CreateReservationPage />} />
+          <Route path="/calendar" element={<CalendarPage />} />
         </Route>
 
         {/* Rotas Exclusivas do Professor */}
@@ -101,12 +97,7 @@ const AppRoutes = () => {
 
         {/* 🔒 Rotas Exclusivas do Administrador (Coordenador) */}
         <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
-          {/* A tela da nossa Task F2-FE-01 */}
           <Route path="/gestao-cadastros" element={<PendingUsersPage />} />
-          <Route path="/gestao-laboratorios" element={<ManageLaboratoriesPage />} />
-          <Route path="/gestao-horarios" element={<TimeSlotsPage />} />
-          <Route path="/gestao-ciclos" element={<AcademicCyclesPage />} />
-          <Route path="/gestao-feriados" element={<HolidaysPage />} />
           <Route path="/gestao-reservas" element={<PendingReservationsPage />} />
         </Route>
 
@@ -114,6 +105,10 @@ const AppRoutes = () => {
         <Route element={<RoleRoute allowedRoles={['SUPPORT']} />}>
           {/* Futura tela de gestão de equipamentos */}
           <Route path="/gestao-usuarios" element={<SupportManagementPage />} />
+          <Route path="/gestao-laboratorios" element={<ManageLaboratoriesPage />} />
+          <Route path="/gestao-horarios" element={<TimeSlotsPage />} />
+          <Route path="/gestao-ciclos" element={<AcademicCyclesPage />} />
+          <Route path="/gestao-feriados" element={<HolidaysPage />} />
           {/* <Route path="/equipamentos" element={<EquipamentosPage />} /> */}
         </Route>
 

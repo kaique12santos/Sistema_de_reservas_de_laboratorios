@@ -8,10 +8,8 @@ const router = express.Router();
 router.get('/', authMiddleware, AcademicCycleController.index);
 router.get('/active', authMiddleware, AcademicCycleController.active);
 
-// APENAS ADMIN
-// Rota mágica que faz o trabalho de 2 CRUDs inteiros:
-router.post('/generate', authMiddleware, requireRole(['ADMIN']), AcademicCycleController.generate);
-// Rota para mudar de semestre
-router.put('/:id/activate', authMiddleware, requireRole(['ADMIN']), AcademicCycleController.activate);
+// APENAS SUPPORTER PODE GERAR NOVOS CICLOS E ATIVAR UM CICLO
+router.post('/generate', authMiddleware, requireRole(['SUPPORT']), AcademicCycleController.generate);
+router.put('/:id/activate', authMiddleware, requireRole(['SUPPORT']), AcademicCycleController.activate);
 
 export default router;

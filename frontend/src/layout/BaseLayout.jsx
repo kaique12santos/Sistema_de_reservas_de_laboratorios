@@ -53,7 +53,6 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import { useAuth } from "../context/AuthContext";
 import { useAppTheme } from "../context/ThemeContext";
 
-// Imagens (Ajuste os caminhos)
 import IconProfessor from "../public/images/icon_professor.png";
 import IconCoordenador from "../public/images/icon_coordenador.png";
 import IconSuporte from "../public/images/icon_suporte.png";
@@ -74,7 +73,7 @@ const BaseLayout = () => {
   const handleCloseLogout = () => setLogoutModalOpen(false);
   const handleConfirmLogout = () => {
     setLogoutModalOpen(false);
-    logout(); // Chama a sua função de contexto
+    logout(); 
     navigate("/login");
   };
   // ESTADOS DE NAVEGAÇÃO
@@ -125,7 +124,7 @@ const BaseLayout = () => {
       text: "Gestão de Labs",
       icon: <EditIcon />,
       path: "/gestao-laboratorios",
-      roles: ["ADMIN"],
+      roles: ["SUPPORT"],
     },
     {
       text: "Minhas reservas",
@@ -161,19 +160,19 @@ const BaseLayout = () => {
       text: "Gestão de horários",
       icon: <AccessTimeIcon />,
       path: "/gestao-horarios",
-      roles: ["ADMIN"],
+      roles: ["SUPPORT"],
     },
     {
       text: "Gestão de ciclos",
       icon: <CalendarMonthIcon />,
       path: "/gestao-ciclos",
-      roles: ["ADMIN"],
+      roles: ["SUPPORT"],
     },
     {
       text: "Gestão de feriados",
       icon: <BeachAccessIcon />,
       path: "/gestao-feriados",
-      roles: ["ADMIN"],
+      roles: ["SUPPORT"],
     },
     {
       text: "Reservar laboratório",

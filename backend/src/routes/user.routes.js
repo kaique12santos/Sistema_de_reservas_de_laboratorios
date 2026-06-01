@@ -8,7 +8,7 @@ const router = Router();
 
 
 router.get('/pending', authMiddleware, requireRole(['ADMIN']), UserController.getPending);
-router.patch('/:id/approve', authMiddleware, requireRole(['ADMIN']), validateRequest(UserApprovalDTO.approveSchema), UserController.approve);
+router.patch('/:id/approve', authMiddleware, requireRole(['ADMIN', 'SUPPORT']), validateRequest(UserApprovalDTO.approveSchema), UserController.approve);
 router.patch('/:id/reject', authMiddleware, requireRole(['ADMIN']), validateRequest(UserApprovalDTO.rejectSchema), UserController.reject);
 
 router.get('/', authMiddleware, requireRole(['SUPPORT']), UserController.getAll);

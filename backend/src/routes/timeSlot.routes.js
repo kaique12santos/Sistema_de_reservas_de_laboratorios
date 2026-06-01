@@ -8,8 +8,8 @@ const router = Router();
 
 router.get('/', authMiddleware, TimeSlotController.index);
 
-router.post('/', authMiddleware, requireRole(['ADMIN']), validateRequest(TimeSlotDTO.schema), TimeSlotController.create);
-router.put('/:id', authMiddleware, requireRole(['ADMIN']), validateRequest(TimeSlotDTO.schema), TimeSlotController.update);
-router.delete('/:id', authMiddleware, requireRole(['ADMIN']), TimeSlotController.destroy);
+router.post('/', authMiddleware, requireRole(['SUPPORT']), validateRequest(TimeSlotDTO.schema), TimeSlotController.create);
+router.put('/:id', authMiddleware, requireRole(['SUPPORT']), validateRequest(TimeSlotDTO.schema), TimeSlotController.update);
+router.delete('/:id', authMiddleware, requireRole(['SUPPORT']), TimeSlotController.destroy);
 
 export default router;

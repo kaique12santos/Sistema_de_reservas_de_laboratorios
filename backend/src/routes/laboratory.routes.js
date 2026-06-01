@@ -11,22 +11,22 @@ const router = Router();
 router.get('/', authMiddleware, LaboratoryController.index);
 router.get('/:id', authMiddleware, LaboratoryController.show);
 
-// --- ROTAS DE ESCRITA (Somente ADMIN) ---
+// --- ROTAS DE ESCRITA (Somente SUPPORT) ---
 
 // Criar Laboratório
 router.post(
   '/', 
-  authMiddleware,               // 1. Está logado?
-  requireRole(['ADMIN']),       // 2. É Admin?
-  validateRequest(LaboratoryDTO.schema), // 3. Dados são válidos?
-  LaboratoryController.create   // 4. Salva!
+  authMiddleware,               
+  requireRole(['SUPPORT']),      
+  validateRequest(LaboratoryDTO.schema), 
+  LaboratoryController.create   
 );
 
 // Atualizar Laboratório
 router.put(
   '/:id', 
   authMiddleware, 
-  requireRole(['ADMIN']), 
+  requireRole(['SUPPORT']), 
   validateRequest(LaboratoryDTO.schema), 
   LaboratoryController.update
 );
@@ -35,7 +35,7 @@ router.put(
 router.patch(
   '/:id/toggle-status', 
   authMiddleware, 
-  requireRole(['ADMIN']), 
+  requireRole(['SUPPORT']), 
   LaboratoryController.toggleStatus
 );
 

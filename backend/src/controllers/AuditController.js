@@ -20,6 +20,15 @@ class AuditController {
       return res.status(500).json({ error: 'Erro ao buscar histórico do usuário.' });
     }
   }
+
+  async getAll(req, res) {
+    try {
+      const logs = await AuditRepository.findAll();
+      return res.status(200).json(logs);
+    } catch (error) {
+      return res.status(500).json({ error: 'Erro ao buscar logs de auditoria.' });
+    }
+  }
 }
 
 export default new AuditController();

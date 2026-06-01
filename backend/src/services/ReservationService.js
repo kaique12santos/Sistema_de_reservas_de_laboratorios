@@ -68,6 +68,19 @@ class ReservationService {
         throw new Error('Um ou mais horários selecionados não existem ou não estão ativos.');
       }
 
+      // Se a reserva é para HOJE, não pode escolher um horário que já passou.
+      const spNow = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Sao_Paulo"}));
+      const localTodayStr = `${spNow.getFullYear()}-${String(spNow.getMonth() + 1).padStart(2, '0')}-${String(spNow.getDate()).padStart(2, '0')}`;
+      const currentLocalTime = `${String(spNow.getHours()).padStart(2, '0')}:${String(spNow.getMinutes()).padStart(2, '0')}:00`;
+
+      if (reservationData.date === localTodayStr) {
+         for (const ts of timeSlots) {
+            if (ts.start_time <= currentLocalTime) {
+               throw new Error(`Não é possível reservar o horário das ${ts.start_time.slice(0,5)} pois ele já passou no dia de hoje.`);
+            }
+         }
+      }
+
       // 2. Conflict Handling
       const conflictResult = await ConflictService.checkConflict(
         reservationData.lab_id,
@@ -176,6 +189,9 @@ class ReservationService {
 
     } catch (error) {
       await connection.rollback();
+      if (error.code === 'ER_DUP_ENTRY') {
+         throw new Error('Conflito de concorrência: Um ou mais horários selecionados acabaram de ser ocupados por outra pessoa enquanto você preenchia o formulário.');
+      }
       throw error;
     } finally {
       connection.release();
@@ -247,6 +263,18 @@ class ReservationService {
         cycleStartStr,
         cycleEndStr
       );
+      // PROTEÇÃO: Bug da Viagem no Tempo - Se a reserva começa HOJE, não pode escolher um horário que já passou.
+      const spNow = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Sao_Paulo"}));
+      const localTodayStr = `${spNow.getFullYear()}-${String(spNow.getMonth() + 1).padStart(2, '0')}-${String(spNow.getDate()).padStart(2, '0')}`;
+      const currentLocalTime = `${String(spNow.getHours()).padStart(2, '0')}:${String(spNow.getMinutes()).padStart(2, '0')}:00`;
+
+      if (validDates.includes(localTodayStr)) {
+         for (const ts of timeSlots) {
+            if (ts.start_time <= currentLocalTime) {
+               throw new Error(`A sua reserva inicia hoje, mas o bloco das ${ts.start_time.slice(0,5)} já passou. Por favor, mude a Data de Início para amanhã.`);
+            }
+         }
+      }
 
       if (validDates.length === 0) {
         throw new Error('Não existem datas válidas para o período, dias e ciclo selecionados.');
@@ -363,6 +391,9 @@ class ReservationService {
       return reservation;
     } catch (error) {
       await connection.rollback();
+      if (error.code === 'ER_DUP_ENTRY') {
+         throw new Error('Conflito de concorrência: Um ou mais horários selecionados acabaram de ser ocupados por outra pessoa enquanto você preenchia o formulário.');
+      }
       throw error;
     } finally {
       connection.release();
@@ -466,7 +497,6 @@ class ReservationService {
           reservation.start_date = firstItem.date;
           reservation.end_date = lastItem.date;
           
-          // 🚀 NOVO: Extrai TODOS os dias da semana únicos
           const uniqueDaysIndices = new Set();
           
           items.forEach(item => {
@@ -480,7 +510,6 @@ class ReservationService {
             
           const diasSemana = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
           
-          // Converte o Set para Array, ordena (0=Dom, 1=Seg...) e mapeia para os nomes
           reservation.day_of_week = Array.from(uniqueDaysIndices)
             .sort((a, b) => a - b)
             .map(index => diasSemana[index])
@@ -622,7 +651,7 @@ class ReservationService {
         connection
       );
 
-      await ReservationRepository.updateStatus(reservationId, 'APPROVED', {approved_by: adminId, reason: reason}, connection);
+      await ReservationRepository.updateStatus(reservationId, 'APPROVED', {approved_by: adminId, reason: reason, lab_id: newLabId}, connection);
 
       await connection.commit();
 
